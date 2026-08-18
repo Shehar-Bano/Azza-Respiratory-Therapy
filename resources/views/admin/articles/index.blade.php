@@ -9,6 +9,59 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .toolbar-form {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 0.4rem 0.75rem;
+        width: 280px;
+    }
+
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #ffffff;
+        font-size: 0.875rem;
+        width: 100%;
+    }
+
+    .search-box input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .search-box svg {
+        color: var(--text-muted);
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .sort-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: color 0.2s ease;
+    }
+
+    .sort-link:hover, .sort-link.active {
+        color: #ffffff;
     }
 
     .article-title {
@@ -43,6 +96,7 @@
         background: rgba(255, 255, 255, 0.08);
     }
 
+    /* Action & Add Button Structure (Same pill layout for Edit, Delete, Add) */
     .action-btns {
         display: flex;
         align-items: center;
@@ -50,17 +104,39 @@
     }
 
     .btn-action {
-        padding: 0.35rem 0.65rem;
-        border-radius: 6px;
-        font-size: 0.775rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
         font-weight: 600;
         border: none;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
+        gap: 0.35rem;
         transition: all 0.2s ease;
         text-decoration: none;
+    }
+
+    .btn-search {
+        background: rgba(156, 163, 175, 0.15);
+        color: #e5e7eb;
+        border: 1px solid var(--card-border);
+    }
+
+    .btn-search:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+
+    .btn-add {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-add:hover {
+        background: rgba(99, 102, 241, 0.3);
+        color: #ffffff;
     }
 
     .btn-edit {
@@ -195,6 +271,14 @@
         background: rgba(255, 255, 255, 0.12);
         color: #ffffff;
     }
+
+    .pagination-wrapper {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 </style>
 @endsection
 
@@ -204,12 +288,40 @@
         <h1 class="page-title">Article Management</h1>
         <p class="page-subtitle">Manage clinical articles, ABG guides, image assets, and documentation manuals.</p>
     </div>
-    <button class="btn-primary" onclick="openCreateModal()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-        </svg>
-        <span>Add New Article</span>
-    </button>
+
+    <!-- Toolbar: Global Search Form + Add Article Button side-by-side -->
+    <form action="{{ route('admin.articles.index') }}" method="GET" class="toolbar-form">
+        @if(request('sort_by'))
+            <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+        @endif
+        @if(request('sort_order'))
+            <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
+        @endif
+
+        <div class="search-box">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" name="search" value="{{ $search }}" placeholder="Search title or description...">
+        </div>
+
+        <button type="submit" class="btn-action btn-search">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Search
+        </button>
+
+        @if($search)
+            <a href="{{ route('admin.articles.index') }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none;">Clear</a>
+        @endif
+
+        <!-- Add Article button matching same structure as Edit/Delete action buttons -->
+        <button type="button" class="btn-action btn-add" onclick="openCreateModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Article
+        </button>
+    </form>
 </div>
 
 <div class="content-card">
@@ -217,11 +329,38 @@
         <table class="compact-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Title & Description</th>
+                    @php
+                        function articleSortUrl($field, $currentSortBy, $currentSortOrder) {
+                            $order = ($currentSortBy === $field && $currentSortOrder === 'asc') ? 'desc' : 'asc';
+                            return route('admin.articles.index', array_merge(request()->query(), ['sort_by' => $field, 'sort_order' => $order]));
+                        }
+                    @endphp
+                    <th>
+                        <a href="{{ articleSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
+                            ID
+                            @if($sortBy === 'id')
+                                <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ articleSortUrl('title', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'title' ? 'active' : '' }}">
+                            Title & Description
+                            @if($sortBy === 'title')
+                                <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th>Image</th>
                     <th>Document</th>
-                    <th>Created At</th>
+                    <th>
+                        <a href="{{ articleSortUrl('created_at', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'created_at' ? 'active' : '' }}">
+                            Created At
+                            @if($sortBy === 'created_at')
+                                <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -256,7 +395,7 @@
                         <td>{{ $article->created_at ? $article->created_at->format('M d, Y') : 'N/A' }}</td>
                         <td>
                             <div class="action-btns">
-                                <button class="btn-action btn-edit" onclick="openEditModal({{ json_encode($article) }})">
+                                <button type="button" class="btn-action btn-edit" onclick="openEditModal({{ json_encode($article) }})">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     Edit
                                 </button>
@@ -274,12 +413,29 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No articles found. Click "Add New Article" to create one.</td>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                            @if($search)
+                                No articles found matching "{{ $search }}".
+                            @else
+                                No articles found. Click "Add Article" to create one.
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
+    @if($articles->hasPages())
+        <div class="pagination-wrapper">
+            <span style="color: var(--text-muted); font-size: 0.8rem;">
+                Showing {{ $articles->firstItem() }} to {{ $articles->lastItem() }} of {{ $articles->total() }} articles
+            </span>
+            <div>
+                {{ $articles->links() }}
+            </div>
+        </div>
+    @endif
 </div>
 
 <!-- Create Article Modal -->
@@ -309,7 +465,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
-                <button type="submit" class="btn-primary">Save Article</button>
+                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Article</button>
             </div>
         </form>
     </div>
@@ -345,7 +501,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-                <button type="submit" class="btn-primary">Update Article</button>
+                <button type="submit" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Article</button>
             </div>
         </form>
     </div>
