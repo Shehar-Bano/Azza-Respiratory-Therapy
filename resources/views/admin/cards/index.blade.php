@@ -528,7 +528,7 @@
     }
 
     function openEditModal(card) {
-        document.getElementById('editForm').action = '/admin/cards/' + card.id;
+        document.getElementById('editForm').action = "{{ url('admin/cards') }}/" + card.id;
         document.getElementById('editTitle').value = card.title;
         document.getElementById('editDescription').value = card.description;
         document.getElementById('currentImageName').innerText = card.image ? card.image : 'None';

@@ -528,7 +528,7 @@
     }
 
     function openEditModal(article) {
-        document.getElementById('editForm').action = '/admin/articles/' + article.id;
+        document.getElementById('editForm').action = "{{ url('admin/articles') }}/" + article.id;
         document.getElementById('editTitle').value = article.title;
         document.getElementById('editDescription').value = article.description;
         document.getElementById('currentImageName').innerText = article.image ? article.image : 'None';
