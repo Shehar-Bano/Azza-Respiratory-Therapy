@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Article Management')
+@section('title', 'Clinical Cards Management')
 
 @section('styles')
 <style>
@@ -93,13 +93,13 @@
         color: #ffffff;
     }
 
-    .article-title {
+    .card-title-text {
         font-weight: 700;
         color: #ffffff;
         font-size: 0.875rem;
     }
 
-    .article-desc {
+    .card-desc-text {
         color: var(--text-secondary);
         font-size: 0.8rem;
         max-width: 280px;
@@ -301,14 +301,14 @@
 @endsection
 
 @section('content')
-<!-- Single Inline Row Header (Page Title + Search Pill Box + Add Article Button) -->
+<!-- Single Inline Header Row -->
 <div class="page-header">
     <div>
-        <h1 class="page-title">Article Management</h1>
-        <p class="page-subtitle">Manage clinical articles, ABG guides, image assets, and documentation manuals.</p>
+        <h1 class="page-title">Clinical Cards Management</h1>
+        <p class="page-subtitle">Manage quick reference clinical cards and medical flashcard documentation.</p>
     </div>
 
-    <form action="{{ route('admin.articles.index') }}" method="GET" class="toolbar-inline">
+    <form action="{{ route('admin.cards.index') }}" method="GET" class="toolbar-inline">
         @if(request('sort_by'))
             <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
         @endif
@@ -325,14 +325,14 @@
         </div>
 
         @if($search)
-            <a href="{{ route('admin.articles.index') }}" class="clear-link">Clear</a>
+            <a href="{{ route('admin.cards.index') }}" class="clear-link">Clear</a>
         @endif
 
         <button type="button" class="btn-action btn-add" onclick="openCreateModal()">
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
             </svg>
-            Add Article
+            Add Card
         </button>
     </form>
 </div>
@@ -343,13 +343,13 @@
             <thead>
                 <tr>
                     @php
-                        function articleSortUrl($field, $currentSortBy, $currentSortOrder) {
+                        function cardSortUrl($field, $currentSortBy, $currentSortOrder) {
                             $order = ($currentSortBy === $field && $currentSortOrder === 'asc') ? 'desc' : 'asc';
-                            return route('admin.articles.index', array_merge(request()->query(), ['sort_by' => $field, 'sort_order' => $order]));
+                            return route('admin.cards.index', array_merge(request()->query(), ['sort_by' => $field, 'sort_order' => $order]));
                         }
                     @endphp
                     <th>
-                        <a href="{{ articleSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
+                        <a href="{{ cardSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
                             ID
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
@@ -357,7 +357,7 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ articleSortUrl('title', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'title' ? 'active' : '' }}">
+                        <a href="{{ cardSortUrl('title', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'title' ? 'active' : '' }}">
                             Title & Description
                             @if($sortBy === 'title')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
@@ -367,7 +367,7 @@
                     <th>Image</th>
                     <th>Document</th>
                     <th>
-                        <a href="{{ articleSortUrl('created_at', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'created_at' ? 'active' : '' }}">
+                        <a href="{{ cardSortUrl('created_at', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'created_at' ? 'active' : '' }}">
                             Created At
                             @if($sortBy === 'created_at')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
@@ -378,42 +378,42 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($articles as $article)
+                @forelse($cards as $card)
                     <tr>
-                        <td><strong style="color: #ffffff;">#{{ $article->id }}</strong></td>
+                        <td><strong style="color: #ffffff;">#{{ $card->id }}</strong></td>
                         <td>
-                            <div class="article-title">{{ $article->title }}</div>
-                            <div class="article-desc" title="{{ $article->description }}">{{ $article->description }}</div>
+                            <div class="card-title-text">{{ $card->title }}</div>
+                            <div class="card-desc-text" title="{{ $card->description }}">{{ $card->description }}</div>
                         </td>
                         <td>
-                            @if($article->image)
-                                <a href="{{ asset('uploads/articles/images/' . $article->image) }}" target="_blank" class="file-badge">
+                            @if($card->image)
+                                <a href="{{ asset('uploads/cards/images/' . $card->image) }}" target="_blank" class="file-badge">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    {{ Str::limit($article->image, 16) }}
+                                    {{ Str::limit($card->image, 16) }}
                                 </a>
                             @else
                                 <span style="color: var(--text-muted);">None</span>
                             @endif
                         </td>
                         <td>
-                            @if($article->document)
-                                <a href="{{ asset('uploads/articles/documents/' . $article->document) }}" target="_blank" class="file-badge">
+                            @if($card->document)
+                                <a href="{{ asset('uploads/cards/documents/' . $card->document) }}" target="_blank" class="file-badge">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    {{ Str::limit($article->document, 16) }}
+                                    {{ Str::limit($card->document, 16) }}
                                 </a>
                             @else
                                 <span style="color: var(--text-muted);">None</span>
                             @endif
                         </td>
-                        <td>{{ $article->created_at ? $article->created_at->format('M d, Y') : 'N/A' }}</td>
+                        <td>{{ $card->created_at ? $card->created_at->format('M d, Y') : 'N/A' }}</td>
                         <td>
                             <div class="action-btns">
-                                <button type="button" class="btn-action btn-edit" onclick="openEditModal({{ json_encode($article) }})">
+                                <button type="button" class="btn-action btn-edit" onclick="openEditModal({{ json_encode($card) }})">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     Edit
                                 </button>
                                 
-                                <form action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article?');" style="display:inline;">
+                                <form action="{{ route('admin.cards.destroy', $card->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this clinical card?');" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-action btn-delete">
@@ -428,9 +428,9 @@
                     <tr>
                         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
                             @if($search)
-                                No articles found matching "{{ $search }}".
+                                No clinical cards found matching "{{ $search }}".
                             @else
-                                No articles found. Click "Add Article" to create one.
+                                No clinical cards found. Click "Add Card" to create one.
                             @endif
                         </td>
                     </tr>
@@ -439,34 +439,34 @@
         </table>
     </div>
 
-    @if($articles->hasPages())
+    @if($cards->hasPages())
         <div class="pagination-wrapper">
             <span style="color: var(--text-muted); font-size: 0.8rem;">
-                Showing {{ $articles->firstItem() }} to {{ $articles->lastItem() }} of {{ $articles->total() }} articles
+                Showing {{ $cards->firstItem() }} to {{ $cards->lastItem() }} of {{ $cards->total() }} cards
             </span>
             <div>
-                {{ $articles->links() }}
+                {{ $cards->links() }}
             </div>
         </div>
     @endif
 </div>
 
-<!-- Create Article Modal -->
+<!-- Create Card Modal -->
 <div class="modal-backdrop" id="createModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h2>Add New Article</h2>
+            <h2>Add New Clinical Card</h2>
             <button class="btn-close" onclick="closeModal('createModal')">&times;</button>
         </div>
-        <form action="{{ route('admin.articles.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.cards.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
-                <label class="form-label">Article Title</label>
-                <input type="text" name="title" class="form-control" placeholder="e.g. Arterial Blood Gas (ABG) Analysis" required>
+                <label class="form-label">Card Title</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Airway Assessment & Mallampati Score" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea name="description" class="form-control" placeholder="Enter article content description..." required></textarea>
+                <textarea name="description" class="form-control" placeholder="Enter clinical card description..." required></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Image File (Optional)</label>
@@ -478,24 +478,24 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Article</button>
+                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Card</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Edit Article Modal -->
+<!-- Edit Card Modal -->
 <div class="modal-backdrop" id="editModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h2>Edit Article</h2>
+            <h2>Edit Clinical Card</h2>
             <button class="btn-close" onclick="closeModal('editModal')">&times;</button>
         </div>
         <form id="editForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="form-group">
-                <label class="form-label">Article Title</label>
+                <label class="form-label">Card Title</label>
                 <input type="text" name="title" id="editTitle" class="form-control" required>
             </div>
             <div class="form-group">
@@ -514,7 +514,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Article</button>
+                <button type="submit" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Card</button>
             </div>
         </form>
     </div>
@@ -527,12 +527,12 @@
         document.getElementById('createModal').classList.add('show');
     }
 
-    function openEditModal(article) {
-        document.getElementById('editForm').action = '/admin/articles/' + article.id;
-        document.getElementById('editTitle').value = article.title;
-        document.getElementById('editDescription').value = article.description;
-        document.getElementById('currentImageName').innerText = article.image ? article.image : 'None';
-        document.getElementById('currentDocumentName').innerText = article.document ? article.document : 'None';
+    function openEditModal(card) {
+        document.getElementById('editForm').action = '/admin/cards/' + card.id;
+        document.getElementById('editTitle').value = card.title;
+        document.getElementById('editDescription').value = card.description;
+        document.getElementById('currentImageName').innerText = card.image ? card.image : 'None';
+        document.getElementById('currentDocumentName').innerText = card.document ? card.document : 'None';
         document.getElementById('editModal').classList.add('show');
     }
 

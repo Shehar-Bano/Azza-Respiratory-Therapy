@@ -46,6 +46,14 @@
                 </svg>
                 <span>Article Management</span>
             </a>
+
+            <!-- Clinical Cards Link -->
+            <a href="{{ route('admin.cards.index') }}" class="nav-item {{ request()->routeIs('admin.cards.*') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h3a1 1 0 011 1v6a1 1 0 01-1 1h-3a1 1 0 01-1-1v-6z" />
+                </svg>
+                <span>Clinical Cards</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
