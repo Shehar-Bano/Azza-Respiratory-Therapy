@@ -493,7 +493,10 @@
                         </td>
                         <td>
                             @if($card->image)
-                                <a href="{{ asset('uploads/cards/images/' . $card->image) }}" target="_blank" class="file-btn btn-view" title="View Image">
+                                @php
+                                    $imgPath = str_starts_with($card->image, 'uploads/') ? $card->image : 'uploads/cards/images/' . $card->image;
+                                @endphp
+                                <a href="{{ asset($imgPath) }}" target="_blank" class="file-btn btn-view" title="View Image">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                     Image
                                 </a>
@@ -503,12 +506,15 @@
                         </td>
                         <td>
                             @if($card->document)
+                                @php
+                                    $docPath = str_starts_with($card->document, 'uploads/') ? $card->document : 'uploads/cards/documents/' . $card->document;
+                                @endphp
                                 <div style="display: flex; gap: 0.35rem; align-items: center;">
-                                    <a href="{{ asset('uploads/cards/documents/' . $card->document) }}" target="_blank" class="file-btn btn-view" title="View PDF">
+                                    <a href="{{ asset($docPath) }}" target="_blank" class="file-btn btn-view" title="View PDF">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         View
                                     </a>
-                                    <a href="{{ asset('uploads/cards/documents/' . $card->document) }}" download class="file-btn btn-download" title="Download PDF">
+                                    <a href="{{ asset($docPath) }}" download class="file-btn btn-download" title="Download PDF">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                         Download
                                     </a>
@@ -710,15 +716,17 @@
         document.getElementById('viewDescription').innerText = card.description;
 
         if (card.image) {
-            document.getElementById('viewImage').src = "{{ asset('uploads/cards/images') }}/" + card.image;
+            var imgPath = card.image.startsWith('uploads/') ? card.image : 'uploads/cards/images/' + card.image;
+            document.getElementById('viewImage').src = "{{ asset('') }}" + imgPath;
             document.getElementById('viewImageWrapper').style.display = 'block';
         } else {
             document.getElementById('viewImageWrapper').style.display = 'none';
         }
 
         if (card.document) {
-            var docUrl = "{{ asset('uploads/cards/documents') }}/" + card.document;
-            document.getElementById('viewDocName').innerText = card.document;
+            var docPath = card.document.startsWith('uploads/') ? card.document : 'uploads/cards/documents/' + card.document;
+            var docUrl = "{{ asset('') }}" + docPath;
+            document.getElementById('viewDocName').innerText = card.document.split('/').pop();
             document.getElementById('viewDocLink').href = docUrl;
             document.getElementById('viewDownloadDocLink').href = docUrl;
             document.getElementById('viewDocWrapper').style.display = 'block';
@@ -733,8 +741,8 @@
         document.getElementById('editForm').action = "{{ url('admin/cards') }}/" + card.id;
         document.getElementById('editTitle').value = card.title;
         document.getElementById('editDescription').value = card.description;
-        document.getElementById('currentImageName').innerText = card.image ? card.image : 'None';
-        document.getElementById('currentDocumentName').innerText = card.document ? card.document : 'None';
+        document.getElementById('currentImageName').innerText = card.image ? card.image.split('/').pop() : 'None';
+        document.getElementById('currentDocumentName').innerText = card.document ? card.document.split('/').pop() : 'None';
         document.getElementById('editModal').classList.add('show');
     }
 

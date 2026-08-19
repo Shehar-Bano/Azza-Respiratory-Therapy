@@ -16,8 +16,8 @@ class ClinicalCardSeeder extends Seeder
             ['title' => 'Airway Assessment & Mallampati Score'],
             [
                 'description' => 'Quick reference for difficult airway assessment and intubation protocols.',
-                'image' => 'airway_card_thumb.png',
-                'document' => 'airway_assessment.pdf',
+                'image' => 'uploads/cards/images/airway_card_thumb.png',
+                'document' => 'uploads/cards/documents/airway_assessment.pdf',
             ]
         );
     }

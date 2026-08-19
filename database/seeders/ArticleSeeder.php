@@ -21,8 +21,8 @@ class ArticleSeeder extends Seeder
             [
                 'category_id' => $categoryId,
                 'description' => 'Comprehensive guide on pH, PaCO2, and HCO3 interpretation in acute respiratory failure.',
-                'image' => 'abg_article.png',
-                'document' => 'abg_clinical_manual.pdf',
+                'image' => 'uploads/articles/images/abg_article.png',
+                'document' => 'uploads/articles/documents/abg_clinical_manual.pdf',
             ]
         );
 
@@ -31,8 +31,8 @@ class ArticleSeeder extends Seeder
             [
                 'category_id' => $categoryId,
                 'description' => 'Step-by-step protocol for titration and lung recruitment strategies.',
-                'image' => 'peep_thumb.png',
-                'document' => 'peep_protocol.pdf',
+                'image' => 'uploads/articles/images/peep_thumb.png',
+                'document' => 'uploads/articles/documents/peep_protocol.pdf',
             ]
         );
     }

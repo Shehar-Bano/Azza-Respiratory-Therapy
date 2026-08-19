@@ -67,25 +67,27 @@ class ClinicalCardWebController extends Controller
             'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
         ]);
 
-        $imageName = null;
+        $imagePath = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $imageName = time() . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/images'), $imageName);
+            $imagePath = 'uploads/cards/images/' . $imageName;
         }
 
-        $documentName = null;
+        $documentPath = null;
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $documentName = time() . '_card_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/documents'), $documentName);
+            $documentPath = 'uploads/cards/documents/' . $documentName;
         }
 
         ClinicalCard::create([
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $imageName ?? 'airway_card_thumb.png',
-            'document' => $documentName ?? 'airway_assessment.pdf',
+            'image' => $imagePath ?? 'uploads/cards/images/airway_card_thumb.png',
+            'document' => $documentPath ?? 'uploads/cards/documents/airway_assessment.pdf',
         ]);
 
         return redirect()->route('admin.cards.index')->with('success', 'Clinical Card created successfully.');
@@ -109,23 +111,31 @@ class ClinicalCardWebController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            if ($card->image && File::exists(public_path('uploads/cards/images/' . $card->image))) {
-                File::delete(public_path('uploads/cards/images/' . $card->image));
+            if ($card->image) {
+                if (File::exists(public_path($card->image))) {
+                    File::delete(public_path($card->image));
+                } elseif (File::exists(public_path('uploads/cards/images/' . $card->image))) {
+                    File::delete(public_path('uploads/cards/images/' . $card->image));
+                }
             }
             $file = $request->file('image');
             $imageName = time() . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/images'), $imageName);
-            $data['image'] = $imageName;
+            $data['image'] = 'uploads/cards/images/' . $imageName;
         }
 
         if ($request->hasFile('document')) {
-            if ($card->document && File::exists(public_path('uploads/cards/documents/' . $card->document))) {
-                File::delete(public_path('uploads/cards/documents/' . $card->document));
+            if ($card->document) {
+                if (File::exists(public_path($card->document))) {
+                    File::delete(public_path($card->document));
+                } elseif (File::exists(public_path('uploads/cards/documents/' . $card->document))) {
+                    File::delete(public_path('uploads/cards/documents/' . $card->document));
+                }
             }
             $file = $request->file('document');
             $documentName = time() . '_card_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/documents'), $documentName);
-            $data['document'] = $documentName;
+            $data['document'] = 'uploads/cards/documents/' . $documentName;
         }
 
         $card->update($data);
@@ -138,12 +148,20 @@ class ClinicalCardWebController extends Controller
      */
     public function destroy(ClinicalCard $card): RedirectResponse
     {
-        if ($card->image && File::exists(public_path('uploads/cards/images/' . $card->image))) {
-            File::delete(public_path('uploads/cards/images/' . $card->image));
+        if ($card->image) {
+            if (File::exists(public_path($card->image))) {
+                File::delete(public_path($card->image));
+            } elseif (File::exists(public_path('uploads/cards/images/' . $card->image))) {
+                File::delete(public_path('uploads/cards/images/' . $card->image));
+            }
         }
 
-        if ($card->document && File::exists(public_path('uploads/cards/documents/' . $card->document))) {
-            File::delete(public_path('uploads/cards/documents/' . $card->document));
+        if ($card->document) {
+            if (File::exists(public_path($card->document))) {
+                File::delete(public_path($card->document));
+            } elseif (File::exists(public_path('uploads/cards/documents/' . $card->document))) {
+                File::delete(public_path('uploads/cards/documents/' . $card->document));
+            }
         }
 
         $card->delete();

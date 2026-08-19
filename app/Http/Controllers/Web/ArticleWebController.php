@@ -71,26 +71,28 @@ class ArticleWebController extends Controller
             'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
         ]);
 
-        $imageName = null;
+        $imagePath = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $imageName = time() . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/images'), $imageName);
+            $imagePath = 'uploads/articles/images/' . $imageName;
         }
 
-        $documentName = null;
+        $documentPath = null;
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $documentName = time() . '_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/documents'), $documentName);
+            $documentPath = 'uploads/articles/documents/' . $documentName;
         }
 
         Article::create([
             'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $imageName ?? 'abg_article.png',
-            'document' => $documentName ?? 'abg_clinical_manual.pdf',
+            'image' => $imagePath ?? 'uploads/articles/images/abg_article.png',
+            'document' => $documentPath ?? 'uploads/articles/documents/abg_clinical_manual.pdf',
         ]);
 
         return redirect()->route('admin.articles.index')->with('success', 'Article created successfully.');
@@ -116,23 +118,31 @@ class ArticleWebController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            if ($article->image && File::exists(public_path('uploads/articles/images/' . $article->image))) {
-                File::delete(public_path('uploads/articles/images/' . $article->image));
+            if ($article->image) {
+                if (File::exists(public_path($article->image))) {
+                    File::delete(public_path($article->image));
+                } elseif (File::exists(public_path('uploads/articles/images/' . $article->image))) {
+                    File::delete(public_path('uploads/articles/images/' . $article->image));
+                }
             }
             $file = $request->file('image');
             $imageName = time() . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/images'), $imageName);
-            $data['image'] = $imageName;
+            $data['image'] = 'uploads/articles/images/' . $imageName;
         }
 
         if ($request->hasFile('document')) {
-            if ($article->document && File::exists(public_path('uploads/articles/documents/' . $article->document))) {
-                File::delete(public_path('uploads/articles/documents/' . $article->document));
+            if ($article->document) {
+                if (File::exists(public_path($article->document))) {
+                    File::delete(public_path($article->document));
+                } elseif (File::exists(public_path('uploads/articles/documents/' . $article->document))) {
+                    File::delete(public_path('uploads/articles/documents/' . $article->document));
+                }
             }
             $file = $request->file('document');
             $documentName = time() . '_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/documents'), $documentName);
-            $data['document'] = $documentName;
+            $data['document'] = 'uploads/articles/documents/' . $documentName;
         }
 
         $article->update($data);
@@ -145,12 +155,20 @@ class ArticleWebController extends Controller
      */
     public function destroy(Article $article): RedirectResponse
     {
-        if ($article->image && File::exists(public_path('uploads/articles/images/' . $article->image))) {
-            File::delete(public_path('uploads/articles/images/' . $article->image));
+        if ($article->image) {
+            if (File::exists(public_path($article->image))) {
+                File::delete(public_path($article->image));
+            } elseif (File::exists(public_path('uploads/articles/images/' . $article->image))) {
+                File::delete(public_path('uploads/articles/images/' . $article->image));
+            }
         }
 
-        if ($article->document && File::exists(public_path('uploads/articles/documents/' . $article->document))) {
-            File::delete(public_path('uploads/articles/documents/' . $article->document));
+        if ($article->document) {
+            if (File::exists(public_path($article->document))) {
+                File::delete(public_path($article->document));
+            } elseif (File::exists(public_path('uploads/articles/documents/' . $article->document))) {
+                File::delete(public_path('uploads/articles/documents/' . $article->document));
+            }
         }
 
         $article->delete();
