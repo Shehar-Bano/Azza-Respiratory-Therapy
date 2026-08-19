@@ -14,8 +14,8 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div class="brand-icon" style="background: transparent; box-shadow: none;">
+                <img src="{{ asset('logo/azza_respiratory_icon.png') }}" alt="AZZA Logo" style="width: 36px; height: 36px; object-fit: contain;">
             </div>
             <span class="brand-title">AZZA Admin</span>
         </div>
