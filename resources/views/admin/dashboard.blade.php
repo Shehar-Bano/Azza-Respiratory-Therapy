@@ -62,27 +62,6 @@
         </div>
         <div class="stat-value">{{ $metrics['adminUsers'] }}</div>
     </div>
-
-    <!-- Card 5: Daily Progress Widget (80% Completion Indicator) -->
-    <div class="stat-card">
-        <div class="stat-header">
-            <span class="stat-title">Daily Progress</span>
-            <div class="stat-icon icon-indigo">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                </svg>
-            </div>
-        </div>
-        <div class="progress-widget">
-            <div class="progress-header">
-                <span style="color: var(--text-secondary); font-size: 0.75rem;">Goal Completion</span>
-                <span style="color: #818cf8; font-size: 0.85rem; font-weight: 800;">80%</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" style="width: 80%;"></div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Compact Data Table (sm size: py-2.5 px-3 slim padding) -->

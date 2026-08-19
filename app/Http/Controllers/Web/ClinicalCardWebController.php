@@ -38,13 +38,20 @@ class ClinicalCardWebController extends Controller
             $query->latest();
         }
 
-        $cards = $query->paginate(10)->withQueryString();
+        // Dynamic Per Page
+        $perPage = (int) $request->input('per_page', 10);
+        if (!in_array($perPage, [10, 20, 30, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $cards = $query->paginate($perPage)->withQueryString();
 
         return view('admin.cards.index', [
             'cards' => $cards,
             'search' => $request->input('search', ''),
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
+            'perPage' => $perPage,
         ]);
     }
 

@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(ArticleSeeder::class);
         $this->call(ClinicalCardSeeder::class);
+        $this->call(CategorySeeder::class);
     }
 }

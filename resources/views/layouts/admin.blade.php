@@ -39,6 +39,14 @@
                 <span>User Management</span>
             </a>
 
+            <!-- Category Management Link -->
+            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <span>Category Management</span>
+            </a>
+
             <!-- Article Management Link -->
             <a href="{{ route('admin.articles.index') }}" class="nav-item {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +80,7 @@
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <header class="top-navbar">
-            <div class="page-header-title">@yield('title', 'Admin Dashboard')</div>
+            <div></div>
 
             <div class="user-profile">
                 <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}</div>
@@ -104,6 +112,34 @@
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmAction(options) {
+            Swal.fire({
+                title: options.title || 'Are you sure?',
+                text: options.text || '',
+                icon: options.icon || 'warning',
+                showCancelButton: true,
+                confirmButtonText: options.confirmText || 'Yes, proceed',
+                cancelButtonText: options.cancelText || 'Cancel',
+                customClass: {
+                    confirmButton: options.confirmClass || 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
+                },
+                buttonsStyling: false,
+                background: '#161e2e',
+                color: '#ffffff'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    if (options.formId) {
+                        document.getElementById(options.formId).submit();
+                    } else if (typeof options.onConfirm === 'function') {
+                        options.onConfirm();
+                    }
+                }
+            });
+        }
+    </script>
     @yield('scripts')
 </body>
 </html>

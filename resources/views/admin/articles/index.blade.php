@@ -102,33 +102,33 @@
     .article-desc {
         color: var(--text-secondary);
         font-size: 0.8rem;
-        max-width: 280px;
+        max-width: 240px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .file-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.5rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--card-border);
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
         border-radius: 6px;
         font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(99, 102, 241, 0.15);
         color: #a5b4fc;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .file-btn {
+        padding: 0.25rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
         text-decoration: none;
-    }
-
-    .file-badge:hover {
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .action-btns {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.25rem;
+        transition: all 0.2s ease;
     }
 
     .btn-action {
@@ -157,27 +157,90 @@
         color: #ffffff;
     }
 
-    .btn-edit {
-        background: rgba(59, 130, 246, 0.12);
-        color: #60a5fa;
-        border: 1px solid rgba(59, 130, 246, 0.25);
+    .btn-view {
+        background: rgba(16, 185, 129, 0.12);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.25);
     }
 
-    .btn-edit:hover {
-        background: rgba(59, 130, 246, 0.25);
+    .btn-view:hover {
+        background: rgba(16, 185, 129, 0.25);
         color: #ffffff;
     }
 
-    .btn-delete {
-        background: rgba(239, 68, 68, 0.12);
-        color: #fca5a5;
-        border: 1px solid rgba(239, 68, 68, 0.25);
+    .btn-download {
+        background: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
-    .btn-delete:hover {
-        background: rgba(239, 68, 68, 0.25);
+    .btn-download:hover {
+        background: rgba(168, 85, 247, 0.3);
         color: #ffffff;
     }
+
+    /* Action Dropdown with More Icon (⋮) */
+    .action-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .btn-more {
+        background: rgba(255, 255, 255, 0.05);
+        color: #cbd5e1;
+        border: 1px solid var(--card-border);
+        padding: 0.4rem 0.55rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-more:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border-color: var(--primary);
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: 110%;
+        background: #161e2e;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        min-width: 150px;
+        z-index: 100;
+        display: none;
+        padding: 0.35rem 0;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .dropdown-item.item-view:hover { color: #34d399; }
+    .dropdown-item.item-edit:hover { color: #60a5fa; }
+    .dropdown-item.item-delete:hover { color: #fca5a5; }
 
     /* Modal Backdrop & Card */
     .modal-backdrop {
@@ -201,7 +264,7 @@
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
-        max-width: 540px;
+        max-width: 580px;
         padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         max-height: 90vh;
@@ -290,18 +353,69 @@
         color: #ffffff;
     }
 
+    .detail-preview-container {
+        background: rgba(11, 15, 25, 0.7);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .preview-image {
+        width: 100%;
+        max-height: 240px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        border: 1px solid var(--card-border);
+    }
+
+    .per-page-select {
+        background: rgba(11, 15, 25, 0.7);
+        border: 1px solid var(--card-border);
+        color: #ffffff;
+        border-radius: 6px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.775rem;
+        outline: none;
+        cursor: pointer;
+    }
+
     .pagination-wrapper {
         padding: 1rem 1.25rem;
         border-top: 1px solid var(--card-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-wrapper .pagination {
+        display: flex;
+        gap: 0.35rem;
+        list-style: none;
+    }
+
+    .pagination-wrapper .page-item .page-link {
+        padding: 0.35rem 0.7rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 0.8rem;
+    }
+
+    .pagination-wrapper .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
     }
 </style>
 @endsection
 
 @section('content')
-<!-- Single Inline Row Header (Page Title + Search Pill Box + Add Article Button) -->
+<!-- Single Inline Header Row -->
 <div class="page-header">
     <div>
         <h1 class="page-title">Article Management</h1>
@@ -314,6 +428,9 @@
         @endif
         @if(request('sort_order'))
             <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
+        @endif
+        @if(request('per_page'))
+            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
         @endif
 
         <div class="search-box">
@@ -356,6 +473,7 @@
                             @endif
                         </a>
                     </th>
+                    <th>Category</th>
                     <th>
                         <a href="{{ articleSortUrl('title', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'title' ? 'active' : '' }}">
                             Title & Description
@@ -382,14 +500,21 @@
                     <tr>
                         <td><strong style="color: #ffffff;">#{{ $article->id }}</strong></td>
                         <td>
+                            @if($article->category)
+                                <span class="category-badge">{{ $article->category->category_name }}</span>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 0.775rem;">Uncategorized</span>
+                            @endif
+                        </td>
+                        <td>
                             <div class="article-title">{{ $article->title }}</div>
                             <div class="article-desc" title="{{ $article->description }}">{{ $article->description }}</div>
                         </td>
                         <td>
                             @if($article->image)
-                                <a href="{{ asset('uploads/articles/images/' . $article->image) }}" target="_blank" class="file-badge">
+                                <a href="{{ asset('uploads/articles/images/' . $article->image) }}" target="_blank" class="file-btn btn-view" title="View Image">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    {{ Str::limit($article->image, 16) }}
+                                    Image
                                 </a>
                             @else
                                 <span style="color: var(--text-muted);">None</span>
@@ -397,36 +522,53 @@
                         </td>
                         <td>
                             @if($article->document)
-                                <a href="{{ asset('uploads/articles/documents/' . $article->document) }}" target="_blank" class="file-badge">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    {{ Str::limit($article->document, 16) }}
-                                </a>
+                                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                    <a href="{{ asset('uploads/articles/documents/' . $article->document) }}" target="_blank" class="file-btn btn-view" title="View PDF">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        View
+                                    </a>
+                                    <a href="{{ asset('uploads/articles/documents/' . $article->document) }}" download class="file-btn btn-download" title="Download PDF">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                        Download
+                                    </a>
+                                </div>
                             @else
                                 <span style="color: var(--text-muted);">None</span>
                             @endif
                         </td>
                         <td>{{ $article->created_at ? $article->created_at->format('M d, Y') : 'N/A' }}</td>
                         <td>
-                            <div class="action-btns">
-                                <button type="button" class="btn-action btn-edit" onclick="openEditModal({{ json_encode($article) }})">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                    Edit
+                            <!-- Action Dropdown with More Icon (⋮) -->
+                            <div class="action-dropdown">
+                                <button type="button" class="btn-more" onclick="toggleDropdown(event, 'drop-article-{{ $article->id }}')">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                    </svg>
                                 </button>
-                                
-                                <form action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article?');" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-action btn-delete">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        Delete
-                                    </button>
-                                </form>
+                                <div id="drop-article-{{ $article->id }}" class="dropdown-menu">
+                                    <a href="javascript:void(0)" onclick="openViewModal({{ json_encode($article) }})" class="dropdown-item item-view">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        View Details
+                                    </a>
+                                    <a href="javascript:void(0)" onclick="openEditModal({{ json_encode($article) }})" class="dropdown-item item-edit">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit Article
+                                    </a>
+                                    <form id="delete-article-{{ $article->id }}" action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" style="margin:0;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="dropdown-item item-delete" onclick="confirmAction({ title: 'Delete Article?', text: 'Are you sure you want to delete this article?', icon: 'warning', confirmText: 'Yes, Delete', confirmClass: 'swal2-confirm btn-danger', formId: 'delete-article-{{ $article->id }}' })" style="width:100%; border:none; background:transparent; cursor:pointer;">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            Delete Article
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
                             @if($search)
                                 No articles found matching "{{ $search }}".
                             @else
@@ -439,16 +581,72 @@
         </table>
     </div>
 
-    @if($articles->hasPages())
-        <div class="pagination-wrapper">
+    <div class="pagination-wrapper">
+        <div style="display: flex; align-items: center; gap: 1rem;">
             <span style="color: var(--text-muted); font-size: 0.8rem;">
-                Showing {{ $articles->firstItem() }} to {{ $articles->lastItem() }} of {{ $articles->total() }} articles
+                Showing {{ $articles->firstItem() ?? 0 }} to {{ $articles->lastItem() ?? 0 }} of {{ $articles->total() }} articles
             </span>
-            <div>
-                {{ $articles->links() }}
+
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="color: var(--text-muted); font-size: 0.775rem;">Per page:</span>
+                <select onchange="changePerPage(this.value)" class="per-page-select">
+                    @foreach([10, 20, 30, 50, 100] as $size)
+                        <option value="{{ $size }}" {{ $perPage == $size ? 'selected' : '' }}>{{ $size }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
-    @endif
+
+        <div>
+            {{ $articles->links() }}
+        </div>
+    </div>
+</div>
+
+<!-- View Article Detail Modal -->
+<div class="modal-backdrop" id="viewModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Article Details</h2>
+            <button class="btn-close" onclick="closeModal('viewModal')">&times;</button>
+        </div>
+        <div>
+            <div style="margin-bottom: 0.75rem;">
+                <span id="viewCategoryBadge" class="category-badge"></span>
+                <h3 id="viewTitle" style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-top: 0.4rem;"></h3>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label">Description</label>
+                <div id="viewDescription" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; background: rgba(11,15,25,0.7); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border);"></div>
+            </div>
+
+            <!-- Image Preview Section -->
+            <div id="viewImageWrapper" class="detail-preview-container" style="display: none;">
+                <label class="form-label">Image Preview</label>
+                <img id="viewImage" src="" class="preview-image" alt="Article Preview">
+            </div>
+
+            <!-- Document / PDF Actions -->
+            <div id="viewDocWrapper" class="detail-preview-container" style="display: none; margin-top: 0.75rem;">
+                <label class="form-label">Document Manual</label>
+                <div id="viewDocName" style="color: #a5b4fc; font-size: 0.825rem; font-weight: 600; word-break: break-all; margin-bottom: 0.75rem;"></div>
+                <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                    <a id="viewDocLink" href="#" target="_blank" class="btn-action btn-view">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        View PDF
+                    </a>
+                    <a id="viewDownloadDocLink" href="#" download class="btn-action btn-download">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
 </div>
 
 <!-- Create Article Modal -->
@@ -461,8 +659,17 @@
         <form action="{{ route('admin.articles.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category_id" class="form-control">
+                    <option value="">-- Select Category --</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="form-label">Article Title</label>
-                <input type="text" name="title" class="form-control" placeholder="e.g. Arterial Blood Gas (ABG) Analysis" required>
+                <input type="text" name="title" class="form-control" placeholder="e.g. PEEP Titration Protocol" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
@@ -494,6 +701,15 @@
         <form id="editForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category_id" id="editCategory" class="form-control">
+                    <option value="">-- Select Category --</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="form-group">
                 <label class="form-label">Article Title</label>
                 <input type="text" name="title" id="editTitle" class="form-control" required>
@@ -527,8 +743,34 @@
         document.getElementById('createModal').classList.add('show');
     }
 
+    function openViewModal(article) {
+        document.getElementById('viewTitle').innerText = article.title;
+        document.getElementById('viewDescription').innerText = article.description;
+        document.getElementById('viewCategoryBadge').innerText = article.category ? article.category.category_name : 'Uncategorized';
+
+        if (article.image) {
+            document.getElementById('viewImage').src = "{{ asset('uploads/articles/images') }}/" + article.image;
+            document.getElementById('viewImageWrapper').style.display = 'block';
+        } else {
+            document.getElementById('viewImageWrapper').style.display = 'none';
+        }
+
+        if (article.document) {
+            var docUrl = "{{ asset('uploads/articles/documents') }}/" + article.document;
+            document.getElementById('viewDocName').innerText = article.document;
+            document.getElementById('viewDocLink').href = docUrl;
+            document.getElementById('viewDownloadDocLink').href = docUrl;
+            document.getElementById('viewDocWrapper').style.display = 'block';
+        } else {
+            document.getElementById('viewDocWrapper').style.display = 'none';
+        }
+
+        document.getElementById('viewModal').classList.add('show');
+    }
+
     function openEditModal(article) {
         document.getElementById('editForm').action = "{{ url('admin/articles') }}/" + article.id;
+        document.getElementById('editCategory').value = article.category_id ? article.category_id : '';
         document.getElementById('editTitle').value = article.title;
         document.getElementById('editDescription').value = article.description;
         document.getElementById('currentImageName').innerText = article.image ? article.image : 'None';
@@ -539,5 +781,29 @@
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('show');
     }
+
+    function toggleDropdown(event, id) {
+        event.stopPropagation();
+        var menu = document.getElementById(id);
+        var allMenus = document.querySelectorAll('.dropdown-menu');
+        allMenus.forEach(function(m) {
+            if (m.id !== id) m.classList.remove('show');
+        });
+        menu.classList.toggle('show');
+    }
+
+    function changePerPage(value) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', '1');
+        window.location.href = url.href;
+    }
+
+    document.addEventListener('click', function() {
+        var allMenus = document.querySelectorAll('.dropdown-menu');
+        allMenus.forEach(function(m) {
+            m.classList.remove('show');
+        });
+    });
 </script>
 @endsection

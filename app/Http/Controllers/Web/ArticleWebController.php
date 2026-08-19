@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -16,7 +17,7 @@ class ArticleWebController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Article::query();
+        $query = Article::with('category');
 
         // Global Search
         if ($request->filled('search')) {
@@ -38,13 +39,22 @@ class ArticleWebController extends Controller
             $query->latest();
         }
 
-        $articles = $query->paginate(10)->withQueryString();
+        // Dynamic Per Page
+        $perPage = (int) $request->input('per_page', 10);
+        if (!in_array($perPage, [10, 20, 30, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $articles = $query->paginate($perPage)->withQueryString();
+        $categories = Category::all();
 
         return view('admin.articles.index', [
             'articles' => $articles,
+            'categories' => $categories,
             'search' => $request->input('search', ''),
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
+            'perPage' => $perPage,
         ]);
     }
 
@@ -54,6 +64,7 @@ class ArticleWebController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
@@ -75,6 +86,7 @@ class ArticleWebController extends Controller
         }
 
         Article::create([
+            'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
             'image' => $imageName ?? 'abg_article.png',
@@ -90,6 +102,7 @@ class ArticleWebController extends Controller
     public function update(Request $request, Article $article): RedirectResponse
     {
         $request->validate([
+            'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
@@ -97,6 +110,7 @@ class ArticleWebController extends Controller
         ]);
 
         $data = [
+            'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
         ];

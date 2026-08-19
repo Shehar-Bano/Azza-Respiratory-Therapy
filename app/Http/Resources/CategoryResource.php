@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ArticleResource extends JsonResource
+class CategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,16 +16,9 @@ class ArticleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'category_id' => $this->category_id ? (string) $this->category_id : null,
-            'image' => $this->image,
-            'document' => $this->document,
-            'description' => $this->description,
+            'category_name' => $this->category_name,
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
-            'category' => $this->whenLoaded('category', function () {
-                return new CategoryResource($this->category);
-            }, $this->category ? new CategoryResource($this->category) : null),
         ];
     }
 }

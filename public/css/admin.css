@@ -329,7 +329,8 @@ body {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 14px;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
 }
 
 .card-header {
@@ -346,6 +347,8 @@ body {
 .table-responsive {
     width: 100%;
     overflow-x: auto;
+    overflow-y: visible;
+    min-height: 220px;
 }
 
 table.compact-table {
@@ -396,6 +399,7 @@ table.compact-table tr:hover td {
 .badge-user { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; }
 .badge-active { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
 .badge-inactive { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+.badge-suspended { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
 
 footer {
     padding: 1.25rem;
@@ -404,4 +408,59 @@ footer {
     color: var(--text-muted);
     border-top: 1px solid var(--card-border);
     margin-top: auto;
+}
+
+/* SweetAlert2 Dark Theme Styling */
+.swal2-popup {
+    background: #161e2e !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 14px !important;
+    color: #ffffff !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+.swal2-title {
+    color: #ffffff !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+}
+
+.swal2-html-container {
+    color: #9ca3af !important;
+    font-size: 0.875rem !important;
+}
+
+.swal2-confirm {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.825rem !important;
+    padding: 0.55rem 1.25rem !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.swal2-confirm.btn-danger {
+    background: #ef4444 !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3) !important;
+}
+
+.swal2-confirm.btn-warning {
+    background: #f59e0b !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3) !important;
+}
+
+.swal2-cancel {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.825rem !important;
+    padding: 0.55rem 1.25rem !important;
+    margin-right: 0.5rem !important;
+    cursor: pointer !important;
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\ArticleWebController;
+use App\Http\Controllers\Web\CategoryWebController;
 use App\Http\Controllers\Web\ClinicalCardWebController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\UserWebController;
@@ -20,7 +21,14 @@ Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 Route::middleware(['admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/users', [UserWebController::class, 'index'])->name('admin.users.index');
+    Route::put('/admin/users/{user}/status', [UserWebController::class, 'updateStatus'])->name('admin.users.updateStatus');
     
+    // Category Management
+    Route::get('/admin/categories', [CategoryWebController::class, 'index'])->name('admin.categories.index');
+    Route::post('/admin/categories', [CategoryWebController::class, 'store'])->name('admin.categories.store');
+    Route::put('/admin/categories/{category}', [CategoryWebController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [CategoryWebController::class, 'destroy'])->name('admin.categories.destroy');
+
     // Article Management
     Route::get('/admin/articles', [ArticleWebController::class, 'index'])->name('admin.articles.index');
     Route::post('/admin/articles', [ArticleWebController::class, 'store'])->name('admin.articles.store');
