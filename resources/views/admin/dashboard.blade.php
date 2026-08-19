@@ -6,7 +6,7 @@
 <!-- Page Header -->
 <div style="margin-bottom: 1.5rem;">
     <h1 class="page-title">Dashboard Overview</h1>
-    <p class="page-subtitle">Real-time system stats, daily completion metrics, and registered users.</p>
+    <p class="page-subtitle">Real-time system stats, active/suspended metrics, and registered users.</p>
 </div>
 
 <!-- Compact Metric Cards Grid (p-4, #161e2e background, #1f2937 border) -->
@@ -37,30 +37,17 @@
         <div class="stat-value">{{ $metrics['activeUsers'] }}</div>
     </div>
 
-    <!-- Card 3: Inactive Users -->
+    <!-- Card 3: Suspended Users -->
     <div class="stat-card">
         <div class="stat-header">
-            <span class="stat-title">Inactive Users</span>
+            <span class="stat-title">Suspended Users</span>
             <div class="stat-icon icon-amber">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
         </div>
-        <div class="stat-value">{{ $metrics['inactiveUsers'] }}</div>
-    </div>
-
-    <!-- Card 4: Admin Users -->
-    <div class="stat-card">
-        <div class="stat-header">
-            <span class="stat-title">Admin Users</span>
-            <div class="stat-icon icon-purple">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-            </div>
-        </div>
-        <div class="stat-value">{{ $metrics['adminUsers'] }}</div>
+        <div class="stat-value">{{ $metrics['suspendedUsers'] }}</div>
     </div>
 </div>
 
@@ -100,7 +87,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge {{ $user->status === 'active' ? 'badge-active' : 'badge-inactive' }}">
+                            <span class="badge {{ $user->status === 'active' ? 'badge-active' : ($user->status === 'suspended' ? 'badge-suspended' : 'badge-inactive') }}">
                                 {{ $user->status }}
                             </span>
                         </td>

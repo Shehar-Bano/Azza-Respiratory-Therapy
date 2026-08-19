@@ -17,8 +17,7 @@ class DashboardController extends Controller
         $metrics = [
             'totalUsers' => User::count(),
             'activeUsers' => User::where('status', 'active')->count(),
-            'inactiveUsers' => User::where('status', 'inactive')->count(),
-            'adminUsers' => User::where('role', 'admin')->count(),
+            'suspendedUsers' => User::where('status', 'suspended')->count(),
             'recentUsers' => User::latest()->take(5)->get(),
         ];
 
