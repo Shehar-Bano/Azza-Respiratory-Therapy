@@ -43,6 +43,24 @@ class SubscriptionFeatureSeeder extends Seeder
                 'title' => '30 Days Validity',
                 'description' => 'Grants 30 days subscription access validity.',
             ],
+            [
+                'id' => 6,
+                'slug' => 'formula_1st_free',
+                'title' => '1st Formula Free',
+                'description' => 'Free access to the 1st Clinical Calculator formula.',
+            ],
+            [
+                'id' => 7,
+                'slug' => 'article_1st_free',
+                'title' => '1st Article Free',
+                'description' => 'Free access to the 1st Respiratory Therapy article.',
+            ],
+            [
+                'id' => 8,
+                'slug' => 'card_1st_free',
+                'title' => '1st Card Free',
+                'description' => 'Free access to the 1st Clinical Card.',
+            ],
         ];
 
         foreach ($features as $featureData) {

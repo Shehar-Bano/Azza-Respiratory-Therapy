@@ -18,11 +18,11 @@ class SubscriptionPlanResource extends JsonResource
         $featureIds = is_array($this->feature_ids) ? array_map('intval', $this->feature_ids) : [];
 
         $featureObjects = collect();
-        if (!empty($featureIds)) {
+        if (! empty($featureIds)) {
             $featureObjects = SubscriptionFeature::whereIn('id', $featureIds)->get();
         }
 
-        $featureTitles = $featureObjects->count() > 0 ? $featureObjects->pluck('title')->toArray() : ($this->features ?? []);
+        $featureTitles = $featureObjects->pluck('title')->toArray();
 
         return [
             'id' => $this->id,
@@ -36,9 +36,7 @@ class SubscriptionPlanResource extends JsonResource
             'currency_sar' => $this->currency_sar,
             'duration_days' => $this->duration_days,
             'access' => $this->access,
-            'feature_ids' => $featureIds,
             'features' => $featureTitles,
-            'feature_details' => SubscriptionFeatureResource::collection($featureObjects),
         ];
     }
 }

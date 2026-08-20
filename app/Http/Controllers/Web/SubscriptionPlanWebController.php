@@ -50,23 +50,9 @@ class SubscriptionPlanWebController extends Controller
             'access' => 'nullable|string',
             'feature_ids' => 'nullable|array',
             'feature_ids.*' => 'integer|exists:subscription_features,id',
-            'features' => 'nullable|string',
         ]);
 
         $featureIds = array_map('intval', $request->input('feature_ids', []));
-
-        $featuresArray = [];
-        if (!empty($featureIds)) {
-            $featuresArray = SubscriptionFeature::whereIn('id', $featureIds)->pluck('title')->toArray();
-        } elseif ($request->filled('features')) {
-            $rawFeatures = explode("\n", $request->input('features'));
-            foreach ($rawFeatures as $f) {
-                $trimmed = trim($f);
-                if (!empty($trimmed)) {
-                    $featuresArray[] = $trimmed;
-                }
-            }
-        }
 
         $plan->update([
             'title' => $request->title,
@@ -76,7 +62,6 @@ class SubscriptionPlanWebController extends Controller
             'duration_days' => $request->duration_days,
             'access' => $request->access,
             'feature_ids' => $featureIds,
-            'features' => $featuresArray,
         ]);
 
         return redirect()->route('admin.plans.index')->with('success', 'Subscription plan updated successfully.');

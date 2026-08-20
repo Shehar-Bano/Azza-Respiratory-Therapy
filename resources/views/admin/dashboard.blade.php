@@ -209,14 +209,12 @@
                     </div>
 
                     <ul class="feature-list">
-                        @if(is_array($plan->features))
-                            @foreach($plan->features as $feature)
-                                <li class="feature-item">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                    <span>{{ $feature }}</span>
-                                </li>
-                            @endforeach
-                        @endif
+                        @foreach($plan->feature_objects as $featObj)
+                            <li class="feature-item">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span>{{ $featObj->title }}</span>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>

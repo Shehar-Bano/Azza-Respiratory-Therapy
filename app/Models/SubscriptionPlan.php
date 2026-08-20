@@ -22,7 +22,6 @@ class SubscriptionPlan extends Model
         'currency_sar',
         'duration_days',
         'access',
-        'features',
         'feature_ids',
     ];
 
@@ -32,7 +31,6 @@ class SubscriptionPlan extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'features' => 'array',
         'feature_ids' => 'array',
         'duration_days' => 'integer',
     ];

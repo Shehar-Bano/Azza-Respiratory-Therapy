@@ -24,12 +24,7 @@ class SubscriptionPlanSeeder extends Seeder
                 'currency_sar' => 'SAR',
                 'duration_days' => 0,
                 'access' => 'to 1st formula, 1st article, and 1st card only',
-                'features' => [
-                    '1st Formula Free',
-                    '1st Article Free',
-                    '1st Card Free',
-                ],
-                'feature_ids' => [],
+                'feature_ids' => [6, 7, 8],
             ]
         );
 
@@ -45,12 +40,6 @@ class SubscriptionPlanSeeder extends Seeder
                 'currency_sar' => 'SAR',
                 'duration_days' => 30,
                 'access' => 'to Calculator, Articles and Cards Only',
-                'features' => [
-                    'Clinical Calculator Unlocked',
-                    'Full Articles Access',
-                    'Flashcards Access',
-                    '30 Days Validity',
-                ],
                 'feature_ids' => [1, 2, 3, 5],
             ]
         );
@@ -67,13 +56,6 @@ class SubscriptionPlanSeeder extends Seeder
                 'currency_sar' => 'SAR',
                 'duration_days' => 30,
                 'access' => 'to all RT classes and complete content',
-                'features' => [
-                    'All RT Classes & Subcategories',
-                    'Clinical Calculator Unlocked',
-                    'Full Articles Access',
-                    'Flashcards Access',
-                    '30 Days Validity',
-                ],
                 'feature_ids' => [1, 2, 3, 4, 5],
             ]
         );
