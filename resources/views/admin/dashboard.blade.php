@@ -2,15 +2,125 @@
 
 @section('title', 'Dashboard Overview')
 
+@section('styles')
+<style>
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .plan-card {
+        background: #161e2e;
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .plan-card.featured {
+        border: 1px solid rgba(168, 85, 247, 0.5);
+        background: linear-gradient(135deg, rgba(22, 30, 46, 0.95), rgba(88, 28, 135, 0.15));
+    }
+
+    .plan-badge-id {
+        display: inline-block;
+        padding: 0.2rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.725rem;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.15);
+        color: #a5b4fc;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .plan-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-top: 0.35rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .price-box {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+        flex-wrap: wrap;
+    }
+
+    .price-amount-usd {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #34d399;
+    }
+
+    .price-amount-sar {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #c084fc;
+        background: rgba(168, 85, 247, 0.12);
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        border: 1px solid rgba(168, 85, 247, 0.25);
+    }
+
+    .plan-access {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        line-height: 1.4;
+        margin-bottom: 0.85rem;
+        background: rgba(11, 15, 25, 0.5);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+        margin-bottom: 0.4rem;
+    }
+
+    .feature-item svg {
+        color: #34d399;
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+    }
+</style>
+@endsection
+
 @section('content')
 <!-- Page Header -->
 <div style="margin-bottom: 1.5rem;">
     <h1 class="page-title">Dashboard Overview</h1>
-    <p class="page-subtitle">Real-time system stats, active/suspended metrics, and registered users.</p>
+    <p class="page-subtitle">Real-time system stats, subscription plans, active/suspended metrics, and registered users.</p>
 </div>
 
-<!-- Compact Metric Cards Grid (p-4, #161e2e background, #1f2937 border) -->
-<div class="stats-grid">
+<!-- Compact Metric Cards Grid -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
     <!-- Card 1: Total Users -->
     <div class="stat-card">
         <div class="stat-header">
@@ -49,9 +159,76 @@
         </div>
         <div class="stat-value">{{ $metrics['suspendedUsers'] }}</div>
     </div>
+
+    <!-- Card 4: Active Subscription Plans -->
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Subscription Plans</span>
+            <div class="stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <div class="stat-value">{{ $metrics['totalPlans'] }}</div>
+    </div>
 </div>
 
-<!-- Compact Data Table (sm size: py-2.5 px-3 slim padding) -->
+<!-- Subscription Plans Grid Section -->
+<div style="margin-bottom: 1.75rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div>
+            <h2 class="card-title" style="font-size: 1.1rem; font-weight: 800; color: #ffffff;">Subscription Plans Overview</h2>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.15rem;">Configured pricing plans with USD & SAR currencies.</p>
+        </div>
+        <a href="{{ route('admin.plans.index') }}" style="font-size: 0.8rem; font-weight: 600; color: #818cf8; text-decoration: none;">Manage Plans &rarr;</a>
+    </div>
+
+    <div class="plans-grid">
+        @forelse($subscriptionPlans as $plan)
+            <div class="plan-card {{ $plan->plan_id === '2' ? 'featured' : '' }}">
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="plan-badge-id">Plan ID: {{ $plan->plan_id }}</span>
+                        @if($plan->duration_days > 0)
+                            <span style="color: #818cf8; font-size: 0.75rem; font-weight: 600;">{{ $plan->duration_days }} Days</span>
+                        @else
+                            <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">Lifetime Free</span>
+                        @endif
+                    </div>
+
+                    <h3 class="plan-title">{{ $plan->title }}</h3>
+
+                    <div class="price-box">
+                        <span class="price-amount-usd">${{ $plan->price_usd ?? $plan->price }}/MO</span>
+                        <span class="price-amount-sar">{{ $plan->price_sar }} SAR</span>
+                    </div>
+
+                    <div class="plan-access">
+                        <strong style="color: #ffffff;">Access:</strong> {{ $plan->access }}
+                    </div>
+
+                    <ul class="feature-list">
+                        @if(is_array($plan->features))
+                            @foreach($plan->features as $feature)
+                                <li class="feature-item">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span>{{ $feature }}</span>
+                                </li>
+                            @endforeach
+                        @endif
+                    </ul>
+                </div>
+            </div>
+        @empty
+            <div style="grid-column: 1 / -1; color: var(--text-muted); padding: 1.5rem; text-align: center; background: #161e2e; border-radius: 10px;">
+                No subscription plans configured.
+            </div>
+        @endforelse
+    </div>
+</div>
+
+<!-- Compact Registered Users Table -->
 <div class="content-card">
     <div class="card-header">
         <h2 class="card-title">Registered Users Summary</h2>

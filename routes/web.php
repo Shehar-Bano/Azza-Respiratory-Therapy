@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\ArticleWebController;
 use App\Http\Controllers\Web\CategoryWebController;
 use App\Http\Controllers\Web\ClinicalCardWebController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\SubscriptionPlanWebController;
 use App\Http\Controllers\Web\UserWebController;
 use App\Http\Controllers\Web\WebAuthController;
 use Illuminate\Support\Facades\Route;
@@ -42,4 +43,8 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/admin/cards/{card}', [ClinicalCardWebController::class, 'update'])->name('admin.cards.update');
     Route::delete('/admin/cards/{card}', [ClinicalCardWebController::class, 'destroy'])->name('admin.cards.destroy');
     Route::delete('/admin/cards/images/{image}', [ClinicalCardWebController::class, 'destroyImage'])->name('admin.cards.images.destroy');
+
+    // Subscription Plans Management
+    Route::get('/admin/plans', [SubscriptionPlanWebController::class, 'index'])->name('admin.plans.index');
+    Route::put('/admin/plans/{plan}', [SubscriptionPlanWebController::class, 'update'])->name('admin.plans.update');
 });
