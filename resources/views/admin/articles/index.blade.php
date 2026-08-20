@@ -157,6 +157,17 @@
         color: #ffffff;
     }
 
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-edit:hover {
+        background: rgba(59, 130, 246, 0.3);
+        color: #ffffff;
+    }
+
     .btn-view {
         background: rgba(16, 185, 129, 0.12);
         color: #34d399;
@@ -176,6 +187,25 @@
 
     .btn-download:hover {
         background: rgba(168, 85, 247, 0.3);
+        color: #ffffff;
+    }
+
+    /* Custom File Selector Button Styling */
+    .form-control[type="file"]::file-selector-button {
+        background: rgba(99, 102, 241, 0.2);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control[type="file"]::file-selector-button:hover {
+        background: rgba(99, 102, 241, 0.35);
         color: #ffffff;
     }
 
@@ -828,7 +858,11 @@
                 const imgPath = img.startsWith('uploads/') ? img : 'uploads/articles/images/' + img;
                 const card = document.createElement('div');
                 card.className = 'gallery-img-card';
-                card.innerHTML = `<a href="${assetBaseUrl + imgPath}" target="_blank"><img src="${assetBaseUrl + imgPath}" alt="Article Image"></a>`;
+                card.innerHTML = `
+                    <a href="${assetBaseUrl + imgPath}" target="_blank">
+                        <img src="${assetBaseUrl + imgPath}" alt="Article Image">
+                    </a>
+                `;
                 galleryContainer.appendChild(card);
             });
         } else {

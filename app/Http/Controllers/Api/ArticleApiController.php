@@ -11,11 +11,11 @@ use Illuminate\Http\Request;
 class ArticleApiController extends Controller
 {
     /**
-     * Get list of all articles.
+     * Get list of all articles with multiple images.
      */
     public function getArticles(): JsonResponse
     {
-        $articles = Article::with('category')->latest()->get();
+        $articles = Article::with(['category', 'images'])->latest()->get();
 
         return response()->json([
             'status' => 'success',
@@ -25,11 +25,11 @@ class ArticleApiController extends Controller
     }
 
     /**
-     * Get articles filtered by category_id.
+     * Get articles filtered by category_id with multiple images.
      */
     public function getCategoryArticles(Request $request): JsonResponse
     {
-        $query = Article::with('category');
+        $query = Article::with(['category', 'images']);
 
         if ($request->has('category_id') && $request->category_id !== null) {
             $query->where('category_id', $request->category_id);

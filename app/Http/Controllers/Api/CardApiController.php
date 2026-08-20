@@ -10,11 +10,11 @@ use Illuminate\Http\JsonResponse;
 class CardApiController extends Controller
 {
     /**
-     * Get list of clinical reference cards.
+     * Get list of clinical reference cards with multiple images.
      */
     public function getCards(): JsonResponse
     {
-        $cards = ClinicalCard::latest()->get();
+        $cards = ClinicalCard::with('images')->latest()->get();
 
         return response()->json([
             'status' => 'success',
