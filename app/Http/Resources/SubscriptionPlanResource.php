@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\SubscriptionFeature;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +15,15 @@ class SubscriptionPlanResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $featureIds = is_array($this->feature_ids) ? array_map('intval', $this->feature_ids) : [];
+
+        $featureObjects = collect();
+        if (!empty($featureIds)) {
+            $featureObjects = SubscriptionFeature::whereIn('id', $featureIds)->get();
+        }
+
+        $featureTitles = $featureObjects->count() > 0 ? $featureObjects->pluck('title')->toArray() : ($this->features ?? []);
+
         return [
             'id' => $this->id,
             'plan_id' => (string) $this->plan_id,
@@ -26,7 +36,9 @@ class SubscriptionPlanResource extends JsonResource
             'currency_sar' => $this->currency_sar,
             'duration_days' => $this->duration_days,
             'access' => $this->access,
-            'features' => $this->features ?? [],
+            'feature_ids' => $featureIds,
+            'features' => $featureTitles,
+            'feature_details' => SubscriptionFeatureResource::collection($featureObjects),
         ];
     }
 }

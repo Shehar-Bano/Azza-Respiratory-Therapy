@@ -29,6 +29,7 @@ class SubscriptionPlanSeeder extends Seeder
                     '1st Article Free',
                     '1st Card Free',
                 ],
+                'feature_ids' => [],
             ]
         );
 
@@ -50,6 +51,7 @@ class SubscriptionPlanSeeder extends Seeder
                     'Flashcards Access',
                     '30 Days Validity',
                 ],
+                'feature_ids' => [1, 2, 3, 5],
             ]
         );
 
@@ -72,6 +74,7 @@ class SubscriptionPlanSeeder extends Seeder
                     'Flashcards Access',
                     '30 Days Validity',
                 ],
+                'feature_ids' => [1, 2, 3, 4, 5],
             ]
         );
     }

@@ -23,6 +23,7 @@ class SubscriptionPlan extends Model
         'duration_days',
         'access',
         'features',
+        'feature_ids',
     ];
 
     /**
@@ -32,6 +33,19 @@ class SubscriptionPlan extends Model
      */
     protected $casts = [
         'features' => 'array',
+        'feature_ids' => 'array',
         'duration_days' => 'integer',
     ];
+
+    /**
+     * Get feature objects for this plan.
+     */
+    public function getFeatureObjectsAttribute()
+    {
+        if (empty($this->feature_ids) || !is_array($this->feature_ids)) {
+            return collect();
+        }
+
+        return SubscriptionFeature::whereIn('id', $this->feature_ids)->get();
+    }
 }

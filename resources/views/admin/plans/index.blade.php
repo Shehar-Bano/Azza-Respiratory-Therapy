@@ -30,7 +30,7 @@
         flex-direction: column;
         justify-content: space-between;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        transition: all 0.25 ease;
+        transition: all 0.25s ease;
     }
 
     .plan-card:hover {
@@ -230,9 +230,32 @@
         box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
-    textarea.form-control {
-        min-height: 90px;
-        resize: vertical;
+    .feature-checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        background: rgba(11, 15, 25, 0.5);
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    .feature-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+        cursor: pointer;
+    }
+
+    .feature-checkbox-label input[type="checkbox"] {
+        accent-color: var(--primary);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
     }
 
     .modal-footer {
@@ -265,7 +288,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Subscription Plans Management</h1>
-        <p class="page-subtitle">Configure tier pricing (USD & SAR), duration, access levels, and feature lists.</p>
+        <p class="page-subtitle">Configure tier pricing (USD & SAR), duration, access levels, and feature permissions.</p>
     </div>
 </div>
 
@@ -358,8 +381,15 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Features List (One feature per line)</label>
-                <textarea name="features" id="editFeatures" class="form-control" placeholder="Clinical Calculator Unlocked&#10;Full Articles Access&#10;Flashcards Access"></textarea>
+                <label class="form-label">Dynamic Plan Feature Permissions</label>
+                <div class="feature-checkbox-grid">
+                    @foreach($allFeatures as $feat)
+                        <label class="feature-checkbox-label">
+                            <input type="checkbox" name="feature_ids[]" value="{{ $feat->id }}" class="feature-checkbox" id="feat-check-{{ $feat->id }}">
+                            <span><strong>{{ $feat->title }}</strong> <small style="color: #a5b4fc;">({{ $feat->slug }})</small></span>
+                        </label>
+                    @endforeach
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -381,10 +411,16 @@
         document.getElementById('editDurationDays').value = plan.duration_days;
         document.getElementById('editAccess').value = plan.access ? plan.access : '';
 
-        if (Array.isArray(plan.features)) {
-            document.getElementById('editFeatures').value = plan.features.join('\n');
-        } else {
-            document.getElementById('editFeatures').value = '';
+        // Reset checkboxes
+        var checkboxes = document.querySelectorAll('.feature-checkbox');
+        checkboxes.forEach(function(cb) { cb.checked = false; });
+
+        // Check assigned feature_ids
+        if (Array.isArray(plan.feature_ids)) {
+            plan.feature_ids.forEach(function(id) {
+                var cb = document.getElementById('feat-check-' + id);
+                if (cb) cb.checked = true;
+            });
         }
 
         document.getElementById('editModal').classList.add('show');

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CardApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\SubscriptionApiController;
+use App\Http\Controllers\Api\SubscriptionFeatureApiController;
 use App\Http\Controllers\Api\SubscriptionPlanApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,8 @@ Route::get('/category/get', [CategoryApiController::class, 'getCategories']);
 Route::get('/category/artical/get', [ArticleApiController::class, 'getCategoryArticles']);
 Route::get('/subscription-plans/get', [SubscriptionPlanApiController::class, 'getPlans']);
 Route::get('/plan/get', [SubscriptionPlanApiController::class, 'getPlans']);
+Route::get('/subscription-features/get', [SubscriptionFeatureApiController::class, 'getFeatures']);
+Route::get('/permissions/get', [SubscriptionFeatureApiController::class, 'getFeatures']);
 Route::post('/subscription/save-transaction', [SubscriptionApiController::class, 'saveTransaction']);
 Route::get('/user/subscription-status', [SubscriptionApiController::class, 'getSubscriptionStatus']);
 Route::get('/user/payment-history', [SubscriptionApiController::class, 'getPaymentHistory']);

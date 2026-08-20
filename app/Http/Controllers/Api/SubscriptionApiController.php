@@ -148,20 +148,23 @@ class SubscriptionApiController extends Controller
                     $daysRemaining = (int) max(0, $now->diffInDays($expiresAt, false));
                 }
 
-                // Unlock permissions based on active plan_id
-                if ($activePlanId === "1") {
-                    // Half Subscription: Calculator, Articles, Cards
-                    $calculatorUnlocked = true;
-                    $articlesUnlocked = true;
-                    $cardsUnlocked = true;
-                    $classesUnlocked = false;
-                } elseif ($activePlanId === "2") {
-                    // Full Subscription: All Unlocked
-                    $calculatorUnlocked = true;
-                    $articlesUnlocked = true;
-                    $cardsUnlocked = true;
-                    $classesUnlocked = true;
+                // Dynamically fetch feature slugs from plan's feature_ids
+                $featureIds = is_array($sub->plan ? $sub->plan->feature_ids : null) ? $sub->plan->feature_ids : [];
+                $featureSlugs = [];
+                if (!empty($featureIds)) {
+                    $featureSlugs = \App\Models\SubscriptionFeature::whereIn('id', $featureIds)->pluck('slug')->toArray();
+                } else {
+                    if ($activePlanId === "1") {
+                        $featureSlugs = ['calculator_unlocked', 'articles_unlocked', 'cards_unlocked'];
+                    } elseif ($activePlanId === "2") {
+                        $featureSlugs = ['calculator_unlocked', 'articles_unlocked', 'cards_unlocked', 'classes_unlocked'];
+                    }
                 }
+
+                $calculatorUnlocked = in_array('calculator_unlocked', $featureSlugs);
+                $articlesUnlocked = in_array('articles_unlocked', $featureSlugs);
+                $cardsUnlocked = in_array('cards_unlocked', $featureSlugs);
+                $classesUnlocked = in_array('classes_unlocked', $featureSlugs);
             }
         }
 

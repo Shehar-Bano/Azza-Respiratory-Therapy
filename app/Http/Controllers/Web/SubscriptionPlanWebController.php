@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\SubscriptionFeature;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,9 +28,11 @@ class SubscriptionPlanWebController extends Controller
         }
 
         $plans = $query->orderBy('id', 'asc')->get();
+        $allFeatures = SubscriptionFeature::orderBy('id', 'asc')->get();
 
         return view('admin.plans.index', [
             'plans' => $plans,
+            'allFeatures' => $allFeatures,
             'search' => $request->input('search', ''),
         ]);
     }
@@ -45,11 +48,17 @@ class SubscriptionPlanWebController extends Controller
             'price_sar' => 'required|string|max:50',
             'duration_days' => 'required|integer|min:0',
             'access' => 'nullable|string',
-            'features' => 'nullable|string', // comma separated or lines
+            'feature_ids' => 'nullable|array',
+            'feature_ids.*' => 'integer|exists:subscription_features,id',
+            'features' => 'nullable|string',
         ]);
 
+        $featureIds = array_map('intval', $request->input('feature_ids', []));
+
         $featuresArray = [];
-        if ($request->filled('features')) {
+        if (!empty($featureIds)) {
+            $featuresArray = SubscriptionFeature::whereIn('id', $featureIds)->pluck('title')->toArray();
+        } elseif ($request->filled('features')) {
             $rawFeatures = explode("\n", $request->input('features'));
             foreach ($rawFeatures as $f) {
                 $trimmed = trim($f);
@@ -66,6 +75,7 @@ class SubscriptionPlanWebController extends Controller
             'price_sar' => $request->price_sar,
             'duration_days' => $request->duration_days,
             'access' => $request->access,
+            'feature_ids' => $featureIds,
             'features' => $featuresArray,
         ]);
 
