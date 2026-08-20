@@ -19,6 +19,12 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'category_id' => $this->category_id ? (string) $this->category_id : null,
             'image' => $this->image,
+            'images' => $this->images ? $this->images->map(function ($img) {
+                return [
+                    'id' => $img->id,
+                    'image' => $img->image,
+                ];
+            }) : [],
             'document' => $this->document,
             'description' => $this->description,
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,

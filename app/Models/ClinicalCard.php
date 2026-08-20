@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class ClinicalCard extends Model
 {
     use HasFactory;
@@ -27,4 +29,12 @@ class ClinicalCard extends Model
         'image',
         'document',
     ];
+
+    /**
+     * Get the images for the clinical card.
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ClinicalCardImage::class, 'clinical_card_id');
+    }
 }

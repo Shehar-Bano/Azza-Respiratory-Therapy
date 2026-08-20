@@ -34,10 +34,12 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/articles', [ArticleWebController::class, 'store'])->name('admin.articles.store');
     Route::put('/admin/articles/{article}', [ArticleWebController::class, 'update'])->name('admin.articles.update');
     Route::delete('/admin/articles/{article}', [ArticleWebController::class, 'destroy'])->name('admin.articles.destroy');
+    Route::delete('/admin/articles/images/{image}', [ArticleWebController::class, 'destroyImage'])->name('admin.articles.images.destroy');
 
     // Clinical Cards Management
     Route::get('/admin/cards', [ClinicalCardWebController::class, 'index'])->name('admin.cards.index');
     Route::post('/admin/cards', [ClinicalCardWebController::class, 'store'])->name('admin.cards.store');
     Route::put('/admin/cards/{card}', [ClinicalCardWebController::class, 'update'])->name('admin.cards.update');
     Route::delete('/admin/cards/{card}', [ClinicalCardWebController::class, 'destroy'])->name('admin.cards.destroy');
+    Route::delete('/admin/cards/images/{image}', [ClinicalCardWebController::class, 'destroyImage'])->name('admin.cards.images.destroy');
 });

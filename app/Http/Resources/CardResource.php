@@ -19,6 +19,12 @@ class CardResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'image' => $this->image,
+            'images' => $this->images ? $this->images->map(function ($img) {
+                return [
+                    'id' => $img->id,
+                    'image' => $img->image,
+                ];
+            }) : [],
             'document' => $this->document,
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,

@@ -253,7 +253,7 @@
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
-        max-width: 580px;
+        max-width: 620px;
         padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         max-height: 90vh;
@@ -350,13 +350,47 @@
         margin-top: 1rem;
     }
 
-    .preview-image {
-        width: 100%;
-        max-height: 240px;
-        object-fit: cover;
-        border-radius: 8px;
+    .image-gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 0.75rem;
         margin-top: 0.5rem;
+    }
+
+    .gallery-img-card {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
         border: 1px solid var(--card-border);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .gallery-img-card img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .gallery-img-card .delete-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: rgba(239, 68, 68, 0.85);
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .gallery-img-card .delete-btn:hover {
+        background: #ef4444;
     }
 
     .per-page-select {
@@ -485,6 +519,10 @@
             </thead>
             <tbody>
                 @forelse($cards as $card)
+                    @php
+                        $hasImages = ($card->images && $card->images->count() > 0) || !empty($card->image);
+                        $imageCount = $card->images && $card->images->count() > 0 ? $card->images->count() : ($card->image ? 1 : 0);
+                    @endphp
                     <tr>
                         <td><strong style="color: #ffffff;">#{{ $card->id }}</strong></td>
                         <td>
@@ -492,16 +530,13 @@
                             <div class="card-desc-text" title="{{ $card->description }}">{{ $card->description }}</div>
                         </td>
                         <td>
-                            @if($card->image)
-                                @php
-                                    $imgPath = str_starts_with($card->image, 'uploads/') ? $card->image : 'uploads/cards/images/' . $card->image;
-                                @endphp
-                                <a href="{{ asset($imgPath) }}" target="_blank" class="file-btn btn-view" title="View Image">
+                            @if($hasImages)
+                                <a href="javascript:void(0)" onclick="openViewModal({{ json_encode($card) }})" class="file-btn btn-view" title="View Images">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    Image
+                                    Image {{ $imageCount > 1 ? "($imageCount)" : "" }}
                                 </a>
                             @else
-                                <span style="color: var(--text-muted);">None</span>
+                                <span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span>
                             @endif
                         </td>
                         <td>
@@ -520,7 +555,7 @@
                                     </a>
                                 </div>
                             @else
-                                <span style="color: var(--text-muted);">None</span>
+                                <span style="color: var(--text-muted); font-size: 0.775rem;">no document found</span>
                             @endif
                         </td>
                         <td>{{ $card->created_at ? $card->created_at->format('M d, Y') : 'N/A' }}</td>
@@ -608,25 +643,29 @@
             </div>
 
             <!-- Image Preview Section -->
-            <div id="viewImageWrapper" class="detail-preview-container" style="display: none;">
-                <label class="form-label">Image Preview</label>
-                <img id="viewImage" src="" class="preview-image" alt="Clinical Card Preview">
+            <div id="viewImageWrapper" class="detail-preview-container">
+                <label class="form-label">Images Gallery</label>
+                <div id="viewImageGallery" class="image-gallery-grid"></div>
+                <div id="viewNoImageText" style="color: var(--text-muted); font-size: 0.8rem; display: none;">no image found</div>
             </div>
 
             <!-- Document / PDF Actions -->
-            <div id="viewDocWrapper" class="detail-preview-container" style="display: none; margin-top: 0.75rem;">
+            <div id="viewDocWrapper" class="detail-preview-container" style="margin-top: 0.75rem;">
                 <label class="form-label">Document Manual</label>
-                <div id="viewDocName" style="color: #a5b4fc; font-size: 0.825rem; font-weight: 600; word-break: break-all; margin-bottom: 0.75rem;"></div>
-                <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
-                    <a id="viewDocLink" href="#" target="_blank" class="btn-action btn-view">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        View PDF
-                    </a>
-                    <a id="viewDownloadDocLink" href="#" download class="btn-action btn-download">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Download PDF
-                    </a>
+                <div id="viewDocContent">
+                    <div id="viewDocName" style="color: #a5b4fc; font-size: 0.825rem; font-weight: 600; word-break: break-all; margin-bottom: 0.75rem;"></div>
+                    <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                        <a id="viewDocLink" href="#" target="_blank" class="btn-action btn-view">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            View PDF
+                        </a>
+                        <a id="viewDownloadDocLink" href="#" download class="btn-action btn-download">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download PDF
+                        </a>
+                    </div>
                 </div>
+                <div id="viewNoDocText" style="color: var(--text-muted); font-size: 0.8rem; display: none;">no document found</div>
             </div>
         </div>
         <div class="modal-footer">
@@ -653,12 +692,14 @@
                 <textarea name="description" class="form-control" placeholder="Enter clinical card description..." required></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">Image File (Optional)</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
+                <label class="form-label">Images (Multiple allowed, Optional)</label>
+                <input type="file" name="images[]" class="form-control" accept="image/*" multiple>
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Select one or multiple images.</small>
             </div>
             <div class="form-group">
-                <label class="form-label">Document Manual File (Optional)</label>
-                <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.txt">
+                <label class="form-label">Document Manual PDF File <span style="color: #ef4444;">*Required (PDF Only)</span></label>
+                <input type="file" name="document" class="form-control" accept=".pdf" required>
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Only PDF files are allowed.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
@@ -686,14 +727,20 @@
                 <label class="form-label">Description</label>
                 <textarea name="description" id="editDescription" class="form-control" required></textarea>
             </div>
+
+            <!-- Existing Images List -->
             <div class="form-group">
-                <label class="form-label">Replace Image File (Optional)</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
-                <small style="color: var(--text-muted); font-size: 0.75rem;">Current: <span id="currentImageName"></span></small>
+                <label class="form-label">Existing Images</label>
+                <div id="editExistingImages" class="image-gallery-grid" style="margin-bottom: 0.5rem;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Add More Images (Optional)</label>
+                <input type="file" name="images[]" class="form-control" accept="image/*" multiple>
             </div>
             <div class="form-group">
-                <label class="form-label">Replace Document File (Optional)</label>
-                <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,.txt">
+                <label class="form-label">Replace Document PDF File (Optional, PDF Only)</label>
+                <input type="file" name="document" class="form-control" accept=".pdf">
                 <small style="color: var(--text-muted); font-size: 0.75rem;">Current: <span id="currentDocumentName"></span></small>
             </div>
             <div class="modal-footer">
@@ -703,10 +750,18 @@
         </form>
     </div>
 </div>
+
+<!-- Hidden Form for Image Deletion -->
+<form id="deleteImageForm" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection
 
 @section('scripts')
 <script>
+    const assetBaseUrl = "{{ asset('') }}";
+
     function openCreateModal() {
         document.getElementById('createModal').classList.add('show');
     }
@@ -715,23 +770,48 @@
         document.getElementById('viewTitle').innerText = card.title;
         document.getElementById('viewDescription').innerText = card.description;
 
-        if (card.image) {
-            var imgPath = card.image.startsWith('uploads/') ? card.image : 'uploads/cards/images/' + card.image;
-            document.getElementById('viewImage').src = "{{ asset('') }}" + imgPath;
-            document.getElementById('viewImageWrapper').style.display = 'block';
-        } else {
-            document.getElementById('viewImageWrapper').style.display = 'none';
+        // Images Gallery logic
+        const galleryContainer = document.getElementById('viewImageGallery');
+        const noImageText = document.getElementById('viewNoImageText');
+        galleryContainer.innerHTML = '';
+
+        let imagesList = [];
+        if (card.images && card.images.length > 0) {
+            imagesList = card.images.map(img => img.image);
+        } else if (card.image) {
+            imagesList = [card.image];
         }
+
+        if (imagesList.length > 0) {
+            noImageText.style.display = 'none';
+            galleryContainer.style.display = 'grid';
+            imagesList.forEach(img => {
+                const imgPath = img.startsWith('uploads/') ? img : 'uploads/cards/images/' + img;
+                const cardEl = document.createElement('div');
+                cardEl.className = 'gallery-img-card';
+                cardEl.innerHTML = `<a href="${assetBaseUrl + imgPath}" target="_blank"><img src="${assetBaseUrl + imgPath}" alt="Card Image"></a>`;
+                galleryContainer.appendChild(cardEl);
+            });
+        } else {
+            galleryContainer.style.display = 'none';
+            noImageText.style.display = 'block';
+        }
+
+        // Document logic
+        const docContent = document.getElementById('viewDocContent');
+        const noDocText = document.getElementById('viewNoDocText');
 
         if (card.document) {
             var docPath = card.document.startsWith('uploads/') ? card.document : 'uploads/cards/documents/' + card.document;
-            var docUrl = "{{ asset('') }}" + docPath;
+            var docUrl = assetBaseUrl + docPath;
             document.getElementById('viewDocName').innerText = card.document.split('/').pop();
             document.getElementById('viewDocLink').href = docUrl;
             document.getElementById('viewDownloadDocLink').href = docUrl;
-            document.getElementById('viewDocWrapper').style.display = 'block';
+            docContent.style.display = 'block';
+            noDocText.style.display = 'none';
         } else {
-            document.getElementById('viewDocWrapper').style.display = 'none';
+            docContent.style.display = 'none';
+            noDocText.style.display = 'block';
         }
 
         document.getElementById('viewModal').classList.add('show');
@@ -741,9 +821,42 @@
         document.getElementById('editForm').action = "{{ url('admin/cards') }}/" + card.id;
         document.getElementById('editTitle').value = card.title;
         document.getElementById('editDescription').value = card.description;
-        document.getElementById('currentImageName').innerText = card.image ? card.image.split('/').pop() : 'None';
-        document.getElementById('currentDocumentName').innerText = card.document ? card.document.split('/').pop() : 'None';
+        document.getElementById('currentDocumentName').innerText = card.document ? card.document.split('/').pop() : 'no document found';
+
+        // Render Existing Images with delete option
+        const existingContainer = document.getElementById('editExistingImages');
+        existingContainer.innerHTML = '';
+
+        if (card.images && card.images.length > 0) {
+            card.images.forEach(imgRecord => {
+                const imgPath = imgRecord.image.startsWith('uploads/') ? imgRecord.image : 'uploads/cards/images/' + imgRecord.image;
+                const cardEl = document.createElement('div');
+                cardEl.className = 'gallery-img-card';
+                cardEl.innerHTML = `
+                    <img src="${assetBaseUrl + imgPath}" alt="Card Image">
+                    <button type="button" class="delete-btn" title="Delete Image" onclick="deleteCardImage(${imgRecord.id})">&times;</button>
+                `;
+                existingContainer.appendChild(cardEl);
+            });
+        } else if (card.image) {
+            const imgPath = card.image.startsWith('uploads/') ? card.image : 'uploads/cards/images/' + card.image;
+            const cardEl = document.createElement('div');
+            cardEl.className = 'gallery-img-card';
+            cardEl.innerHTML = `<img src="${assetBaseUrl + imgPath}" alt="Card Image">`;
+            existingContainer.appendChild(cardEl);
+        } else {
+            existingContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span>';
+        }
+
         document.getElementById('editModal').classList.add('show');
+    }
+
+    function deleteCardImage(imageId) {
+        if (confirm('Are you sure you want to delete this image?')) {
+            const deleteForm = document.getElementById('deleteImageForm');
+            deleteForm.action = "{{ url('admin/cards/images') }}/" + imageId;
+            deleteForm.submit();
+        }
     }
 
     function closeModal(modalId) {

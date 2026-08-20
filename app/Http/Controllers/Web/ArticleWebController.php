@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\ArticleImage;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class ArticleWebController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Article::with('category');
+        $query = Article::with(['category', 'images']);
 
         // Global Search
         if ($request->filled('search')) {
@@ -67,17 +68,10 @@ class ArticleWebController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
+            'document' => 'required|file|mimes:pdf|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $imageName = time() . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
-            $file->move(public_path('uploads/articles/images'), $imageName);
-            $imagePath = 'uploads/articles/images/' . $imageName;
-        }
 
         $documentPath = null;
         if ($request->hasFile('document')) {
@@ -87,13 +81,33 @@ class ArticleWebController extends Controller
             $documentPath = 'uploads/articles/documents/' . $documentName;
         }
 
-        Article::create([
+        $article = Article::create([
             'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $imagePath ?? 'uploads/articles/images/abg_article.png',
-            'document' => $documentPath ?? 'uploads/articles/documents/abg_clinical_manual.pdf',
+            'image' => null,
+            'document' => $documentPath,
         ]);
+
+        $uploadedImages = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $imageName = time() . '_' . $index . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $file->move(public_path('uploads/articles/images'), $imageName);
+                $imgPath = 'uploads/articles/images/' . $imageName;
+
+                $articleImage = ArticleImage::create([
+                    'article_id' => $article->id,
+                    'image' => $imgPath,
+                ]);
+
+                $uploadedImages[] = $imgPath;
+            }
+
+            if (!empty($uploadedImages)) {
+                $article->update(['image' => $uploadedImages[0]]);
+            }
+        }
 
         return redirect()->route('admin.articles.index')->with('success', 'Article created successfully.');
     }
@@ -107,8 +121,9 @@ class ArticleWebController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
+            'document' => 'nullable|file|mimes:pdf|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
 
         $data = [
@@ -116,20 +131,6 @@ class ArticleWebController extends Controller
             'title' => $request->title,
             'description' => $request->description,
         ];
-
-        if ($request->hasFile('image')) {
-            if ($article->image) {
-                if (File::exists(public_path($article->image))) {
-                    File::delete(public_path($article->image));
-                } elseif (File::exists(public_path('uploads/articles/images/' . $article->image))) {
-                    File::delete(public_path('uploads/articles/images/' . $article->image));
-                }
-            }
-            $file = $request->file('image');
-            $imageName = time() . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
-            $file->move(public_path('uploads/articles/images'), $imageName);
-            $data['image'] = 'uploads/articles/images/' . $imageName;
-        }
 
         if ($request->hasFile('document')) {
             if ($article->document) {
@@ -147,6 +148,25 @@ class ArticleWebController extends Controller
 
         $article->update($data);
 
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $imageName = time() . '_' . $index . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $file->move(public_path('uploads/articles/images'), $imageName);
+                $imgPath = 'uploads/articles/images/' . $imageName;
+
+                ArticleImage::create([
+                    'article_id' => $article->id,
+                    'image' => $imgPath,
+                ]);
+            }
+        }
+
+        // Sync primary image if main image attribute is empty or updated
+        $firstImage = $article->images()->first();
+        if ($firstImage) {
+            $article->update(['image' => $firstImage->image]);
+        }
+
         return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully.');
     }
 
@@ -155,6 +175,13 @@ class ArticleWebController extends Controller
      */
     public function destroy(Article $article): RedirectResponse
     {
+        // Delete related images from storage
+        foreach ($article->images as $imgRecord) {
+            if (File::exists(public_path($imgRecord->image))) {
+                File::delete(public_path($imgRecord->image));
+            }
+        }
+
         if ($article->image) {
             if (File::exists(public_path($article->image))) {
                 File::delete(public_path($article->image));
@@ -174,5 +201,27 @@ class ArticleWebController extends Controller
         $article->delete();
 
         return redirect()->route('admin.articles.index')->with('success', 'Article deleted successfully.');
+    }
+
+    /**
+     * Remove an individual image from an article.
+     */
+    public function destroyImage(ArticleImage $image): RedirectResponse
+    {
+        $articleId = $image->article_id;
+        $article = Article::find($articleId);
+
+        if (File::exists(public_path($image->image))) {
+            File::delete(public_path($image->image));
+        }
+
+        $image->delete();
+
+        if ($article) {
+            $firstRemaining = $article->images()->first();
+            $article->update(['image' => $firstRemaining ? $firstRemaining->image : null]);
+        }
+
+        return redirect()->back()->with('success', 'Image removed successfully.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClinicalCard;
+use App\Models\ClinicalCardImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -16,7 +17,7 @@ class ClinicalCardWebController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = ClinicalCard::query();
+        $query = ClinicalCard::with('images');
 
         // Global Search
         if ($request->filled('search')) {
@@ -63,17 +64,10 @@ class ClinicalCardWebController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
+            'document' => 'required|file|mimes:pdf|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $imageName = time() . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
-            $file->move(public_path('uploads/cards/images'), $imageName);
-            $imagePath = 'uploads/cards/images/' . $imageName;
-        }
 
         $documentPath = null;
         if ($request->hasFile('document')) {
@@ -83,12 +77,32 @@ class ClinicalCardWebController extends Controller
             $documentPath = 'uploads/cards/documents/' . $documentName;
         }
 
-        ClinicalCard::create([
+        $card = ClinicalCard::create([
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $imagePath ?? 'uploads/cards/images/airway_card_thumb.png',
-            'document' => $documentPath ?? 'uploads/cards/documents/airway_assessment.pdf',
+            'image' => null,
+            'document' => $documentPath,
         ]);
+
+        $uploadedImages = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $imageName = time() . '_' . $index . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $file->move(public_path('uploads/cards/images'), $imageName);
+                $imgPath = 'uploads/cards/images/' . $imageName;
+
+                ClinicalCardImage::create([
+                    'clinical_card_id' => $card->id,
+                    'image' => $imgPath,
+                ]);
+
+                $uploadedImages[] = $imgPath;
+            }
+
+            if (!empty($uploadedImages)) {
+                $card->update(['image' => $uploadedImages[0]]);
+            }
+        }
 
         return redirect()->route('admin.cards.index')->with('success', 'Clinical Card created successfully.');
     }
@@ -101,28 +115,15 @@ class ClinicalCardWebController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,txt,zip|max:10240',
+            'document' => 'nullable|file|mimes:pdf|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
 
         $data = [
             'title' => $request->title,
             'description' => $request->description,
         ];
-
-        if ($request->hasFile('image')) {
-            if ($card->image) {
-                if (File::exists(public_path($card->image))) {
-                    File::delete(public_path($card->image));
-                } elseif (File::exists(public_path('uploads/cards/images/' . $card->image))) {
-                    File::delete(public_path('uploads/cards/images/' . $card->image));
-                }
-            }
-            $file = $request->file('image');
-            $imageName = time() . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
-            $file->move(public_path('uploads/cards/images'), $imageName);
-            $data['image'] = 'uploads/cards/images/' . $imageName;
-        }
 
         if ($request->hasFile('document')) {
             if ($card->document) {
@@ -140,6 +141,25 @@ class ClinicalCardWebController extends Controller
 
         $card->update($data);
 
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $imageName = time() . '_' . $index . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $file->move(public_path('uploads/cards/images'), $imageName);
+                $imgPath = 'uploads/cards/images/' . $imageName;
+
+                ClinicalCardImage::create([
+                    'clinical_card_id' => $card->id,
+                    'image' => $imgPath,
+                ]);
+            }
+        }
+
+        // Sync primary image if main image attribute is empty or updated
+        $firstImage = $card->images()->first();
+        if ($firstImage) {
+            $card->update(['image' => $firstImage->image]);
+        }
+
         return redirect()->route('admin.cards.index')->with('success', 'Clinical Card updated successfully.');
     }
 
@@ -148,6 +168,13 @@ class ClinicalCardWebController extends Controller
      */
     public function destroy(ClinicalCard $card): RedirectResponse
     {
+        // Delete related images from storage
+        foreach ($card->images as $imgRecord) {
+            if (File::exists(public_path($imgRecord->image))) {
+                File::delete(public_path($imgRecord->image));
+            }
+        }
+
         if ($card->image) {
             if (File::exists(public_path($card->image))) {
                 File::delete(public_path($card->image));
@@ -167,5 +194,27 @@ class ClinicalCardWebController extends Controller
         $card->delete();
 
         return redirect()->route('admin.cards.index')->with('success', 'Clinical Card deleted successfully.');
+    }
+
+    /**
+     * Remove an individual image from a clinical card.
+     */
+    public function destroyImage(ClinicalCardImage $image): RedirectResponse
+    {
+        $cardId = $image->clinical_card_id;
+        $card = ClinicalCard::find($cardId);
+
+        if (File::exists(public_path($image->image))) {
+            File::delete(public_path($image->image));
+        }
+
+        $image->delete();
+
+        if ($card) {
+            $firstRemaining = $card->images()->first();
+            $card->update(['image' => $firstRemaining ? $firstRemaining->image : null]);
+        }
+
+        return redirect()->back()->with('success', 'Image removed successfully.');
     }
 }
