@@ -93,4 +93,159 @@ class SubscriptionApiController extends Controller
             ],
         ], 200);
     }
+
+    /**
+     * Get user subscription status, active plan, and feature permissions.
+     */
+    public function getSubscriptionStatus(Request $request): JsonResponse
+    {
+        $userId = $request->query('user_id') ?? ($request->user() ? $request->user()->id : null);
+
+        if (!$userId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User ID is required',
+            ], 400);
+        }
+
+        $now = Carbon::now();
+
+        // Get latest active subscription transaction for user
+        $sub = SubscriptionTransaction::with('plan')
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->latest()
+            ->first();
+
+        $isActive = false;
+        $isExpired = false;
+        $activePlanId = "0";
+        $planTitle = "Free Plan";
+        $startedAt = null;
+        $expiresAt = null;
+        $daysRemaining = 0;
+        $statusText = "inactive";
+
+        $calculatorUnlocked = false;
+        $articlesUnlocked = false;
+        $cardsUnlocked = false;
+        $classesUnlocked = false;
+
+        if ($sub) {
+            $startedAt = $sub->started_at;
+            $expiresAt = $sub->expires_at;
+
+            if ($expiresAt && $expiresAt->isPast()) {
+                $isExpired = true;
+                $statusText = "expired";
+            } else {
+                $isActive = true;
+                $statusText = "active";
+                $activePlanId = (string) $sub->plan_id;
+                $planTitle = $sub->plan ? $sub->plan->title : ('Plan ' . $sub->plan_id);
+
+                if ($expiresAt) {
+                    $daysRemaining = (int) max(0, $now->diffInDays($expiresAt, false));
+                }
+
+                // Unlock permissions based on active plan_id
+                if ($activePlanId === "1") {
+                    // Half Subscription: Calculator, Articles, Cards
+                    $calculatorUnlocked = true;
+                    $articlesUnlocked = true;
+                    $cardsUnlocked = true;
+                    $classesUnlocked = false;
+                } elseif ($activePlanId === "2") {
+                    // Full Subscription: All Unlocked
+                    $calculatorUnlocked = true;
+                    $articlesUnlocked = true;
+                    $cardsUnlocked = true;
+                    $classesUnlocked = true;
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'user_id' => (int) $userId,
+                'active_plan_id' => $activePlanId,
+                'plan_title' => $planTitle,
+                'subscription_status' => $statusText,
+                'started_at' => $startedAt ? $startedAt->toISOString() : null,
+                'expires_at' => $expiresAt ? $expiresAt->toISOString() : null,
+                'days_remaining' => $daysRemaining,
+                'is_expired' => $isExpired,
+                'permissions' => [
+                    'calculator_unlocked' => $calculatorUnlocked,
+                    'articles_unlocked' => $articlesUnlocked,
+                    'cards_unlocked' => $cardsUnlocked,
+                    'classes_unlocked' => $classesUnlocked,
+                ],
+            ],
+        ], 200);
+    }
+
+    /**
+     * Get payment transaction history for user.
+     */
+    public function getPaymentHistory(Request $request): JsonResponse
+    {
+        $userId = $request->query('user_id') ?? ($request->user() ? $request->user()->id : null);
+
+        if (!$userId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User ID is required',
+                'history' => [],
+            ], 400);
+        }
+
+        $transactions = SubscriptionTransaction::with('plan')
+            ->where('user_id', $userId)
+            ->latest()
+            ->get();
+
+        $history = $transactions->map(function ($sub) {
+            $planTitle = $sub->plan ? $sub->plan->title : ('Subscription Plan ' . $sub->plan_id);
+
+            // Format amount (if numeric, convert 1999 to 19.99 SAR or keep decimal format)
+            $rawAmount = (string) $sub->amount;
+            $formattedAmount = $rawAmount;
+            if (is_numeric($rawAmount)) {
+                $floatVal = (float) $rawAmount;
+                if ($floatVal > 100 && strpos($rawAmount, '.') === false) {
+                    $formattedAmount = number_format($floatVal / 100, 2);
+                } else {
+                    $formattedAmount = number_format($floatVal, 2);
+                }
+            }
+            $formattedAmountStr = trim($formattedAmount . ' ' . ($sub->currency ?? 'SAR'));
+
+            // Format masked payment method e.g. "VISA **** 0002"
+            $brand = !empty($sub->card_brand) ? strtoupper($sub->card_brand) : (!empty($sub->payment_method) ? $sub->payment_method : 'CreditCard');
+            $paymentMethodStr = $brand;
+            if (!empty($sub->card_last_four)) {
+                $paymentMethodStr .= ' **** ' . $sub->card_last_four;
+            }
+
+            return [
+                'transaction_id' => (int) $sub->id,
+                'transaction_ref' => $sub->transaction_reference ?? $sub->cart_id,
+                'plan_title' => $planTitle,
+                'amount' => $rawAmount,
+                'formatted_amount' => $formattedAmountStr,
+                'payment_method' => $paymentMethodStr,
+                'payment_status' => $sub->payment_status ?? 'success',
+                'date' => $sub->created_at ? $sub->created_at->format('Y-m-d H:i:s') : null,
+                'valid_until' => $sub->expires_at ? $sub->expires_at->format('Y-m-d H:i:s') : null,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment history retrieved',
+            'history' => $history,
+        ], 200);
+    }
 }

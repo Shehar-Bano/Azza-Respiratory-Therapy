@@ -26,6 +26,8 @@ Route::get('/category/artical/get', [ArticleApiController::class, 'getCategoryAr
 Route::get('/subscription-plans/get', [SubscriptionPlanApiController::class, 'getPlans']);
 Route::get('/plan/get', [SubscriptionPlanApiController::class, 'getPlans']);
 Route::post('/subscription/save-transaction', [SubscriptionApiController::class, 'saveTransaction']);
+Route::get('/user/subscription-status', [SubscriptionApiController::class, 'getSubscriptionStatus']);
+Route::get('/user/payment-history', [SubscriptionApiController::class, 'getPaymentHistory']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
