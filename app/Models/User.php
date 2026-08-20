@@ -9,6 +9,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -48,6 +51,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get all subscription transactions for user.
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(SubscriptionTransaction::class, 'user_id');
+    }
+
+    /**
+     * Get latest active subscription for user.
+     */
+    public function activeSubscription(): HasOne
+    {
+        return $this->hasOne(SubscriptionTransaction::class, 'user_id')
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', now());
+            })
+            ->latestOfMany();
     }
 }
 

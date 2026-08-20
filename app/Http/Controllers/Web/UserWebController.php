@@ -15,7 +15,7 @@ class UserWebController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::query();
+        $query = User::with(['activeSubscription.plan']);
 
         // Global Search
         if ($request->filled('search')) {

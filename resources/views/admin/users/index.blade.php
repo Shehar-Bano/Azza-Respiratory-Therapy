@@ -154,7 +154,7 @@
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
-        max-width: 480px;
+        max-width: 520px;
         padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
@@ -518,6 +518,29 @@
                 <span class="detail-label">Registered Date</span>
                 <span class="detail-value" id="modalUserCreatedAt"></span>
             </div>
+
+            <!-- Active Subscription Section -->
+            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--card-border);">
+                <div style="font-size: 0.825rem; font-weight: 700; color: #a5b4fc; margin-bottom: 0.5rem;">User Subscription Status</div>
+                <div>
+                    <div class="detail-row">
+                        <span class="detail-label">Active Plan</span>
+                        <span class="detail-value" id="modalSubPlan">No Active Subscription</span>
+                    </div>
+                    <div class="detail-row" id="subRefRow" style="display: none;">
+                        <span class="detail-label">Transaction Ref</span>
+                        <span class="detail-value" id="modalSubRef"></span>
+                    </div>
+                    <div class="detail-row" id="subExpiresRow" style="display: none;">
+                        <span class="detail-label">Expires At</span>
+                        <span class="detail-value" id="modalSubExpires"></span>
+                    </div>
+                    <div class="detail-row" id="subStatusRow" style="display: none;">
+                        <span class="detail-label">Subscription Status</span>
+                        <span id="modalSubStatusBadge" class="badge"></span>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn-secondary" onclick="closeUserModal()">Close</button>
@@ -543,6 +566,28 @@
         statusBadge.className = 'badge ' + (user.status === 'active' ? 'badge-active' : (user.status === 'suspended' ? 'badge-suspended' : 'badge-inactive'));
 
         document.getElementById('modalUserCreatedAt').innerText = user.created_at ? new Date(user.created_at).toLocaleString() : 'N/A';
+
+        // Subscription details
+        if (user.active_subscription) {
+            const sub = user.active_subscription;
+            const planTitle = sub.plan ? sub.plan.title : ('Plan ' + sub.plan_id);
+            document.getElementById('modalSubPlan').innerText = planTitle + ' (Plan ID: ' + sub.plan_id + ')';
+            document.getElementById('modalSubRef').innerText = sub.transaction_reference || sub.cart_id || 'N/A';
+            document.getElementById('modalSubExpires').innerText = sub.expires_at ? new Date(sub.expires_at).toLocaleDateString() : 'N/A';
+
+            var subStatusBadge = document.getElementById('modalSubStatusBadge');
+            subStatusBadge.innerText = sub.status;
+            subStatusBadge.className = 'badge ' + (sub.status === 'active' ? 'badge-active' : 'badge-suspended');
+
+            document.getElementById('subRefRow').style.display = 'flex';
+            document.getElementById('subExpiresRow').style.display = 'flex';
+            document.getElementById('subStatusRow').style.display = 'flex';
+        } else {
+            document.getElementById('modalSubPlan').innerText = 'Free Access (No Active Subscription)';
+            document.getElementById('subRefRow').style.display = 'none';
+            document.getElementById('subExpiresRow').style.display = 'none';
+            document.getElementById('subStatusRow').style.display = 'none';
+        }
 
         document.getElementById('viewUserModal').classList.add('show');
     }

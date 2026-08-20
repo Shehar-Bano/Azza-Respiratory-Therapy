@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\CategoryWebController;
 use App\Http\Controllers\Web\ClinicalCardWebController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\SubscriptionPlanWebController;
+use App\Http\Controllers\Web\UserSubscriptionWebController;
 use App\Http\Controllers\Web\UserWebController;
 use App\Http\Controllers\Web\WebAuthController;
 use Illuminate\Support\Facades\Route;
@@ -47,4 +48,8 @@ Route::middleware(['admin'])->group(function () {
     // Subscription Plans Management
     Route::get('/admin/plans', [SubscriptionPlanWebController::class, 'index'])->name('admin.plans.index');
     Route::put('/admin/plans/{plan}', [SubscriptionPlanWebController::class, 'update'])->name('admin.plans.update');
+
+    // User Subscriptions Management
+    Route::get('/admin/subscriptions', [UserSubscriptionWebController::class, 'index'])->name('admin.subscriptions.index');
+    Route::put('/admin/subscriptions/{subscription}/status', [UserSubscriptionWebController::class, 'updateStatus'])->name('admin.subscriptions.updateStatus');
 });
