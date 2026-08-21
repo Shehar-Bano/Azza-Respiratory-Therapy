@@ -40,6 +40,40 @@ class SubscriptionApiController extends Controller
         $existingUser = User::find($request->user_id);
         $userId = $existingUser ? $existingUser->id : null;
 
+        // Check if user already has an active subscription
+        if ($userId) {
+            $activeSub = SubscriptionTransaction::with('plan')
+                ->where('user_id', $userId)
+                ->where('status', 'active')
+                ->where(function ($query) {
+                    $query->whereNull('expires_at')
+                          ->orWhere('expires_at', '>', Carbon::now());
+                })
+                ->latest()
+                ->first();
+
+            if ($activeSub) {
+                $planTitle = $activeSub->plan ? $activeSub->plan->title : ('Subscription Plan ' . $activeSub->plan_id);
+                $remainingDays = $activeSub->expires_at ? (int) max(0, Carbon::now()->diffInDays($activeSub->expires_at, false)) : 0;
+
+                return response()->json([
+                    'status' => false,
+                    'already_subscribed' => true,
+                    'message' => 'User already has an active subscription',
+                    'subscription' => [
+                        'user_id' => (int) $userId,
+                        'plan_id' => (string) $activeSub->plan_id,
+                        'plan_title' => $planTitle,
+                        'transaction_ref' => $activeSub->transaction_reference,
+                        'started_at' => $activeSub->started_at ? $activeSub->started_at->format('Y-m-d H:i:s') : null,
+                        'expires_at' => $activeSub->expires_at ? $activeSub->expires_at->format('Y-m-d H:i:s') : null,
+                        'remaining_days' => $remainingDays,
+                        'is_active' => true,
+                    ],
+                ], 400);
+            }
+        }
+
         $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)->first();
         $planTitle = $plan ? $plan->title : ('Subscription Plan ' . $request->plan_id);
         $durationDays = $plan && $plan->duration_days > 0 ? (int) $plan->duration_days : 30;
