@@ -8,6 +8,7 @@ use App\Models\ClinicalCardImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class ClinicalCardWebController extends Controller

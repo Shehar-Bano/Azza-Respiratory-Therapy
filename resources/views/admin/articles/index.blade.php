@@ -863,6 +863,23 @@
     @csrf
     @method('DELETE')
 </form>
+
+<!-- Custom Dark Theme Confirm Image Delete Modal -->
+<div class="modal-backdrop" id="confirmDeleteModal" style="z-index: 1100;">
+    <div class="modal-card" style="max-width: 420px; text-align: center; padding: 1.75rem 1.5rem; background: #161e2e; border: 1px solid var(--card-border); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.1rem auto; border: 1px solid rgba(239, 68, 68, 0.25);">
+            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">Delete Image?</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.5;">Are you sure you want to remove this image from the article? This action cannot be undone.</p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <button type="button" class="btn-secondary" onclick="closeConfirmDeleteModal()" style="padding: 0.65rem 1.25rem; flex: 1; font-weight: 600;">Cancel</button>
+            <button type="button" id="confirmDeleteSubmitBtn" class="btn-action" style="background: #ef4444; color: #ffffff; border: none; padding: 0.65rem 1.25rem; flex: 1; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Image</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -871,6 +888,8 @@
     const assetBaseUrl = "{{ asset('') }}";
     let createDescriptionEditor = null;
     let editDescriptionEditor = null;
+    let pendingDeleteImageId = null;
+    let pendingDeleteBtnElement = null;
 
     document.addEventListener("DOMContentLoaded", function () {
         ClassicEditor.create(document.querySelector('#createDescription'))
@@ -880,6 +899,11 @@
         ClassicEditor.create(document.querySelector('#editDescription'))
             .then(editor => { editDescriptionEditor = editor; })
             .catch(error => { console.error('CKEditor Edit Error:', error); });
+
+        const confirmBtn = document.getElementById('confirmDeleteSubmitBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', executeImageDelete);
+        }
     });
 
     function openCreateModal() {
@@ -967,7 +991,7 @@
                 card.className = 'gallery-img-card';
                 card.innerHTML = `
                     <img src="${assetBaseUrl + imgPath}" alt="Article Image">
-                    <button type="button" class="delete-btn" title="Delete Image" onclick="deleteArticleImage(${imgRecord.id}, this)">&times;</button>
+                    <button type="button" class="delete-btn" title="Delete Image" onclick="promptDeleteArticleImage(${imgRecord.id}, this)">&times;</button>
                 `;
                 existingContainer.appendChild(card);
             });
@@ -984,40 +1008,72 @@
         document.getElementById('editModal').classList.add('show');
     }
 
-    function deleteArticleImage(imageId, btnElement) {
-        if (confirm('Are you sure you want to delete this image?')) {
-            fetch("{{ url('admin/articles/images') }}/" + imageId, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ _method: 'DELETE' })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    if (btnElement) {
-                        const cardEl = btnElement.closest('.gallery-img-card');
-                        if (cardEl) {
-                            cardEl.remove();
-                        }
-                    }
-                    const container = document.getElementById('editExistingImages');
-                    if (container && container.children.length === 0) {
-                        container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span>';
-                    }
-                } else {
-                    alert(data.message || 'Error deleting image');
-                }
-            })
-            .catch(err => {
-                console.error('Delete image error:', err);
-                alert('Failed to delete image.');
-            });
+    function promptDeleteArticleImage(imageId, btnElement) {
+        pendingDeleteImageId = imageId;
+        pendingDeleteBtnElement = btnElement;
+        document.getElementById('confirmDeleteModal').classList.add('show');
+    }
+
+    function closeConfirmDeleteModal() {
+        pendingDeleteImageId = null;
+        pendingDeleteBtnElement = null;
+        document.getElementById('confirmDeleteModal').classList.remove('show');
+    }
+
+    function executeImageDelete() {
+        if (!pendingDeleteImageId) return;
+
+        const confirmBtn = document.getElementById('confirmDeleteSubmitBtn');
+        if (confirmBtn) {
+            confirmBtn.innerText = 'Deleting...';
+            confirmBtn.disabled = true;
         }
+
+        const deleteId = pendingDeleteImageId;
+        const targetBtn = pendingDeleteBtnElement;
+
+        fetch("{{ url('admin/articles/images') }}/" + deleteId, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ _method: 'DELETE' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (confirmBtn) {
+                confirmBtn.innerText = 'Delete Image';
+                confirmBtn.disabled = false;
+            }
+            closeConfirmDeleteModal();
+
+            if (data.status) {
+                if (targetBtn) {
+                    const cardEl = targetBtn.closest('.gallery-img-card');
+                    if (cardEl) {
+                        cardEl.remove();
+                    }
+                }
+                const container = document.getElementById('editExistingImages');
+                if (container && container.children.length === 0) {
+                    container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span>';
+                }
+            } else {
+                alert(data.message || 'Error deleting image');
+            }
+        })
+        .catch(err => {
+            if (confirmBtn) {
+                confirmBtn.innerText = 'Delete Image';
+                confirmBtn.disabled = false;
+            }
+            closeConfirmDeleteModal();
+            console.error('Delete image error:', err);
+            alert('Failed to delete image.');
+        });
     }
 
     function closeModal(modalId) {
