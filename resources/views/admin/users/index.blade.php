@@ -330,19 +330,65 @@
         list-style: none;
     }
 
-    .pagination-wrapper .page-item .page-link {
-        padding: 0.35rem 0.7rem;
-        border-radius: 6px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--card-border);
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 0.8rem;
+    .pagination-wrapper nav {
+        display: flex;
+        align-items: center;
     }
-
-    .pagination-wrapper .page-item.active .page-link {
-        background: var(--primary);
-        border-color: var(--primary);
+    .pagination-wrapper nav p {
+        display: none !important;
+    }
+    .pagination-wrapper svg {
+        width: 14px !important;
+        height: 14px !important;
+        max-width: 14px !important;
+        max-height: 14px !important;
+        vertical-align: middle;
+    }
+    .pagination-wrapper ul.pagination,
+    .pagination-wrapper div.flex {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .pagination-wrapper .page-item .page-link,
+    .pagination-wrapper span[aria-current="page"],
+    .pagination-wrapper a.relative,
+    .pagination-wrapper span.relative {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        padding: 0 0.6rem !important;
+        border-radius: 6px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--card-border) !important;
+        color: #cbd5e1 !important;
+        text-decoration: none !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        transition: all 0.15s ease !important;
+    }
+    .pagination-wrapper .page-item.active .page-link,
+    .pagination-wrapper span[aria-current="page"] {
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+        color: #ffffff !important;
+    }
+    .pagination-wrapper a.page-link:hover,
+    .pagination-wrapper a.relative:hover {
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    .pagination-wrapper .page-item.disabled .page-link,
+    .pagination-wrapper span[aria-disabled="true"] {
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+        background: transparent !important;
     }
 </style>
 @endsection
@@ -559,7 +605,7 @@
         </div>
 
         <div>
-            {{ $users->links() }}
+            {{ $users->links('pagination::bootstrap-4') }}
         </div>
     </div>
 </div>
