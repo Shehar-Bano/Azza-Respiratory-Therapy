@@ -92,9 +92,8 @@ class UserWebController extends Controller
         $allowSub = $request->has('allow_subscription') && ($request->allow_subscription == '1' || $request->allow_subscription == 'on' || $request->allow_subscription == 'true' || $request->allow_subscription === true);
 
         if ($allowSub && $request->filled('plan_id')) {
-            $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
-                ->orWhere('id', $request->plan_id)
-                ->first();
+            $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)->first()
+                ?? SubscriptionPlan::find($request->plan_id);
 
             if ($plan) {
                 $durationDays = (int) ($request->input('duration_days') ?: ($plan->duration_days > 0 ? $plan->duration_days : 30));
@@ -139,9 +138,8 @@ class UserWebController extends Controller
             'duration_days' => 'nullable|integer|min:1',
         ]);
 
-        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
-            ->orWhere('id', $request->plan_id)
-            ->first();
+        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)->first()
+            ?? SubscriptionPlan::find($request->plan_id);
 
         $activeSub = SubscriptionTransaction::where('user_id', $user->id)
             ->latest()

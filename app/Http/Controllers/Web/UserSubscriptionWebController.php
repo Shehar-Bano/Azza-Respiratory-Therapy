@@ -83,9 +83,8 @@ class UserSubscriptionWebController extends Controller
             'duration_days' => 'nullable|integer|min:1',
         ]);
 
-        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
-            ->orWhere('id', $request->plan_id)
-            ->first();
+        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)->first()
+            ?? SubscriptionPlan::find($request->plan_id);
 
         $durationDays = (int) ($request->input('duration_days') ?: ($plan && $plan->duration_days > 0 ? $plan->duration_days : 30));
         $startedAt = $subscription->started_at ?? Carbon::now();

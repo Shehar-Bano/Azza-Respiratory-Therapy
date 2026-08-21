@@ -464,6 +464,45 @@
         background: var(--primary);
         border-color: var(--primary);
     }
+
+    /* CKEditor Dark Theme Overrides */
+    .ck-editor__editable_inline {
+        min-height: 180px;
+        background-color: #0b0f19 !important;
+        color: #ffffff !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable {
+        background: #0b0f19 !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-toolbar {
+        background-color: #1a2234 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    .ck.ck-toolbar .ck-button {
+        color: #cbd5e1 !important;
+    }
+    .ck.ck-toolbar .ck-button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-toolbar .ck-button.ck-on {
+        background-color: var(--primary) !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-dropdown__panel {
+        background: #161e2e !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .ck.ck-list__item .ck-button {
+        color: #cbd5e1 !important;
+    }
+    .ck.ck-list__item .ck-button:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
 </style>
 @endsection
 
@@ -719,7 +758,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea name="description" class="form-control" placeholder="Enter clinical card description..." required></textarea>
+                <textarea name="description" id="createDescription" class="form-control" placeholder="Enter clinical card description..."></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Images (Multiple allowed, Optional)</label>
@@ -755,7 +794,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea name="description" id="editDescription" class="form-control" required></textarea>
+                <textarea name="description" id="editDescription" class="form-control"></textarea>
             </div>
 
             <!-- Existing Images List -->
@@ -789,16 +828,32 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
     const assetBaseUrl = "{{ asset('') }}";
+    let createDescriptionEditor = null;
+    let editDescriptionEditor = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        ClassicEditor.create(document.querySelector('#createDescription'))
+            .then(editor => { createDescriptionEditor = editor; })
+            .catch(error => { console.error('CKEditor Create Error:', error); });
+
+        ClassicEditor.create(document.querySelector('#editDescription'))
+            .then(editor => { editDescriptionEditor = editor; })
+            .catch(error => { console.error('CKEditor Edit Error:', error); });
+    });
 
     function openCreateModal() {
+        if (createDescriptionEditor) {
+            createDescriptionEditor.setData('');
+        }
         document.getElementById('createModal').classList.add('show');
     }
 
     function openViewModal(card) {
         document.getElementById('viewTitle').innerText = card.title;
-        document.getElementById('viewDescription').innerText = card.description;
+        document.getElementById('viewDescription').innerHTML = card.description || 'N/A';
 
         // Images Gallery logic
         const galleryContainer = document.getElementById('viewImageGallery');
@@ -854,7 +909,11 @@
     function openEditModal(card) {
         document.getElementById('editForm').action = "{{ url('admin/cards') }}/" + card.id;
         document.getElementById('editTitle').value = card.title;
-        document.getElementById('editDescription').value = card.description;
+        if (editDescriptionEditor) {
+            editDescriptionEditor.setData(card.description || '');
+        } else {
+            document.getElementById('editDescription').value = card.description || '';
+        }
         document.getElementById('currentDocumentName').innerText = card.document ? card.document.split('/').pop() : 'no document found';
 
         // Render Existing Images with delete option

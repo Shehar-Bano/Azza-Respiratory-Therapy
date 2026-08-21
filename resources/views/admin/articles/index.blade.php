@@ -475,6 +475,45 @@
         background: var(--primary);
         border-color: var(--primary);
     }
+
+    /* CKEditor Dark Theme Overrides */
+    .ck-editor__editable_inline {
+        min-height: 180px;
+        background-color: #0b0f19 !important;
+        color: #ffffff !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable {
+        background: #0b0f19 !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-toolbar {
+        background-color: #1a2234 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px 8px 0 0 !important;
+    }
+    .ck.ck-toolbar .ck-button {
+        color: #cbd5e1 !important;
+    }
+    .ck.ck-toolbar .ck-button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-toolbar .ck-button.ck-on {
+        background-color: var(--primary) !important;
+        color: #ffffff !important;
+    }
+    .ck.ck-dropdown__panel {
+        background: #161e2e !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .ck.ck-list__item .ck-button {
+        color: #cbd5e1 !important;
+    }
+    .ck.ck-list__item .ck-button:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
 </style>
 @endsection
 
@@ -748,7 +787,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea name="description" class="form-control" placeholder="Enter article content description..." required></textarea>
+                <textarea name="description" id="createDescription" class="form-control" placeholder="Enter article content description..."></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Images (Multiple allowed, Optional)</label>
@@ -793,7 +832,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                <textarea name="description" id="editDescription" class="form-control" required></textarea>
+                <textarea name="description" id="editDescription" class="form-control"></textarea>
             </div>
 
             <!-- Existing Images List -->
@@ -827,16 +866,32 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
     const assetBaseUrl = "{{ asset('') }}";
+    let createDescriptionEditor = null;
+    let editDescriptionEditor = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        ClassicEditor.create(document.querySelector('#createDescription'))
+            .then(editor => { createDescriptionEditor = editor; })
+            .catch(error => { console.error('CKEditor Create Error:', error); });
+
+        ClassicEditor.create(document.querySelector('#editDescription'))
+            .then(editor => { editDescriptionEditor = editor; })
+            .catch(error => { console.error('CKEditor Edit Error:', error); });
+    });
 
     function openCreateModal() {
+        if (createDescriptionEditor) {
+            createDescriptionEditor.setData('');
+        }
         document.getElementById('createModal').classList.add('show');
     }
 
     function openViewModal(article) {
         document.getElementById('viewTitle').innerText = article.title;
-        document.getElementById('viewDescription').innerText = article.description;
+        document.getElementById('viewDescription').innerHTML = article.description || 'N/A';
         document.getElementById('viewCategoryBadge').innerText = article.category ? article.category.category_name : 'Uncategorized';
 
         // Images Gallery logic
@@ -894,7 +949,11 @@
         document.getElementById('editForm').action = "{{ url('admin/articles') }}/" + article.id;
         document.getElementById('editCategory').value = article.category_id ? article.category_id : '';
         document.getElementById('editTitle').value = article.title;
-        document.getElementById('editDescription').value = article.description;
+        if (editDescriptionEditor) {
+            editDescriptionEditor.setData(article.description || '');
+        } else {
+            document.getElementById('editDescription').value = article.description || '';
+        }
         document.getElementById('currentDocumentName').innerText = article.document ? article.document.split('/').pop() : 'no document found';
 
         // Render Existing Images with delete option
