@@ -625,7 +625,7 @@
                     <th>Category</th>
                     <th>
                         <a href="{{ articleSortUrl('title', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'title' ? 'active' : '' }}">
-                            Title & Description
+                            Title
                             @if($sortBy === 'title')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -661,7 +661,6 @@
                         </td>
                         <td>
                             <div class="article-title">{{ $article->title }}</div>
-                            <div class="article-desc" title="{{ $article->description }}">{{ $article->description }}</div>
                         </td>
                         <td>
                             @if($hasImages)
@@ -961,7 +960,7 @@
 
     function openViewModal(article) {
         document.getElementById('viewTitle').innerText = article.title;
-        document.getElementById('viewDescription').innerHTML = article.description || 'N/A';
+        renderFormattedDescription(article.description, 'viewDescription');
         document.getElementById('viewCategoryBadge').innerText = article.category ? article.category.category_name : 'Uncategorized';
 
         // Images Gallery logic
@@ -1149,5 +1148,51 @@
             m.classList.remove('show');
         });
     });
+
+    function renderFormattedDescription(fullHtml, targetElementId) {
+        const descContainer = document.getElementById(targetElementId);
+        if (!descContainer) return;
+
+        if (!fullHtml || !fullHtml.trim()) {
+            descContainer.innerHTML = '<span style="color: var(--text-muted);">N/A</span>';
+            return;
+        }
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = fullHtml;
+        const plainText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+        const words = plainText.split(/\s+/).filter(w => w.length > 0);
+
+        if (words.length > 100) {
+            const shortText = words.slice(0, 100).join(' ') + '...';
+            descContainer.innerHTML = `
+                <div id="${targetElementId}-short" style="line-height: 1.6; color: #cbd5e1;">${shortText}</div>
+                <div id="${targetElementId}-full" style="display: none; line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>
+                <a href="javascript:void(0)" id="${targetElementId}-toggle-btn" onclick="toggleDescriptionTruncate('${targetElementId}')" style="color: #818cf8; font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
+                    Show More...
+                </a>
+            `;
+        } else {
+            descContainer.innerHTML = `<div style="line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>`;
+        }
+    }
+
+    function toggleDescriptionTruncate(targetElementId) {
+        const shortEl = document.getElementById(targetElementId + '-short');
+        const fullEl = document.getElementById(targetElementId + '-full');
+        const btn = document.getElementById(targetElementId + '-toggle-btn');
+
+        if (!shortEl || !fullEl || !btn) return;
+
+        if (fullEl.style.display === 'none') {
+            fullEl.style.display = 'block';
+            shortEl.style.display = 'none';
+            btn.innerText = 'Show Less';
+        } else {
+            fullEl.style.display = 'none';
+            shortEl.style.display = 'block';
+            btn.innerText = 'Show More...';
+        }
+    }
 </script>
 @endsection
