@@ -370,7 +370,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search by name, email, role...">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search by name, email, phone, role...">
                 <button type="submit" class="btn-search">Search</button>
                 @if($search)
                     <a href="{{ route('admin.users.index') }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none;">Clear</a>
@@ -428,6 +428,14 @@
                         </a>
                     </th>
                     <th>
+                        <a href="{{ userSortUrl('phone', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'phone' ? 'active' : '' }}">
+                            Phone
+                            @if($sortBy === 'phone')
+                                <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th>
                         <a href="{{ userSortUrl('role', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'role' ? 'active' : '' }}">
                             Role
                             @if($sortBy === 'role')
@@ -467,6 +475,7 @@
                             </div>
                         </td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->phone ?? 'N/A' }}</td>
                         <td>
                             <span class="badge {{ $user->role === 'admin' ? 'badge-admin' : 'badge-user' }}">
                                 {{ $user->role }}
@@ -524,8 +533,8 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-                            No users found matching "{{ $search }}".
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No users found.
                         </td>
                     </tr>
                 @endforelse
@@ -574,6 +583,10 @@
             <div class="detail-row">
                 <span class="detail-label">User ID</span>
                 <span class="detail-value" id="modalUserId"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value" id="modalUserPhone">N/A</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Account Role</span>
@@ -633,6 +646,10 @@
             <div class="form-group">
                 <label class="form-label">Email Address <span style="color:#ef4444;">*</span></label>
                 <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" class="form-control" placeholder="e.g. +966 50 123 4567">
             </div>
             <div class="form-group">
                 <label class="form-label">Password <span style="color:#ef4444;">*</span></label>
@@ -805,6 +822,7 @@
         document.getElementById('modalUserName').innerText = user.name;
         document.getElementById('modalUserEmail').innerText = user.email;
         document.getElementById('modalUserId').innerText = '#' + user.id;
+        document.getElementById('modalUserPhone').innerText = user.phone ? user.phone : 'N/A';
 
         var roleBadge = document.getElementById('modalUserRoleBadge');
         roleBadge.innerText = user.role;

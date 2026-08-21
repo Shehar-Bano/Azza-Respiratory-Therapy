@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -30,6 +31,9 @@ class UserWebController extends Controller
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('role', 'like', "%{$search}%")
                   ->orWhere('status', 'like', "%{$search}%");
+                if (Schema::hasColumn('users', 'phone')) {
+                    $q->orWhere('phone', 'like', "%{$search}%");
+                }
             });
         }
 
@@ -37,7 +41,7 @@ class UserWebController extends Controller
         $sortBy = $request->input('sort_by', 'id');
         $sortOrder = strtolower($request->input('sort_order', 'desc')) === 'asc' ? 'asc' : 'desc';
 
-        $allowedSorts = ['id', 'name', 'email', 'role', 'status', 'created_at'];
+        $allowedSorts = ['id', 'name', 'email', 'phone', 'role', 'status', 'created_at'];
         if (in_array($sortBy, $allowedSorts)) {
             $query->orderBy($sortBy, $sortOrder);
         } else {
@@ -71,6 +75,7 @@ class UserWebController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'phone' => 'nullable|string|max:50',
             'password' => 'required|string|min:6',
             'role' => 'nullable|string|in:user,admin',
             'allow_subscription' => 'nullable',
@@ -79,13 +84,19 @@ class UserWebController extends Controller
             'duration_days' => 'nullable|numeric|min:1',
         ]);
 
-        $user = User::create([
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role ?? 'user',
             'status' => 'active',
-        ]);
+        ];
+
+        if (Schema::hasColumn('users', 'phone')) {
+            $userData['phone'] = $request->phone;
+        }
+
+        $user = User::create($userData);
 
         $hasSubscription = false;
 
@@ -113,6 +124,7 @@ class UserWebController extends Controller
                     'payment_status' => 'success',
                     'customer_name' => $user->name,
                     'customer_email' => $user->email,
+                    'customer_phone' => $user->phone ?? null,
                     'status' => 'active',
                     'started_at' => $startedAt,
                     'expires_at' => $expiresAt,
