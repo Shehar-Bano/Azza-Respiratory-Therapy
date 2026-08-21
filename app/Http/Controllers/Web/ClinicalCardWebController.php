@@ -24,7 +24,7 @@ class ClinicalCardWebController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -41,7 +41,7 @@ class ClinicalCardWebController extends Controller
 
         // Dynamic Per Page
         $perPage = (int) $request->input('per_page', 10);
-        if (!in_array($perPage, [10, 20, 30, 50, 100])) {
+        if (! in_array($perPage, [10, 20, 30, 50, 100])) {
             $perPage = 10;
         }
 
@@ -72,24 +72,23 @@ class ClinicalCardWebController extends Controller
         $documentPath = null;
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $documentName = time() . '_card_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $documentName = time().'_card_doc_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/documents'), $documentName);
-            $documentPath = 'uploads/cards/documents/' . $documentName;
+            $documentPath = 'uploads/cards/documents/'.$documentName;
         }
 
         $card = ClinicalCard::create([
             'title' => $request->title,
             'description' => $request->description,
-            'image' => null,
             'document' => $documentPath,
         ]);
 
         $uploadedImages = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $file) {
-                $imageName = time() . '_' . $index . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $imageName = time().'_'.$index.'_card_img_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
                 $file->move(public_path('uploads/cards/images'), $imageName);
-                $imgPath = 'uploads/cards/images/' . $imageName;
+                $imgPath = 'uploads/cards/images/'.$imageName;
 
                 ClinicalCardImage::create([
                     'clinical_card_id' => $card->id,
@@ -99,7 +98,7 @@ class ClinicalCardWebController extends Controller
                 $uploadedImages[] = $imgPath;
             }
 
-            if (!empty($uploadedImages)) {
+            if (! empty($uploadedImages)) {
                 $card->update(['image' => $uploadedImages[0]]);
             }
         }
@@ -129,23 +128,23 @@ class ClinicalCardWebController extends Controller
             if ($card->document) {
                 if (File::exists(public_path($card->document))) {
                     File::delete(public_path($card->document));
-                } elseif (File::exists(public_path('uploads/cards/documents/' . $card->document))) {
-                    File::delete(public_path('uploads/cards/documents/' . $card->document));
+                } elseif (File::exists(public_path('uploads/cards/documents/'.$card->document))) {
+                    File::delete(public_path('uploads/cards/documents/'.$card->document));
                 }
             }
             $file = $request->file('document');
-            $documentName = time() . '_card_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $documentName = time().'_card_doc_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/cards/documents'), $documentName);
-            $data['document'] = 'uploads/cards/documents/' . $documentName;
+            $data['document'] = 'uploads/cards/documents/'.$documentName;
         }
 
         $card->update($data);
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $file) {
-                $imageName = time() . '_' . $index . '_card_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $imageName = time().'_'.$index.'_card_img_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
                 $file->move(public_path('uploads/cards/images'), $imageName);
-                $imgPath = 'uploads/cards/images/' . $imageName;
+                $imgPath = 'uploads/cards/images/'.$imageName;
 
                 ClinicalCardImage::create([
                     'clinical_card_id' => $card->id,
@@ -178,16 +177,16 @@ class ClinicalCardWebController extends Controller
         if ($card->image) {
             if (File::exists(public_path($card->image))) {
                 File::delete(public_path($card->image));
-            } elseif (File::exists(public_path('uploads/cards/images/' . $card->image))) {
-                File::delete(public_path('uploads/cards/images/' . $card->image));
+            } elseif (File::exists(public_path('uploads/cards/images/'.$card->image))) {
+                File::delete(public_path('uploads/cards/images/'.$card->image));
             }
         }
 
         if ($card->document) {
             if (File::exists(public_path($card->document))) {
                 File::delete(public_path($card->document));
-            } elseif (File::exists(public_path('uploads/cards/documents/' . $card->document))) {
-                File::delete(public_path('uploads/cards/documents/' . $card->document));
+            } elseif (File::exists(public_path('uploads/cards/documents/'.$card->document))) {
+                File::delete(public_path('uploads/cards/documents/'.$card->document));
             }
         }
 
@@ -199,7 +198,7 @@ class ClinicalCardWebController extends Controller
     /**
      * Remove an individual image from a clinical card.
      */
-    public function destroyImage(ClinicalCardImage $image): RedirectResponse
+    public function destroyImage(ClinicalCardImage $image)
     {
         $cardId = $image->clinical_card_id;
         $card = ClinicalCard::find($cardId);
@@ -210,9 +209,16 @@ class ClinicalCardWebController extends Controller
 
         $image->delete();
 
-        if ($card) {
+        if ($card && Schema::hasColumn('clinical_cards', 'image')) {
             $firstRemaining = $card->images()->first();
             $card->update(['image' => $firstRemaining ? $firstRemaining->image : null]);
+        }
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Image removed successfully.',
+            ]);
         }
 
         return redirect()->back()->with('success', 'Image removed successfully.');

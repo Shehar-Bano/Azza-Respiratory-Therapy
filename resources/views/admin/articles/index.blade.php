@@ -967,7 +967,7 @@
                 card.className = 'gallery-img-card';
                 card.innerHTML = `
                     <img src="${assetBaseUrl + imgPath}" alt="Article Image">
-                    <button type="button" class="delete-btn" title="Delete Image" onclick="deleteArticleImage(${imgRecord.id})">&times;</button>
+                    <button type="button" class="delete-btn" title="Delete Image" onclick="deleteArticleImage(${imgRecord.id}, this)">&times;</button>
                 `;
                 existingContainer.appendChild(card);
             });
@@ -984,11 +984,39 @@
         document.getElementById('editModal').classList.add('show');
     }
 
-    function deleteArticleImage(imageId) {
+    function deleteArticleImage(imageId, btnElement) {
         if (confirm('Are you sure you want to delete this image?')) {
-            const deleteForm = document.getElementById('deleteImageForm');
-            deleteForm.action = "{{ url('admin/articles/images') }}/" + imageId;
-            deleteForm.submit();
+            fetch("{{ url('admin/articles/images') }}/" + imageId, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ _method: 'DELETE' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    if (btnElement) {
+                        const cardEl = btnElement.closest('.gallery-img-card');
+                        if (cardEl) {
+                            cardEl.remove();
+                        }
+                    }
+                    const container = document.getElementById('editExistingImages');
+                    if (container && container.children.length === 0) {
+                        container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span>';
+                    }
+                } else {
+                    alert(data.message || 'Error deleting image');
+                }
+            })
+            .catch(err => {
+                console.error('Delete image error:', err);
+                alert('Failed to delete image.');
+            });
         }
     }
 

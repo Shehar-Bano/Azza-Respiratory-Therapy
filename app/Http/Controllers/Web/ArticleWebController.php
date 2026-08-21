@@ -25,7 +25,7 @@ class ArticleWebController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -42,7 +42,7 @@ class ArticleWebController extends Controller
 
         // Dynamic Per Page
         $perPage = (int) $request->input('per_page', 10);
-        if (!in_array($perPage, [10, 20, 30, 50, 100])) {
+        if (! in_array($perPage, [10, 20, 30, 50, 100])) {
             $perPage = 10;
         }
 
@@ -76,25 +76,24 @@ class ArticleWebController extends Controller
         $documentPath = null;
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $documentName = time() . '_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $documentName = time().'_doc_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/documents'), $documentName);
-            $documentPath = 'uploads/articles/documents/' . $documentName;
+            $documentPath = 'uploads/articles/documents/'.$documentName;
         }
 
         $article = Article::create([
             'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => null,
             'document' => $documentPath,
         ]);
 
         $uploadedImages = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $file) {
-                $imageName = time() . '_' . $index . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $imageName = time().'_'.$index.'_img_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
                 $file->move(public_path('uploads/articles/images'), $imageName);
-                $imgPath = 'uploads/articles/images/' . $imageName;
+                $imgPath = 'uploads/articles/images/'.$imageName;
 
                 $articleImage = ArticleImage::create([
                     'article_id' => $article->id,
@@ -104,7 +103,7 @@ class ArticleWebController extends Controller
                 $uploadedImages[] = $imgPath;
             }
 
-            if (!empty($uploadedImages)) {
+            if (! empty($uploadedImages)) {
                 $article->update(['image' => $uploadedImages[0]]);
             }
         }
@@ -136,23 +135,23 @@ class ArticleWebController extends Controller
             if ($article->document) {
                 if (File::exists(public_path($article->document))) {
                     File::delete(public_path($article->document));
-                } elseif (File::exists(public_path('uploads/articles/documents/' . $article->document))) {
-                    File::delete(public_path('uploads/articles/documents/' . $article->document));
+                } elseif (File::exists(public_path('uploads/articles/documents/'.$article->document))) {
+                    File::delete(public_path('uploads/articles/documents/'.$article->document));
                 }
             }
             $file = $request->file('document');
-            $documentName = time() . '_doc_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $documentName = time().'_doc_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/documents'), $documentName);
-            $data['document'] = 'uploads/articles/documents/' . $documentName;
+            $data['document'] = 'uploads/articles/documents/'.$documentName;
         }
 
         $article->update($data);
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $file) {
-                $imageName = time() . '_' . $index . '_img_' . preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+                $imageName = time().'_'.$index.'_img_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
                 $file->move(public_path('uploads/articles/images'), $imageName);
-                $imgPath = 'uploads/articles/images/' . $imageName;
+                $imgPath = 'uploads/articles/images/'.$imageName;
 
                 ArticleImage::create([
                     'article_id' => $article->id,
@@ -185,16 +184,16 @@ class ArticleWebController extends Controller
         if ($article->image) {
             if (File::exists(public_path($article->image))) {
                 File::delete(public_path($article->image));
-            } elseif (File::exists(public_path('uploads/articles/images/' . $article->image))) {
-                File::delete(public_path('uploads/articles/images/' . $article->image));
+            } elseif (File::exists(public_path('uploads/articles/images/'.$article->image))) {
+                File::delete(public_path('uploads/articles/images/'.$article->image));
             }
         }
 
         if ($article->document) {
             if (File::exists(public_path($article->document))) {
                 File::delete(public_path($article->document));
-            } elseif (File::exists(public_path('uploads/articles/documents/' . $article->document))) {
-                File::delete(public_path('uploads/articles/documents/' . $article->document));
+            } elseif (File::exists(public_path('uploads/articles/documents/'.$article->document))) {
+                File::delete(public_path('uploads/articles/documents/'.$article->document));
             }
         }
 
@@ -206,7 +205,7 @@ class ArticleWebController extends Controller
     /**
      * Remove an individual image from an article.
      */
-    public function destroyImage(ArticleImage $image): RedirectResponse
+    public function destroyImage(ArticleImage $image)
     {
         $articleId = $image->article_id;
         $article = Article::find($articleId);
@@ -217,9 +216,16 @@ class ArticleWebController extends Controller
 
         $image->delete();
 
-        if ($article) {
+        if ($article && Schema::hasColumn('articles', 'image')) {
             $firstRemaining = $article->images()->first();
             $article->update(['image' => $firstRemaining ? $firstRemaining->image : null]);
+        }
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Image removed successfully.',
+            ]);
         }
 
         return redirect()->back()->with('success', 'Image removed successfully.');
