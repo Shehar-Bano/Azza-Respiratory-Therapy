@@ -157,6 +157,23 @@
         max-width: 520px;
         padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+
+    .modal-card::-webkit-scrollbar {
+        width: 6px;
+    }
+    .modal-card::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 10px;
+    }
+    .modal-card::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+    .modal-card::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.35);
     }
 
     .modal-header {
@@ -696,10 +713,6 @@
             <div class="form-group">
                 <label class="form-label">Phone Number</label>
                 <input type="text" name="phone" class="form-control" placeholder="e.g. +966 50 123 4567">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Password <span style="color:#ef4444;">*</span></label>
-                <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Account Role</label>

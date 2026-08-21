@@ -76,7 +76,7 @@ class UserWebController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
             'phone' => 'nullable|string|max:50',
-            'password' => 'required|string|min:6',
+            'password' => 'nullable|string|min:6',
             'role' => 'nullable|string|in:user,admin',
             'allow_subscription' => 'nullable',
             'plan_id' => 'required_if:allow_subscription,1,on,true|nullable|string',
@@ -84,10 +84,12 @@ class UserWebController extends Controller
             'duration_days' => 'nullable|numeric|min:1',
         ]);
 
+        $rawPassword = $request->filled('password') ? $request->password : Str::random(12);
+
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($rawPassword),
             'role' => $request->role ?? 'user',
             'status' => 'active',
         ];
