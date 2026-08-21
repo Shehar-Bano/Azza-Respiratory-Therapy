@@ -407,11 +407,18 @@
             </svg>
             <input type="text" name="search" value="{{ $search }}" placeholder="Search user, transaction ref...">
             <button type="submit" class="btn-search">Search</button>
+            @if($search)
+                <a href="{{ route('admin.subscriptions.index') }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none;">Clear</a>
+            @endif
         </div>
+    </form>
 
-        @if($search || $selectedStatus)
-            <a href="{{ route('admin.subscriptions.index') }}" class="clear-link">Clear</a>
-        @endif
+    <form action="{{ route('admin.subscriptions.checkExpired') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn-action" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.55rem 0.9rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;" title="Run Expired Subscriptions Check">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Check Expired
+        </button>
     </form>
 </div>
 

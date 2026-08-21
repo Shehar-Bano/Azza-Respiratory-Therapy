@@ -116,4 +116,14 @@ class UserSubscriptionWebController extends Controller
         $statusLabel = ucfirst($request->status);
         return redirect()->back()->with('success', "Subscription status updated to {$statusLabel}.");
     }
+
+    /**
+     * Manually trigger check for expired subscriptions.
+     */
+    public function checkExpired(): RedirectResponse
+    {
+        \Illuminate\Support\Facades\Artisan::call('subscriptions:check-expired');
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return redirect()->back()->with('success', 'Expired subscriptions check executed: ' . trim($output));
+    }
 }

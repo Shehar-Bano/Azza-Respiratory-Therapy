@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClinicalCard extends Model
@@ -26,7 +25,6 @@ class ClinicalCard extends Model
     protected $fillable = [
         'title',
         'description',
-        'image',
         'document',
     ];
 

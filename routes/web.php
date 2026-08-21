@@ -54,6 +54,7 @@ Route::middleware(['admin'])->group(function () {
 
     // User Subscriptions Management
     Route::get('/admin/subscriptions', [UserSubscriptionWebController::class, 'index'])->name('admin.subscriptions.index');
+    Route::post('/admin/subscriptions/check-expired', [UserSubscriptionWebController::class, 'checkExpired'])->name('admin.subscriptions.checkExpired');
     Route::put('/admin/subscriptions/{subscription}', [UserSubscriptionWebController::class, 'update'])->name('admin.subscriptions.update');
     Route::put('/admin/subscriptions/{subscription}/status', [UserSubscriptionWebController::class, 'updateStatus'])->name('admin.subscriptions.updateStatus');
 });
