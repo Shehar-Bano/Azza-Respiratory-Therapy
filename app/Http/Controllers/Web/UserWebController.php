@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\SubscriptionPlan;
+use App\Models\SubscriptionTransaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserWebController extends Controller
@@ -46,14 +51,133 @@ class UserWebController extends Controller
         }
 
         $users = $query->paginate($perPage)->withQueryString();
+        $plans = SubscriptionPlan::orderBy('id', 'asc')->get();
 
         return view('admin.users.index', [
             'users' => $users,
+            'plans' => $plans,
             'search' => $request->input('search', ''),
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
             'perPage' => $perPage,
         ]);
+    }
+
+    /**
+     * Store a newly created user and optionally assign subscription.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role' => 'nullable|string|in:user,admin',
+            'allow_subscription' => 'nullable',
+            'plan_id' => 'required_if:allow_subscription,1,on,true|nullable|string',
+            'amount' => 'nullable|numeric|min:0',
+            'duration_days' => 'nullable|numeric|min:1',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role ?? 'user',
+            'status' => 'active',
+        ]);
+
+        $hasSubscription = false;
+
+        $allowSub = $request->has('allow_subscription') && ($request->allow_subscription == '1' || $request->allow_subscription == 'on' || $request->allow_subscription == 'true' || $request->allow_subscription === true);
+
+        if ($allowSub && $request->filled('plan_id')) {
+            $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
+                ->orWhere('id', $request->plan_id)
+                ->first();
+
+            if ($plan) {
+                $durationDays = (int) ($request->input('duration_days') ?: ($plan->duration_days > 0 ? $plan->duration_days : 30));
+                $amount = $request->filled('amount') ? (string) $request->amount : (string) ($plan->price_sar ?? $plan->price ?? '0.00');
+                $startedAt = Carbon::now();
+                $expiresAt = $startedAt->copy()->addDays($durationDays);
+
+                SubscriptionTransaction::create([
+                    'user_id' => $user->id,
+                    'plan_id' => (string) $plan->plan_id,
+                    'cart_id' => 'CASH-GRANT-' . strtoupper(Str::random(6)),
+                    'transaction_reference' => 'CASH-' . time() . '-' . $user->id,
+                    'amount' => $amount,
+                    'currency' => $plan->currency_sar ?? $plan->currency ?? 'SAR',
+                    'payment_gateway' => 'Cash',
+                    'payment_method' => 'Cash',
+                    'payment_status' => 'success',
+                    'customer_name' => $user->name,
+                    'customer_email' => $user->email,
+                    'status' => 'active',
+                    'started_at' => $startedAt,
+                    'expires_at' => $expiresAt,
+                ]);
+
+                $hasSubscription = true;
+            }
+        }
+
+        $message = "User '{$user->name}' created successfully" . ($hasSubscription ? " with an active subscription." : ".");
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Create or Update subscription for a specific user.
+     */
+    public function updateSubscription(Request $request, User $user): RedirectResponse
+    {
+        $request->validate([
+            'plan_id' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'required|in:active,suspended',
+            'duration_days' => 'nullable|integer|min:1',
+        ]);
+
+        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
+            ->orWhere('id', $request->plan_id)
+            ->first();
+
+        $activeSub = SubscriptionTransaction::where('user_id', $user->id)
+            ->latest()
+            ->first();
+
+        $durationDays = (int) ($request->input('duration_days') ?: ($plan && $plan->duration_days > 0 ? $plan->duration_days : 30));
+        $startedAt = $activeSub ? ($activeSub->started_at ?? Carbon::now()) : Carbon::now();
+        $expiresAt = Carbon::now()->addDays($durationDays);
+
+        if ($activeSub) {
+            $activeSub->update([
+                'plan_id' => $plan ? (string) $plan->plan_id : (string) $request->plan_id,
+                'amount' => (string) $request->amount,
+                'status' => $request->status,
+                'expires_at' => $expiresAt,
+            ]);
+        } else {
+            SubscriptionTransaction::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan ? (string) $plan->plan_id : (string) $request->plan_id,
+                'cart_id' => 'CASH-GRANT-' . strtoupper(Str::random(6)),
+                'transaction_reference' => 'CASH-' . time() . '-' . $user->id,
+                'amount' => (string) $request->amount,
+                'currency' => $plan->currency_sar ?? $plan->currency ?? 'SAR',
+                'payment_gateway' => 'Cash',
+                'payment_method' => 'Cash',
+                'payment_status' => 'success',
+                'customer_name' => $user->name,
+                'customer_email' => $user->email,
+                'status' => $request->status,
+                'started_at' => $startedAt,
+                'expires_at' => $expiresAt,
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', "Subscription updated successfully for user #{$user->id} ({$user->name}).");
     }
 
     /**

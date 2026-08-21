@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionTransaction;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -56,15 +58,47 @@ class UserSubscriptionWebController extends Controller
         }
 
         $subscriptions = $query->paginate($perPage)->withQueryString();
+        $plans = SubscriptionPlan::orderBy('id', 'asc')->get();
 
         return view('admin.subscriptions.index', [
             'subscriptions' => $subscriptions,
+            'plans' => $plans,
             'search' => $request->input('search', ''),
             'selectedStatus' => $request->input('status', ''),
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
             'perPage' => $perPage,
         ]);
+    }
+
+    /**
+     * Update details for specified subscription transaction.
+     */
+    public function update(Request $request, SubscriptionTransaction $subscription): RedirectResponse
+    {
+        $request->validate([
+            'plan_id' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'required|in:active,suspended',
+            'duration_days' => 'nullable|integer|min:1',
+        ]);
+
+        $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)
+            ->orWhere('id', $request->plan_id)
+            ->first();
+
+        $durationDays = (int) ($request->input('duration_days') ?: ($plan && $plan->duration_days > 0 ? $plan->duration_days : 30));
+        $startedAt = $subscription->started_at ?? Carbon::now();
+        $expiresAt = Carbon::now()->addDays($durationDays);
+
+        $subscription->update([
+            'plan_id' => $plan ? (string) $plan->plan_id : (string) $request->plan_id,
+            'amount' => (string) $request->amount,
+            'status' => $request->status,
+            'expires_at' => $expiresAt,
+        ]);
+
+        return redirect()->back()->with('success', "Subscription transaction #{$subscription->id} updated successfully.");
     }
 
     /**

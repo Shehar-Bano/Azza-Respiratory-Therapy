@@ -23,6 +23,7 @@ Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 Route::middleware(['admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/users', [UserWebController::class, 'index'])->name('admin.users.index');
+    Route::post('/admin/users', [UserWebController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}/status', [UserWebController::class, 'updateStatus'])->name('admin.users.updateStatus');
     
     // Category Management
@@ -45,11 +46,14 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/cards/{card}', [ClinicalCardWebController::class, 'destroy'])->name('admin.cards.destroy');
     Route::delete('/admin/cards/images/{image}', [ClinicalCardWebController::class, 'destroyImage'])->name('admin.cards.images.destroy');
 
+    Route::post('/admin/users/{user}/subscription', [UserWebController::class, 'updateSubscription'])->name('admin.users.updateSubscription');
+
     // Subscription Plans Management
     Route::get('/admin/plans', [SubscriptionPlanWebController::class, 'index'])->name('admin.plans.index');
     Route::put('/admin/plans/{plan}', [SubscriptionPlanWebController::class, 'update'])->name('admin.plans.update');
 
     // User Subscriptions Management
     Route::get('/admin/subscriptions', [UserSubscriptionWebController::class, 'index'])->name('admin.subscriptions.index');
+    Route::put('/admin/subscriptions/{subscription}', [UserSubscriptionWebController::class, 'update'])->name('admin.subscriptions.update');
     Route::put('/admin/subscriptions/{subscription}/status', [UserSubscriptionWebController::class, 'updateStatus'])->name('admin.subscriptions.updateStatus');
 });

@@ -249,6 +249,60 @@
         color: #ffffff;
     }
 
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+        background: rgba(11, 15, 25, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 0.85rem;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn-action {
+        padding: 0.4rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-add {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-add:hover {
+        background: rgba(99, 102, 241, 0.3);
+        color: #ffffff;
+    }
+
     .per-page-select {
         background: rgba(11, 15, 25, 0.7);
         border: 1px solid var(--card-border);
@@ -300,34 +354,44 @@
         <p class="page-subtitle">View, search, sort, and manage account statuses for registered users.</p>
     </div>
 
-    <!-- Global Search Form -->
-    <form action="{{ route('admin.users.index') }}" method="GET">
-        @if(request('sort_by'))
-            <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
-        @endif
-        @if(request('sort_order'))
-            <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
-        @endif
-        @if(request('per_page'))
-            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
-        @endif
-        <div class="search-box">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input type="text" name="search" value="{{ $search }}" placeholder="Search by name, email, role...">
-            <button type="submit" class="btn-search">Search</button>
-            @if($search)
-                <a href="{{ route('admin.users.index') }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none;">Clear</a>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <!-- Global Search Form -->
+        <form action="{{ route('admin.users.index') }}" method="GET">
+            @if(request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
             @endif
-        </div>
-    </form>
+            @if(request('sort_order'))
+                <input type="hidden" name="sort_order" value="{{ request('sort_order') }}">
+            @endif
+            @if(request('per_page'))
+                <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+            @endif
+            <div class="search-box">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search by name, email, role...">
+                <button type="submit" class="btn-search">Search</button>
+                @if($search)
+                    <a href="{{ route('admin.users.index') }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none;">Clear</a>
+                @endif
+            </div>
+        </form>
+
+        <button class="btn-action btn-add" onclick="openCreateUserModal()" style="padding: 0.5rem 0.95rem; font-size: 0.85rem;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add User
+        </button>
+    </div>
 </div>
 
 <!-- Compact Data Table with Sorting -->
 <div class="content-card">
-    <div class="card-header">
+    <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
         <h2 class="card-title">User List (Total: {{ $users->total() }})</h2>
+        <button class="btn-action btn-add" onclick="openCreateUserModal()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+            + Add User
+        </button>
     </div>
     <div class="table-responsive">
         <table class="compact-table">
@@ -426,6 +490,11 @@
                                     <a href="javascript:void(0)" onclick="openUserModal({{ json_encode($user) }})" class="dropdown-item item-view">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         View Detail
+                                    </a>
+
+                                    <a href="javascript:void(0)" onclick="openUpdateUserSubModal({{ json_encode($user) }})" class="dropdown-item item-activate">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Update Subscription
                                     </a>
 
                                     @if($user->status === 'active')
@@ -547,10 +616,190 @@
         </div>
     </div>
 </div>
+
+<!-- Create User Modal -->
+<div class="modal-backdrop" id="createUserModal">
+    <div class="modal-card" style="max-width: 540px;">
+        <div class="modal-header">
+            <h2>Add New User</h2>
+            <button class="btn-close" onclick="closeCreateUserModal()">&times;</button>
+        </div>
+        <form action="{{ route('admin.users.store') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label class="form-label">Full Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address <span style="color:#ef4444;">*</span></label>
+                <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password <span style="color:#ef4444;">*</span></label>
+                <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Account Role</label>
+                <select name="role" class="form-control">
+                    <option value="user" selected>User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- Subscription Option -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); border-radius: 10px; padding: 1rem; margin-top: 0.75rem;">
+                <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #ffffff; font-weight: 600; font-size: 0.875rem; user-select: none;">
+                    <input type="checkbox" name="allow_subscription" id="allowSubCheckbox" value="1" onchange="toggleSubscriptionFields(this.checked)" style="width: 17px; height: 17px; accent-color: #6366f1; cursor: pointer;">
+                    <span>Allow Subscription (Grant Active Plan)</span>
+                </label>
+
+                <div id="subscriptionFieldsSection" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--card-border); flex-direction: column; gap: 0.85rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Select Subscription Plan <span style="color:#ef4444;">*</span></label>
+                        <select name="plan_id" id="planSelect" class="form-control" onchange="onPlanSelectChange(this)">
+                            <option value="">-- Choose a Plan --</option>
+                            @foreach($plans as $plan)
+                                <option value="{{ $plan->plan_id }}" data-days="{{ $plan->duration_days }}" data-price="{{ $plan->price_sar ?? $plan->price }}">
+                                    {{ $plan->title }} ({{ $plan->duration_days }} Days - SAR {{ $plan->price_sar ?? $plan->price }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Amount (SAR)</label>
+                        <input type="number" step="0.01" name="amount" id="createAmountInput" class="form-control" placeholder="e.g. 397.46">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Subscription Duration (Days)</label>
+                        <input type="number" name="duration_days" id="durationDaysInput" class="form-control" placeholder="e.g. 30" min="1">
+                        <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">Leave blank to use default plan duration.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem; background: var(--primary); color: #ffffff; border-color: var(--primary);">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update User Subscription Modal -->
+<div class="modal-backdrop" id="updateUserSubModal">
+    <div class="modal-card" style="max-width: 540px;">
+        <div class="modal-header">
+            <h2>Update Subscription for <span id="subModalUserName" style="color: var(--primary);"></span></h2>
+            <button class="btn-close" onclick="closeUpdateUserSubModal()">&times;</button>
+        </div>
+        <form id="updateUserSubForm" method="POST">
+            @csrf
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Subscription Plan <span style="color:#ef4444;">*</span></label>
+                    <select name="plan_id" id="editSubPlanSelect" class="form-control" required onchange="onEditPlanSelectChange(this)">
+                        <option value="">-- Select Plan --</option>
+                        @foreach($plans as $plan)
+                            <option value="{{ $plan->plan_id }}" data-days="{{ $plan->duration_days }}" data-price="{{ $plan->price_sar ?? $plan->price }}">
+                                {{ $plan->title }} ({{ $plan->duration_days }} Days - SAR {{ $plan->price_sar ?? $plan->price }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Amount (SAR) <span style="color:#ef4444;">*</span></label>
+                    <input type="number" step="0.01" name="amount" id="editSubAmountInput" class="form-control" placeholder="e.g. 397.46" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Duration (Days from Today)</label>
+                    <input type="number" name="duration_days" id="editSubDurationInput" class="form-control" placeholder="e.g. 30" min="1">
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">Leave blank to use default plan duration.</small>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Subscription Status <span style="color:#ef4444;">*</span></label>
+                    <select name="status" id="editSubStatusSelect" class="form-control" required>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeUpdateUserSubModal()">Cancel</button>
+                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem; background: var(--primary); color: #ffffff; border-color: var(--primary);">Save Subscription</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
+    function openCreateUserModal() {
+        document.getElementById('createUserModal').classList.add('show');
+    }
+
+    function closeCreateUserModal() {
+        document.getElementById('createUserModal').classList.remove('show');
+    }
+
+    function toggleSubscriptionFields(isChecked) {
+        var section = document.getElementById('subscriptionFieldsSection');
+        var planSelect = document.getElementById('planSelect');
+        if (isChecked) {
+            section.style.display = 'flex';
+            planSelect.setAttribute('required', 'required');
+        } else {
+            section.style.display = 'none';
+            planSelect.removeAttribute('required');
+        }
+    }
+
+    function onPlanSelectChange(selectElem) {
+        var selectedOption = selectElem.options[selectElem.selectedIndex];
+        var defaultDays = selectedOption.getAttribute('data-days');
+        var defaultPrice = selectedOption.getAttribute('data-price');
+        if (defaultDays) {
+            document.getElementById('durationDaysInput').value = defaultDays;
+        }
+        if (defaultPrice) {
+            document.getElementById('createAmountInput').value = defaultPrice;
+        }
+    }
+
+    function openUpdateUserSubModal(user) {
+        document.getElementById('subModalUserName').innerText = user.name;
+        document.getElementById('updateUserSubForm').action = "{{ url('admin/users') }}/" + user.id + "/subscription";
+        
+        var sub = user.active_subscription;
+        if (sub) {
+            document.getElementById('editSubPlanSelect').value = sub.plan_id;
+            document.getElementById('editSubAmountInput').value = sub.amount;
+            document.getElementById('editSubStatusSelect').value = sub.status;
+        } else {
+            document.getElementById('editSubPlanSelect').value = '';
+            document.getElementById('editSubAmountInput').value = '';
+            document.getElementById('editSubStatusSelect').value = 'active';
+        }
+        document.getElementById('updateUserSubModal').classList.add('show');
+    }
+
+    function closeUpdateUserSubModal() {
+        document.getElementById('updateUserSubModal').classList.remove('show');
+    }
+
+    function onEditPlanSelectChange(selectElem) {
+        var selectedOption = selectElem.options[selectElem.selectedIndex];
+        var defaultDays = selectedOption.getAttribute('data-days');
+        var defaultPrice = selectedOption.getAttribute('data-price');
+        if (defaultDays) {
+            document.getElementById('editSubDurationInput').value = defaultDays;
+        }
+        if (defaultPrice) {
+            document.getElementById('editSubAmountInput').value = defaultPrice;
+        }
+    }
+
     function openUserModal(user) {
         document.getElementById('modalUserAvatar').innerText = user.name ? user.name.charAt(0).toUpperCase() : 'U';
         document.getElementById('modalUserName').innerText = user.name;

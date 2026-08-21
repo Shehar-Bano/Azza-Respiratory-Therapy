@@ -223,6 +223,110 @@
         background: var(--primary);
         border-color: var(--primary);
     }
+
+    /* Modal Backdrop & Card */
+    .modal-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1.25rem;
+    }
+
+    .modal-backdrop.show {
+        display: flex;
+    }
+
+    .modal-card {
+        background: #161e2e;
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        width: 100%;
+        max-width: 520px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .btn-close {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.35rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .btn-close:hover {
+        color: #ffffff;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+        background: rgba(11, 15, 25, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 0.85rem;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.65rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--card-border);
+        color: #cbd5e1;
+        padding: 0.55rem 1rem;
+        border-radius: 8px;
+        font-size: 0.825rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+    }
 </style>
 @endsection
 
@@ -353,6 +457,11 @@
                                     </svg>
                                 </button>
                                 <div id="drop-sub-{{ $sub->id }}" class="dropdown-menu">
+                                    <a href="javascript:void(0)" onclick="openEditSubModal({{ json_encode($sub) }})" class="dropdown-item item-activate">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit Subscription
+                                    </a>
+
                                     @if($sub->status === 'suspended')
                                         <form id="activate-sub-{{ $sub->id }}" action="{{ route('admin.subscriptions.updateStatus', $sub->id) }}" method="POST" style="margin:0;">
                                             @csrf
@@ -414,10 +523,82 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Subscription Modal -->
+<div class="modal-backdrop" id="editSubModal">
+    <div class="modal-card" style="max-width: 540px;">
+        <div class="modal-header">
+            <h2>Edit Subscription #<span id="subModalId"></span></h2>
+            <button class="btn-close" onclick="closeEditSubModal()">&times;</button>
+        </div>
+        <form id="editSubForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Subscription Plan <span style="color:#ef4444;">*</span></label>
+                    <select name="plan_id" id="editSubPlanSelect" class="form-control" required onchange="onSubPlanSelectChange(this)">
+                        <option value="">-- Select Plan --</option>
+                        @foreach($plans as $plan)
+                            <option value="{{ $plan->plan_id }}" data-days="{{ $plan->duration_days }}" data-price="{{ $plan->price_sar ?? $plan->price }}">
+                                {{ $plan->title }} ({{ $plan->duration_days }} Days - SAR {{ $plan->price_sar ?? $plan->price }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Amount (SAR) <span style="color:#ef4444;">*</span></label>
+                    <input type="number" step="0.01" name="amount" id="editSubAmountInput" class="form-control" placeholder="e.g. 397.46" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Subscription Duration (Days from Today)</label>
+                    <input type="number" name="duration_days" id="editSubDurationInput" class="form-control" placeholder="e.g. 30" min="1">
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">Leave blank to use default plan duration.</small>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Status <span style="color:#ef4444;">*</span></label>
+                    <select name="status" id="editSubStatusSelect" class="form-control" required>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeEditSubModal()">Cancel</button>
+                <button type="submit" class="btn-action" style="padding: 0.6rem 1.2rem; background: var(--primary); color: #ffffff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Update Subscription</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
+    function openEditSubModal(sub) {
+        document.getElementById('subModalId').innerText = sub.id;
+        document.getElementById('editSubForm').action = "{{ url('admin/subscriptions') }}/" + sub.id;
+        document.getElementById('editSubPlanSelect').value = sub.plan_id;
+        document.getElementById('editSubAmountInput').value = sub.amount;
+        document.getElementById('editSubStatusSelect').value = sub.status;
+        document.getElementById('editSubModal').classList.add('show');
+    }
+
+    function closeEditSubModal() {
+        document.getElementById('editSubModal').classList.remove('show');
+    }
+
+    function onSubPlanSelectChange(selectElem) {
+        var selectedOption = selectElem.options[selectElem.selectedIndex];
+        var defaultDays = selectedOption.getAttribute('data-days');
+        var defaultPrice = selectedOption.getAttribute('data-price');
+        if (defaultDays) {
+            document.getElementById('editSubDurationInput').value = defaultDays;
+        }
+        if (defaultPrice) {
+            document.getElementById('editSubAmountInput').value = defaultPrice;
+        }
+    }
     function toggleDropdown(event, id) {
         event.stopPropagation();
         var menu = document.getElementById(id);
