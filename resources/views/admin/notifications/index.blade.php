@@ -30,11 +30,12 @@
 
     .notification-grid {
         display: grid;
-        grid-template-columns: 1fr 1.2fr;
+        grid-template-columns: minmax(420px, 480px) 1fr;
         gap: 1.5rem;
+        align-items: start;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
         .notification-grid {
             grid-template-columns: 1fr;
         }
@@ -58,18 +59,20 @@
     }
 
     .card-title {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 700;
         color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        white-space: nowrap;
     }
 
     .card-title svg {
         color: var(--primary);
         width: 20px;
         height: 20px;
+        flex-shrink: 0;
     }
 
     .form-group {
@@ -111,20 +114,23 @@
         align-items: center;
         justify-content: space-between;
         background: #0d1322;
-        padding: 0.65rem 0.85rem;
+        padding: 0.75rem 0.85rem;
         border-radius: 8px;
         border: 1px solid var(--card-border);
         margin-bottom: 0.65rem;
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
 
     .checkbox-label {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.55rem;
         cursor: pointer;
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--text-primary);
+        white-space: nowrap;
     }
 
     .checkbox-label input[type="checkbox"] {
@@ -132,15 +138,18 @@
         height: 17px;
         accent-color: var(--primary);
         cursor: pointer;
+        flex-shrink: 0;
     }
 
     .badge-fcm {
         font-size: 0.7rem;
         font-weight: 700;
-        padding: 0.2rem 0.5rem;
+        padding: 0.25rem 0.6rem;
         border-radius: 9999px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .badge-fcm-active {
