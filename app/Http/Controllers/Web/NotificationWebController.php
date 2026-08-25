@@ -17,7 +17,7 @@ class NotificationWebController extends Controller
      */
     public function index(Request $request): View
     {
-        $users = User::orderBy('name')->get();
+        $users = User::where('role', 'user')->orderBy('name')->get();
 
         $notifications = AppNotification::with('user')
             ->orderByDesc('id')
@@ -42,12 +42,12 @@ class NotificationWebController extends Controller
         $selectAll = $request->boolean('select_all') || (is_array($request->user_ids) && in_array('all', $request->user_ids));
 
         if ($selectAll) {
-            $targetUsers = User::all();
+            $targetUsers = User::where('role', 'user')->get();
         } else {
             $userIds = array_filter((array) $request->user_ids, function ($val) {
                 return !empty($val) && $val !== 'all';
             });
-            $targetUsers = User::whereIn('id', $userIds)->get();
+            $targetUsers = User::where('role', 'user')->whereIn('id', $userIds)->get();
         }
 
         if ($targetUsers->isEmpty()) {

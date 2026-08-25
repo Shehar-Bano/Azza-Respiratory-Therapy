@@ -356,7 +356,7 @@
                 <div class="select-all-container">
                     <label class="checkbox-label">
                         <input type="checkbox" name="select_all" id="selectAllCheckbox" value="1">
-                        <span>Select All Users ({{ $users->count() }} total users)</span>
+                        <span>Select All App Users ({{ $users->count() }} users)</span>
                     </label>
                     <span class="badge-fcm badge-fcm-active">
                         {{ $users->whereNotNull('fcm_token')->count() }} FCM Ready
