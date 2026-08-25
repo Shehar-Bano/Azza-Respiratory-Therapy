@@ -183,23 +183,49 @@
         background-color: #0d1322 !important;
         border: 1px solid var(--card-border) !important;
         border-radius: 8px !important;
-        min-height: 42px !important;
-        padding: 4px 6px !important;
+        min-height: 46px !important;
+        padding: 4px 8px !important;
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: var(--primary) !important;
-        border: none !important;
-        color: #ffffff !important;
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
         border-radius: 6px !important;
-        padding: 3px 8px !important;
-        font-size: 0.8rem !important;
-        font-weight: 600 !important;
+        padding: 4px 10px 4px 8px !important;
+        font-size: 0.825rem !important;
+        font-weight: 500 !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+        margin-right: 6px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
     }
 
+    /* Prominent Red Remove (X) Button */
     .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #f87171 !important;
+        background: rgba(239, 68, 68, 0.18) !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+        margin-right: 2px !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background: #ef4444 !important;
         color: #ffffff !important;
-        margin-right: 5px !important;
     }
 
     .select2-dropdown {
@@ -211,6 +237,12 @@
 
     .select2-container--default .select2-search--inline .select2-search__field {
         color: var(--text-primary) !important;
+        font-family: inherit !important;
+        margin-top: 5px !important;
+        caret-color: var(--primary) !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     .select2-container--default .select2-results__option {
@@ -227,11 +259,6 @@
     .select2-container--default .select2-results__option[aria-selected=true] {
         background-color: #1f2937 !important;
         color: var(--text-muted) !important;
-    }
-
-    .disabled-select {
-        opacity: 0.5;
-        pointer-events: none;
     }
 
     /* History Table Styling */
@@ -470,16 +497,31 @@
             width: '100%'
         });
 
+        let isProgrammaticChange = false;
+
         // Select All Checkbox Handler
         $('#selectAllCheckbox').on('change', function() {
+            isProgrammaticChange = true;
             if ($(this).is(':checked')) {
                 $('#userSelect option').prop('selected', true);
-                $userSelect.trigger('change');
-                $('#userSelectContainer').addClass('disabled-select');
             } else {
                 $('#userSelect option').prop('selected', false);
-                $userSelect.trigger('change');
-                $('#userSelectContainer').removeClass('disabled-select');
+            }
+            $userSelect.trigger('change');
+            isProgrammaticChange = false;
+        });
+
+        // User Selection Change Handler (Two-Way Sync & Unselect support)
+        $userSelect.on('change', function() {
+            if (isProgrammaticChange) return;
+
+            const totalOptions = $('#userSelect option').length;
+            const selectedOptions = $(this).val() ? $(this).val().length : 0;
+
+            if (selectedOptions === totalOptions && totalOptions > 0) {
+                $('#selectAllCheckbox').prop('checked', true);
+            } else {
+                $('#selectAllCheckbox').prop('checked', false);
             }
         });
 
