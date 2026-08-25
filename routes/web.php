@@ -57,4 +57,8 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/subscriptions/check-expired', [UserSubscriptionWebController::class, 'checkExpired'])->name('admin.subscriptions.checkExpired');
     Route::put('/admin/subscriptions/{subscription}', [UserSubscriptionWebController::class, 'update'])->name('admin.subscriptions.update');
     Route::put('/admin/subscriptions/{subscription}/status', [UserSubscriptionWebController::class, 'updateStatus'])->name('admin.subscriptions.updateStatus');
+
+    // Push Notifications Management
+    Route::get('/admin/notifications', [\App\Http\Controllers\Web\NotificationWebController::class, 'index'])->name('admin.notifications.index');
+    Route::post('/admin/notifications/send', [\App\Http\Controllers\Web\NotificationWebController::class, 'send'])->name('admin.notifications.send');
 });

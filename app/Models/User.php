@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'fcm_token',
     ];
 
     /**
@@ -73,6 +74,14 @@ class User extends Authenticatable
                   ->orWhere('expires_at', '>', now());
             })
             ->latestOfMany();
+    }
+
+    /**
+     * Route notifications for the FCM channel.
+     */
+    public function routeNotificationForFcm(): ?string
+    {
+        return $this->fcm_token;
     }
 }
 

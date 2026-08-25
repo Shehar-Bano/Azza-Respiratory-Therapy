@@ -57,6 +57,10 @@ class SocialAuthService
             $user->update(['name' => $data['name']]);
         }
 
+        if (!empty($data['fcm_token'])) {
+            $user->update(['fcm_token' => $data['fcm_token']]);
+        }
+
         $token = $user->createToken('social_login_token')->plainTextToken;
 
         return [

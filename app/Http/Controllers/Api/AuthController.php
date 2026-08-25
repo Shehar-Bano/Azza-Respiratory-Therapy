@@ -37,6 +37,10 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if ($request->filled('fcm_token')) {
+            $user->update(['fcm_token' => $request->fcm_token]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -60,6 +64,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'user',
             'status' => 'active',
+            'fcm_token' => $request->fcm_token ?? null,
         ]);
 
         // Assign Free Tier (plan_id: '0') Subscription
