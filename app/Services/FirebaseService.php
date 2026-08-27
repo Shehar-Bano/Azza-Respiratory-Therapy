@@ -118,10 +118,12 @@ class FirebaseService
     private function sendViaHttpV1Api(string $token, string $title, string $body, array $data): bool
     {
         $credentials = $this->parseCredentialsFile();
-        $projectId = $this->projectId ?: ($credentials['project_id'] ?? null);
+        $projectId = $this->projectId 
+            ?: ($credentials['project_id'] ?? null) 
+            ?: ($credentials['project_info']['project_id'] ?? null);
 
         if (!$projectId) {
-            Log::error('FCM HTTP v1: Missing project_id.');
+            Log::error('FCM HTTP v1: Missing project_id in .env or firebase_credentials.json.');
             return false;
         }
 
@@ -182,6 +184,7 @@ class FirebaseService
     private function getAccessToken(?array $credentials): ?string
     {
         if (!$credentials || !isset($credentials['private_key'], $credentials['client_email'])) {
+            Log::error('FCM HTTP v1: The file in storage/app/firebase_credentials.json is a client (android google-services.json) file instead of a Firebase Service Account Key. Please download the Service Account Private Key JSON from Firebase Console > Project Settings > Service Accounts.');
             return null;
         }
 
