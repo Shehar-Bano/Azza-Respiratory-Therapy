@@ -582,6 +582,17 @@
             <input type="hidden" name="per_page" value="{{ request('per_page') }}">
         @endif
 
+        <div style="display: flex; align-items: center; gap: 0.35rem;">
+            <select name="category_id" onchange="this.form.submit()" class="per-page-select" style="padding: 0.4rem 0.65rem; border-radius: 10px; font-size: 0.825rem;">
+                <option value="">All Categories</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ ($selectedCategoryId ?? '') == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->category_name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
         <div class="search-box">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -590,7 +601,7 @@
             <button type="submit" class="btn-search">Search</button>
         </div>
 
-        @if($search)
+        @if($search || !empty($selectedCategoryId))
             <a href="{{ route('admin.articles.index') }}" class="clear-link">Clear</a>
         @endif
 

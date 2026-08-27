@@ -21,6 +21,11 @@ class ArticleWebController extends Controller
     {
         $query = Article::with(['category', 'images']);
 
+        // Category Filter
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
         // Global Search
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -54,6 +59,7 @@ class ArticleWebController extends Controller
             'articles' => $articles,
             'categories' => $categories,
             'search' => $request->input('search', ''),
+            'selectedCategoryId' => $request->input('category_id', ''),
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
             'perPage' => $perPage,

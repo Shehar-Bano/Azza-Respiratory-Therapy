@@ -11,21 +11,37 @@ use Illuminate\Http\Request;
 class ArticleApiController extends Controller
 {
     /**
-     * Get list of all articles with multiple images.
+     * Get paginated list of all articles with multiple images.
      */
-    public function getArticles(): JsonResponse
+    public function getArticles(Request $request): JsonResponse
     {
-        $articles = Article::with(['category', 'images'])->latest()->get();
+        $query = Article::with(['category', 'images']);
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $perPage = (int) $request->input('per_page', $request->input('limit', 10));
+
+        $articles = $query->latest()->paginate($perPage);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Articles fetched successfully',
-            'artical' => ArticleResource::collection($articles),
+            'artical' => ArticleResource::collection($articles->items()),
+            'pagination' => [
+                'total' => $articles->total(),
+                'count' => $articles->count(),
+                'per_page' => $articles->perPage(),
+                'current_page' => $articles->currentPage(),
+                'total_pages' => $articles->lastPage(),
+                'has_more_pages' => $articles->hasMorePages(),
+            ],
         ], 200);
     }
 
     /**
-     * Get articles filtered by category_id with multiple images.
+     * Get paginated articles filtered by category_id with multiple images.
      */
     public function getCategoryArticles(Request $request): JsonResponse
     {
@@ -35,12 +51,22 @@ class ArticleApiController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        $articles = $query->latest()->get();
+        $perPage = (int) $request->input('per_page', $request->input('limit', 10));
+
+        $articles = $query->latest()->paginate($perPage);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Category articles fetched successfully',
-            'artical' => ArticleResource::collection($articles),
+            'artical' => ArticleResource::collection($articles->items()),
+            'pagination' => [
+                'total' => $articles->total(),
+                'count' => $articles->count(),
+                'per_page' => $articles->perPage(),
+                'current_page' => $articles->currentPage(),
+                'total_pages' => $articles->lastPage(),
+                'has_more_pages' => $articles->hasMorePages(),
+            ],
         ], 200);
     }
 }
