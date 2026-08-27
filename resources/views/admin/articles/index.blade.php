@@ -633,6 +633,7 @@
                     </th>
                     <th>Image</th>
                     <th>Document</th>
+                    <th>Video</th>
                     <th>
                         <a href="{{ articleSortUrl('created_at', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'created_at' ? 'active' : '' }}">
                             Created At
@@ -691,6 +692,16 @@
                                 <span style="color: var(--text-muted); font-size: 0.775rem;">no document found</span>
                             @endif
                         </td>
+                        <td>
+                            @if($article->video)
+                                <a href="javascript:void(0)" onclick="openViewModal({{ json_encode($article) }})" class="file-btn btn-view" title="Watch Video">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Video
+                                </a>
+                            @else
+                                <span style="color: var(--text-muted); font-size: 0.775rem;">no video found</span>
+                            @endif
+                        </td>
                         <td>{{ $article->created_at ? $article->created_at->format('M d, Y') : 'N/A' }}</td>
                         <td>
                             <!-- Action Dropdown with More Icon (⋮) -->
@@ -723,7 +734,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
                             @if($search)
                                 No articles found matching "{{ $search }}".
                             @else
@@ -801,6 +812,21 @@
                 </div>
                 <div id="viewNoDocText" style="color: var(--text-muted); font-size: 0.8rem; display: none;">no document found</div>
             </div>
+
+            <!-- Video Media Player Section -->
+            <div id="viewVideoWrapper" class="detail-preview-container" style="margin-top: 0.75rem;">
+                <label class="form-label">Article Video</label>
+                <div id="viewVideoContent">
+                    <video id="viewVideoPlayer" controls style="width: 100%; max-height: 260px; border-radius: 8px; background: #000; margin-bottom: 0.5rem; display: block;"></video>
+                    <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+                        <a id="viewDownloadVideoLink" href="#" download class="btn-action btn-download">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download Video
+                        </a>
+                    </div>
+                </div>
+                <div id="viewNoVideoText" style="color: var(--text-muted); font-size: 0.8rem; display: none;">no video found</div>
+            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn-secondary" onclick="closeModal('viewModal')">Close</button>
@@ -843,6 +869,11 @@
                 <label class="form-label">Document Manual PDF File <span style="color: #ef4444;">*Required (PDF Only)</span></label>
                 <input type="file" name="document" class="form-control" accept=".pdf" required>
                 <small style="color: var(--text-muted); font-size: 0.75rem;">Only PDF files are allowed.</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Video File (Optional, MP4/MOV/WEBM)</label>
+                <input type="file" name="video" class="form-control" accept="video/*">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Select a video file to attach.</small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
@@ -894,6 +925,11 @@
                 <label class="form-label">Replace Document PDF File (Optional, PDF Only)</label>
                 <input type="file" name="document" class="form-control" accept=".pdf">
                 <small style="color: var(--text-muted); font-size: 0.75rem;">Current: <span id="currentDocumentName"></span></small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Replace Video File (Optional)</label>
+                <input type="file" name="video" class="form-control" accept="video/*">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Current: <span id="currentVideoName"></span></small>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
@@ -1011,6 +1047,25 @@
             noDocText.style.display = 'block';
         }
 
+        // Video logic
+        const videoContent = document.getElementById('viewVideoContent');
+        const noVideoText = document.getElementById('viewNoVideoText');
+        const videoPlayer = document.getElementById('viewVideoPlayer');
+        const downloadVideoLink = document.getElementById('viewDownloadVideoLink');
+
+        if (article.video) {
+            var vidPath = article.video.startsWith('uploads/') ? article.video : 'uploads/articles/videos/' + article.video;
+            var vidUrl = assetBaseUrl + vidPath;
+            videoPlayer.src = vidUrl;
+            downloadVideoLink.href = vidUrl;
+            videoContent.style.display = 'block';
+            noVideoText.style.display = 'none';
+        } else {
+            videoPlayer.src = '';
+            videoContent.style.display = 'none';
+            noVideoText.style.display = 'block';
+        }
+
         document.getElementById('viewModal').classList.add('show');
     }
 
@@ -1024,6 +1079,7 @@
             document.getElementById('editDescription').value = article.description || '';
         }
         document.getElementById('currentDocumentName').innerText = article.document ? article.document.split('/').pop() : 'no document found';
+        document.getElementById('currentVideoName').innerText = article.video ? article.video.split('/').pop() : 'no video found';
 
         // Render Existing Images with delete option
         const existingContainer = document.getElementById('editExistingImages');

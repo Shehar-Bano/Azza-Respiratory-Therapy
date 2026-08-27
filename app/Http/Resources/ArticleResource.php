@@ -45,6 +45,12 @@ class ArticleResource extends JsonResource
             $docPath = asset($imgPath);
         }
 
+        $videoPath = null;
+        if ($this->video) {
+            $vidPath = str_starts_with($this->video, 'uploads/') ? $this->video : 'uploads/articles/videos/' . $this->video;
+            $videoPath = asset($vidPath);
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -52,6 +58,7 @@ class ArticleResource extends JsonResource
             'image' => $primaryImgPath,
             'images' => $imagesList,
             'document' => $docPath,
+            'video' => $videoPath,
             'description' => $this->description,
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,

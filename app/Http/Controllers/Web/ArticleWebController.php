@@ -70,6 +70,7 @@ class ArticleWebController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'document' => 'required|file|mimes:pdf|max:10240',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:102400',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
@@ -82,11 +83,20 @@ class ArticleWebController extends Controller
             $documentPath = 'uploads/articles/documents/'.$documentName;
         }
 
+        $videoPath = null;
+        if ($request->hasFile('video')) {
+            $file = $request->file('video');
+            $videoName = time().'_vid_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $file->move(public_path('uploads/articles/videos'), $videoName);
+            $videoPath = 'uploads/articles/videos/'.$videoName;
+        }
+
         $article = Article::create([
             'category_id' => $request->category_id,
             'title' => $request->title,
             'description' => $request->description,
             'document' => $documentPath,
+            'video' => $videoPath,
         ]);
 
         $uploadedImages = [];
@@ -122,6 +132,7 @@ class ArticleWebController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'document' => 'nullable|file|mimes:pdf|max:10240',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:102400',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
@@ -144,6 +155,20 @@ class ArticleWebController extends Controller
             $documentName = time().'_doc_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/articles/documents'), $documentName);
             $data['document'] = 'uploads/articles/documents/'.$documentName;
+        }
+
+        if ($request->hasFile('video')) {
+            if ($article->video) {
+                if (File::exists(public_path($article->video))) {
+                    File::delete(public_path($article->video));
+                } elseif (File::exists(public_path('uploads/articles/videos/'.$article->video))) {
+                    File::delete(public_path('uploads/articles/videos/'.$article->video));
+                }
+            }
+            $file = $request->file('video');
+            $videoName = time().'_vid_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+            $file->move(public_path('uploads/articles/videos'), $videoName);
+            $data['video'] = 'uploads/articles/videos/'.$videoName;
         }
 
         $article->update($data);
@@ -195,6 +220,14 @@ class ArticleWebController extends Controller
                 File::delete(public_path($article->document));
             } elseif (File::exists(public_path('uploads/articles/documents/'.$article->document))) {
                 File::delete(public_path('uploads/articles/documents/'.$article->document));
+            }
+        }
+
+        if ($article->video) {
+            if (File::exists(public_path($article->video))) {
+                File::delete(public_path($article->video));
+            } elseif (File::exists(public_path('uploads/articles/videos/'.$article->video))) {
+                File::delete(public_path('uploads/articles/videos/'.$article->video));
             }
         }
 

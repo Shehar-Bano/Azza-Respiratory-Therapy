@@ -21,6 +21,7 @@ class Article extends Model
         'title',
         'description',
         'document',
+        'video',
     ];
 
     /**
