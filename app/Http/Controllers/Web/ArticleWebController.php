@@ -69,8 +69,18 @@ class ArticleWebController extends Controller
     /**
      * Store a newly created article.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
+        $messages = [
+            'document.required' => 'The PDF document manual file is required.',
+            'document.max' => 'The PDF document file size is too large! Maximum allowed limit is 10 MB.',
+            'document.mimes' => 'The document file must be a valid PDF format.',
+            'video.max' => 'The video file size is too large! Maximum allowed limit is 100 MB.',
+            'video.mimes' => 'The video must be a valid format (MP4, MOV, AVI, WMV, FLV, MKV, WEBM).',
+            'images.*.max' => 'One of the uploaded images is too large! Maximum allowed limit is 5 MB per image.',
+            'images.*.mimes' => 'Uploaded images must be JPEG, JPG, PNG, GIF, or WebP formats.',
+        ];
+
         $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -79,7 +89,7 @@ class ArticleWebController extends Controller
             'video' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:102400',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-        ]);
+        ], $messages);
 
         $documentPath = null;
         if ($request->hasFile('document')) {
@@ -125,14 +135,70 @@ class ArticleWebController extends Controller
             }
         }
 
+        $article->load(['category', 'images']);
+
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Article created successfully.',
+                'article' => $article,
+            ]);
+        }
+
         return redirect()->route('admin.articles.index')->with('success', 'Article created successfully.');
+    }
+
+    /**
+     * Upload video asynchronously for an existing article.
+     */
+    public function uploadVideo(Request $request, Article $article)
+    {
+        $request->validate([
+            'video' => 'required|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:102400',
+        ], [
+            'video.required' => 'Please select a valid video file.',
+            'video.max' => 'The video file size is too large! Maximum allowed limit is 100 MB.',
+            'video.mimes' => 'The video must be a valid format (MP4, MOV, AVI, WMV, FLV, MKV, WEBM).',
+        ]);
+
+        if ($article->video) {
+            if (File::exists(public_path($article->video))) {
+                File::delete(public_path($article->video));
+            } elseif (File::exists(public_path('uploads/articles/videos/'.$article->video))) {
+                File::delete(public_path('uploads/articles/videos/'.$article->video));
+            }
+        }
+
+        $file = $request->file('video');
+        $videoName = time().'_vid_'.preg_replace('/[^A-Za-z0-9\._-]/', '', $file->getClientOriginalName());
+        $file->move(public_path('uploads/articles/videos'), $videoName);
+        $videoPath = 'uploads/articles/videos/'.$videoName;
+
+        $article->update(['video' => $videoPath]);
+        $article->load(['category', 'images']);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Video uploaded successfully for "'.$article->title.'".',
+            'video_path' => asset($videoPath),
+            'article' => $article,
+        ]);
     }
 
     /**
      * Update specified article.
      */
-    public function update(Request $request, Article $article): RedirectResponse
+    public function update(Request $request, Article $article)
     {
+        $messages = [
+            'document.max' => 'The PDF document file size is too large! Maximum allowed limit is 10 MB.',
+            'document.mimes' => 'The document file must be a valid PDF format.',
+            'video.max' => 'The video file size is too large! Maximum allowed limit is 100 MB.',
+            'video.mimes' => 'The video must be a valid format (MP4, MOV, AVI, WMV, FLV, MKV, WEBM).',
+            'images.*.max' => 'One of the uploaded images is too large! Maximum allowed limit is 5 MB per image.',
+            'images.*.mimes' => 'Uploaded images must be JPEG, JPG, PNG, GIF, or WebP formats.',
+        ];
+
         $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -141,7 +207,7 @@ class ArticleWebController extends Controller
             'video' => 'nullable|file|mimes:mp4,mov,avi,wmv,flv,mkv,webm|max:102400',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-        ]);
+        ], $messages);
 
         $data = [
             'category_id' => $request->category_id,
@@ -192,10 +258,19 @@ class ArticleWebController extends Controller
             }
         }
 
-        // Sync primary image if main image attribute is empty or updated
         $firstImage = $article->images()->first();
         if ($firstImage) {
             $article->update(['image' => $firstImage->image]);
+        }
+
+        $article->load(['category', 'images']);
+
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Article updated successfully.',
+                'article' => $article,
+            ]);
         }
 
         return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully.');

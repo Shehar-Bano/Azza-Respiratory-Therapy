@@ -62,13 +62,21 @@ class ClinicalCardWebController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $messages = [
+            'document.required' => 'The PDF document manual file is required.',
+            'document.max' => 'The PDF document file size is too large! Maximum allowed limit is 10 MB.',
+            'document.mimes' => 'The document file must be a valid PDF format.',
+            'images.*.max' => 'One of the uploaded images is too large! Maximum allowed limit is 5 MB per image.',
+            'images.*.mimes' => 'Uploaded images must be JPEG, JPG, PNG, GIF, or WebP formats.',
+        ];
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'document' => 'required|file|mimes:pdf|max:10240',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-        ]);
+        ], $messages);
 
         $documentPath = null;
         if ($request->hasFile('document')) {
@@ -112,13 +120,20 @@ class ClinicalCardWebController extends Controller
      */
     public function update(Request $request, ClinicalCard $card): RedirectResponse
     {
+        $messages = [
+            'document.max' => 'The PDF document file size is too large! Maximum allowed limit is 10 MB.',
+            'document.mimes' => 'The document file must be a valid PDF format.',
+            'images.*.max' => 'One of the uploaded images is too large! Maximum allowed limit is 5 MB per image.',
+            'images.*.mimes' => 'Uploaded images must be JPEG, JPG, PNG, GIF, or WebP formats.',
+        ];
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'document' => 'nullable|file|mimes:pdf|max:10240',
             'images' => 'nullable|array',
             'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|max:5120',
-        ]);
+        ], $messages);
 
         $data = [
             'title' => $request->title,

@@ -128,6 +128,20 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger" style="padding: 0.85rem 1.15rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; margin-bottom: 1.25rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">
+                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Validation Error / File Upload Exceeded Limits:
+                    </div>
+                    <ul style="margin-left: 1.5rem; margin-bottom: 0; padding-left: 0;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @yield('content')
         </div>
 

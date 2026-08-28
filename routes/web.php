@@ -35,6 +35,7 @@ Route::middleware(['admin'])->group(function () {
     // Article Management
     Route::get('/admin/articles', [ArticleWebController::class, 'index'])->name('admin.articles.index');
     Route::post('/admin/articles', [ArticleWebController::class, 'store'])->name('admin.articles.store');
+    Route::post('/admin/articles/{article}/upload-video', [ArticleWebController::class, 'uploadVideo'])->name('admin.articles.uploadVideo');
     Route::put('/admin/articles/{article}', [ArticleWebController::class, 'update'])->name('admin.articles.update');
     Route::delete('/admin/articles/{article}', [ArticleWebController::class, 'destroy'])->name('admin.articles.destroy');
     Route::delete('/admin/articles/images/{image}', [ArticleWebController::class, 'destroyImage'])->name('admin.articles.images.destroy');

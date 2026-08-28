@@ -656,13 +656,13 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="articlesTableBody">
                 @forelse($articles as $article)
                     @php
                         $hasImages = ($article->images && $article->images->count() > 0) || !empty($article->image);
                         $imageCount = $article->images && $article->images->count() > 0 ? $article->images->count() : ($article->image ? 1 : 0);
                     @endphp
-                    <tr>
+                    <tr id="article-row-{{ $article->id }}">
                         <td><strong style="color: #ffffff;">#{{ $article->id }}</strong></td>
                         <td>
                             @if($article->category)
@@ -703,7 +703,7 @@
                                 <span style="color: var(--text-muted); font-size: 0.775rem;">no document found</span>
                             @endif
                         </td>
-                        <td>
+                        <td id="video-cell-{{ $article->id }}">
                             @if($article->video)
                                 <a href="javascript:void(0)" onclick="openViewModal({{ json_encode($article) }})" class="file-btn btn-view" title="Watch Video">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -852,7 +852,7 @@
             <h2>Add New Article</h2>
             <button class="btn-close" onclick="closeModal('createModal')">&times;</button>
         </div>
-        <form action="{{ route('admin.articles.store') }}" method="POST" enctype="multipart/form-data">
+        <form id="createArticleForm" action="{{ route('admin.articles.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label class="form-label">Category</label>
@@ -888,7 +888,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Article</button>
+                <button type="submit" id="createSubmitBtn" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Article</button>
             </div>
         </form>
     </div>
@@ -944,9 +944,29 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Article</button>
+                <button type="submit" id="editSubmitBtn" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Article</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Article Submit Loading Overlay -->
+<div class="loading-overlay" id="articleLoadingOverlay" style="display: none;">
+    <div class="loading-card">
+        <div class="spinner-outer">
+            <div class="spinner-ring"></div>
+            <svg class="spinner-icon" width="24" height="24" style="width: 24px; height: 24px; max-width: 24px; max-height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+        </div>
+        <div>
+            <div class="loading-title" id="loadingOverlayTitle">Saving Article...</div>
+            <div class="loading-subtitle" id="loadingOverlaySubtitle">Please wait while your files (PDF, video, images) are uploaded and processed.</div>
+        </div>
+        <div class="loading-progress-badge">
+            <div class="pulse-dot"></div>
+            <span>Uploading data, please do not close page...</span>
+        </div>
     </div>
 </div>
 
@@ -1261,5 +1281,407 @@
             btn.innerText = 'Show More...';
         }
     }
+
+    function validateFormFileSizes(formEl) {
+        const MAX_DOC_SIZE = 10 * 1024 * 1024;   // 10 MB
+        const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
+        const MAX_IMG_SIZE = 5 * 1024 * 1024;    // 5 MB
+
+        const docInput = formEl.querySelector('input[name="document"]');
+        if (docInput && docInput.files && docInput.files.length > 0) {
+            const file = docInput.files[0];
+            if (file.size > MAX_DOC_SIZE) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                Swal.fire({
+                    title: 'File Too Large!',
+                    text: `The selected PDF document "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 10 MB.`,
+                    icon: 'error',
+                    background: '#161e2e',
+                    color: '#ffffff',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                    buttonsStyling: false
+                });
+                return false;
+            }
+        }
+
+        const videoInput = formEl.querySelector('input[name="video"]');
+        if (videoInput && videoInput.files && videoInput.files.length > 0) {
+            const file = videoInput.files[0];
+            if (file.size > MAX_VIDEO_SIZE) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                Swal.fire({
+                    title: 'Video Too Large!',
+                    text: `The selected video file "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 100 MB.`,
+                    icon: 'error',
+                    background: '#161e2e',
+                    color: '#ffffff',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                    buttonsStyling: false
+                });
+                return false;
+            }
+        }
+
+        const imgInputs = formEl.querySelectorAll('input[type="file"][name="images[]"]');
+        for (let input of imgInputs) {
+            if (input.files && input.files.length > 0) {
+                for (let file of input.files) {
+                    if (file.size > MAX_IMG_SIZE) {
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                        Swal.fire({
+                            title: 'Image Too Large!',
+                            text: `The image "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 5 MB per image.`,
+                            icon: 'error',
+                            background: '#161e2e',
+                            color: '#ffffff',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                            buttonsStyling: false
+                        });
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function uploadVideoInBackground(articleId, videoFile, articleTitle) {
+        const videoCell = document.getElementById('video-cell-' + articleId);
+        if (videoCell) {
+            videoCell.innerHTML = `
+                <span class="video-upload-badge" id="video-badge-${articleId}">
+                    <span class="btn-spinner"></span> Uploading (0%)...
+                </span>
+            `;
+        }
+
+        const formData = new FormData();
+        formData.append('video', videoFile);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `{{ url('admin/articles') }}/${articleId}/upload-video`, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
+
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                const badge = document.getElementById('video-badge-' + articleId);
+                if (badge) {
+                    badge.innerHTML = `<span class="btn-spinner"></span> Uploading (${percentComplete}%)...`;
+                }
+            }
+        });
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.status) {
+                        const article = response.article || {};
+                        const articleJson = JSON.stringify(article).replace(/"/g, '&quot;');
+                        if (videoCell) {
+                            videoCell.innerHTML = `
+                                <a href="javascript:void(0)" onclick="openViewModal(${articleJson})" class="file-btn btn-view" title="Watch Video">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Video
+                                </a>
+                            `;
+                        }
+                        Swal.fire({
+                            title: 'Video Upload Completed!',
+                            text: `Video for "${articleTitle || article.title || 'Article'}" uploaded successfully.`,
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 4500,
+                            timerProgressBar: true,
+                            background: '#161e2e',
+                            color: '#ffffff'
+                        });
+                        return;
+                    }
+                } catch (err) {
+                    console.error('JSON parse error:', err);
+                }
+            }
+
+            if (videoCell) {
+                videoCell.innerHTML = `<span class="video-upload-badge failed">Upload Failed</span>`;
+            }
+            Swal.fire({
+                title: 'Video Upload Failed',
+                text: 'Could not complete video upload. Please try again.',
+                icon: 'error',
+                background: '#161e2e',
+                color: '#ffffff'
+            });
+        };
+
+        xhr.onerror = function() {
+            if (videoCell) {
+                videoCell.innerHTML = `<span class="video-upload-badge failed">Network Error</span>`;
+            }
+            Swal.fire({
+                title: 'Upload Error',
+                text: 'Network error occurred while uploading video.',
+                icon: 'error',
+                background: '#161e2e',
+                color: '#ffffff'
+            });
+        };
+
+        xhr.send(formData);
+    }
+
+    function showArticleSubmitLoader(submitBtnEl, loadingText) {
+        if (submitBtnEl) {
+            submitBtnEl.disabled = true;
+            submitBtnEl.style.opacity = '0.75';
+            submitBtnEl.style.cursor = 'not-allowed';
+            submitBtnEl.innerHTML = `<span class="btn-spinner"></span> ${loadingText}`;
+        }
+        const overlay = document.getElementById('articleLoadingOverlay');
+        const titleEl = document.getElementById('loadingOverlayTitle');
+        if (titleEl) titleEl.innerText = loadingText;
+        if (overlay) overlay.classList.add('show');
+    }
+
+    function resetArticleSubmitBtn(submitBtnEl, originalText) {
+        if (submitBtnEl) {
+            submitBtnEl.disabled = false;
+            submitBtnEl.style.opacity = '1';
+            submitBtnEl.style.cursor = 'pointer';
+            submitBtnEl.innerHTML = originalText;
+        }
+        const overlay = document.getElementById('articleLoadingOverlay');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const createForm = document.getElementById('createArticleForm');
+        if (createForm) {
+            createForm.addEventListener('submit', function(e) {
+                if (createDescriptionEditor) {
+                    createDescriptionEditor.updateSourceElement();
+                }
+
+                if (!validateFormFileSizes(createForm)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                const videoInput = createForm.querySelector('input[name="video"]');
+                const hasVideoFile = videoInput && videoInput.files && videoInput.files.length > 0;
+
+                if (hasVideoFile) {
+                    e.preventDefault();
+                    const videoFile = videoInput.files[0];
+                    const btn = document.getElementById('createSubmitBtn');
+                    showArticleSubmitLoader(btn, 'Saving Article...');
+
+                    // Copy form data except video file for fast initial save
+                    const formData = new FormData(createForm);
+                    formData.delete('video');
+
+                    fetch(createForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(async res => {
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok || !data.status) {
+                            let errMsg = data.message;
+                            if (data.errors) {
+                                errMsg = Object.values(data.errors).flat().join('\n');
+                            }
+                            throw new Error(errMsg || 'Error saving article');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        resetArticleSubmitBtn(btn, 'Save Article');
+                        closeModal('createModal');
+
+                        if (data.status && data.article) {
+                            const newArticle = data.article;
+                            createForm.reset();
+                            if (createDescriptionEditor) {
+                                createDescriptionEditor.setData('');
+                            }
+
+                            // Dynamic row prepending
+                            const tbody = document.getElementById('articlesTableBody');
+                            if (tbody) {
+                                const tr = document.createElement('tr');
+                                tr.id = 'article-row-' + newArticle.id;
+                                const categoryName = newArticle.category ? newArticle.category.category_name : 'Uncategorized';
+                                const articleJson = JSON.stringify(newArticle).replace(/"/g, '&quot;');
+                                const docPath = newArticle.document ? (newArticle.document.startsWith('uploads/') ? newArticle.document : 'uploads/articles/documents/' + newArticle.document) : '';
+                                
+                                tr.innerHTML = `
+                                    <td><strong style="color: #ffffff;">#${newArticle.id}</strong></td>
+                                    <td><span class="category-badge">${categoryName}</span></td>
+                                    <td><div class="article-title">${newArticle.title}</div></td>
+                                    <td><span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span></td>
+                                    <td>
+                                        ${docPath ? `
+                                        <div style="display: flex; gap: 0.35rem; align-items: center;">
+                                            <a href="${assetBaseUrl + docPath}" target="_blank" class="file-btn btn-view" title="View PDF">View</a>
+                                            <a href="${assetBaseUrl + docPath}" download class="file-btn btn-download" title="Download PDF">Download</a>
+                                        </div>` : '<span style="color: var(--text-muted); font-size: 0.775rem;">no document found</span>'}
+                                    </td>
+                                    <td id="video-cell-${newArticle.id}">
+                                        <span class="video-upload-badge" id="video-badge-${newArticle.id}"><span class="btn-spinner"></span> Starting upload...</span>
+                                    </td>
+                                    <td>Just now</td>
+                                    <td>
+                                        <div class="action-dropdown">
+                                            <button type="button" class="btn-more" onclick="toggleDropdown(event, 'drop-article-${newArticle.id}')">⋮</button>
+                                            <div id="drop-article-${newArticle.id}" class="dropdown-menu">
+                                                <a href="javascript:void(0)" onclick="openViewModal(${articleJson})" class="dropdown-item item-view">View Details</a>
+                                                <a href="javascript:void(0)" onclick="openEditModal(${articleJson})" class="dropdown-item item-edit">Edit Article</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                `;
+                                tbody.prepend(tr);
+                            }
+
+                            Swal.fire({
+                                title: 'Article Created!',
+                                text: 'Article details saved. Video is uploading in background...',
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 4000,
+                                background: '#161e2e',
+                                color: '#ffffff'
+                            });
+
+                            // Trigger background video upload
+                            uploadVideoInBackground(newArticle.id, videoFile, newArticle.title);
+                        }
+                    })
+                    .catch(err => {
+                        resetArticleSubmitBtn(btn, 'Save Article');
+                        console.error('Create article error:', err);
+                        Swal.fire({
+                            title: 'Validation Error',
+                            text: err.message || 'Failed to save article.',
+                            icon: 'error',
+                            background: '#161e2e',
+                            color: '#ffffff'
+                        });
+                    });
+                } else {
+                    const btn = document.getElementById('createSubmitBtn');
+                    showArticleSubmitLoader(btn, 'Saving Article...');
+                }
+            });
+        }
+
+        const editForm = document.getElementById('editForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                if (editDescriptionEditor) {
+                    editDescriptionEditor.updateSourceElement();
+                }
+
+                if (!validateFormFileSizes(editForm)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                const videoInput = editForm.querySelector('input[name="video"]');
+                const hasVideoFile = videoInput && videoInput.files && videoInput.files.length > 0;
+
+                if (hasVideoFile) {
+                    e.preventDefault();
+                    const videoFile = videoInput.files[0];
+                    const btn = document.getElementById('editSubmitBtn');
+                    showArticleSubmitLoader(btn, 'Updating Article...');
+
+                    const formData = new FormData(editForm);
+                    formData.delete('video');
+
+                    fetch(editForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(async res => {
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok || !data.status) {
+                            let errMsg = data.message;
+                            if (data.errors) {
+                                errMsg = Object.values(data.errors).flat().join('\n');
+                            }
+                            throw new Error(errMsg || 'Error updating article');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        resetArticleSubmitBtn(btn, 'Update Article');
+                        closeModal('editModal');
+
+                        if (data.status && data.article) {
+                            const updatedArticle = data.article;
+                            const videoCell = document.getElementById('video-cell-' + updatedArticle.id);
+                            if (videoCell) {
+                                videoCell.innerHTML = `<span class="video-upload-badge" id="video-badge-${updatedArticle.id}"><span class="btn-spinner"></span> Starting upload...</span>`;
+                            }
+
+                            Swal.fire({
+                                title: 'Article Updated!',
+                                text: 'Article details updated. Video is uploading in background...',
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 4000,
+                                background: '#161e2e',
+                                color: '#ffffff'
+                            });
+
+                            // Trigger background video upload
+                            uploadVideoInBackground(updatedArticle.id, videoFile, updatedArticle.title);
+                        }
+                    })
+                    .catch(err => {
+                        resetArticleSubmitBtn(btn, 'Update Article');
+                        console.error('Update article error:', err);
+                        Swal.fire({
+                            title: 'Validation Error',
+                            text: err.message || 'Failed to update article.',
+                            icon: 'error',
+                            background: '#161e2e',
+                            color: '#ffffff'
+                        });
+                    });
+                } else {
+                    const btn = document.getElementById('editSubmitBtn');
+                    showArticleSubmitLoader(btn, 'Updating Article...');
+                }
+            });
+        }
+    });
 </script>
 @endsection

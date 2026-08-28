@@ -795,7 +795,7 @@
             <h2>Add New Clinical Card</h2>
             <button class="btn-close" onclick="closeModal('createModal')">&times;</button>
         </div>
-        <form action="{{ route('admin.cards.store') }}" method="POST" enctype="multipart/form-data">
+        <form id="createCardForm" action="{{ route('admin.cards.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label class="form-label">Card Title</label>
@@ -817,7 +817,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('createModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Card</button>
+                <button type="submit" id="createSubmitBtn" class="btn-action btn-add" style="padding: 0.6rem 1.2rem;">Save Card</button>
             </div>
         </form>
     </div>
@@ -859,9 +859,29 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-                <button type="submit" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Card</button>
+                <button type="submit" id="editSubmitBtn" class="btn-action btn-edit" style="padding: 0.6rem 1.2rem;">Update Card</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Card Submit Loading Overlay -->
+<div class="loading-overlay" id="cardLoadingOverlay" style="display: none;">
+    <div class="loading-card">
+        <div class="spinner-outer">
+            <div class="spinner-ring"></div>
+            <svg class="spinner-icon" width="24" height="24" style="width: 24px; height: 24px; max-width: 24px; max-height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+        </div>
+        <div>
+            <div class="loading-title" id="loadingOverlayTitle">Saving Clinical Card...</div>
+            <div class="loading-subtitle" id="loadingOverlaySubtitle">Please wait while your files (PDF, images) are uploaded and processed.</div>
+        </div>
+        <div class="loading-progress-badge">
+            <div class="pulse-dot"></div>
+            <span>Uploading data, please do not close page...</span>
+        </div>
     </div>
 </div>
 
@@ -1154,5 +1174,92 @@
             btn.innerText = 'Show More...';
         }
     }
+
+    function validateCardFileSizes(formEl) {
+        const MAX_DOC_SIZE = 10 * 1024 * 1024; // 10 MB
+        const MAX_IMG_SIZE = 5 * 1024 * 1024;   // 5 MB
+
+        const docInput = formEl.querySelector('input[name="document"]');
+        if (docInput && docInput.files && docInput.files.length > 0) {
+            const file = docInput.files[0];
+            if (file.size > MAX_DOC_SIZE) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                Swal.fire({
+                    title: 'File Too Large!',
+                    text: `The selected PDF document "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 10 MB.`,
+                    icon: 'error',
+                    background: '#161e2e',
+                    color: '#ffffff',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                    buttonsStyling: false
+                });
+                return false;
+            }
+        }
+
+        const imgInputs = formEl.querySelectorAll('input[type="file"][name="images[]"]');
+        for (let input of imgInputs) {
+            if (input.files && input.files.length > 0) {
+                for (let file of input.files) {
+                    if (file.size > MAX_IMG_SIZE) {
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                        Swal.fire({
+                            title: 'Image Too Large!',
+                            text: `The image "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 5 MB per image.`,
+                            icon: 'error',
+                            background: '#161e2e',
+                            color: '#ffffff',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                            buttonsStyling: false
+                        });
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function showCardSubmitLoader(submitBtnEl, loadingText) {
+        if (submitBtnEl) {
+            submitBtnEl.disabled = true;
+            submitBtnEl.style.opacity = '0.75';
+            submitBtnEl.style.cursor = 'not-allowed';
+            submitBtnEl.innerHTML = `<span class="btn-spinner"></span> ${loadingText}`;
+        }
+        const overlay = document.getElementById('cardLoadingOverlay');
+        const titleEl = document.getElementById('loadingOverlayTitle');
+        if (titleEl) titleEl.innerText = loadingText;
+        if (overlay) overlay.classList.add('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const createForm = document.getElementById('createCardForm');
+        if (createForm) {
+            createForm.addEventListener('submit', function(e) {
+                if (!validateCardFileSizes(createForm)) {
+                    e.preventDefault();
+                    return false;
+                }
+                const btn = document.getElementById('createSubmitBtn');
+                showCardSubmitLoader(btn, 'Saving Card...');
+            });
+        }
+
+        const editForm = document.getElementById('editForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                if (!validateCardFileSizes(editForm)) {
+                    e.preventDefault();
+                    return false;
+                }
+                const btn = document.getElementById('editSubmitBtn');
+                showCardSubmitLoader(btn, 'Updating Card...');
+            });
+        }
+    });
 </script>
 @endsection
