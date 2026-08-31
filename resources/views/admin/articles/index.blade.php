@@ -1264,6 +1264,18 @@
         }
     }
 
+    function showFullDescriptionAlert(title, fullHtml) {
+        Swal.fire({
+            title: title || 'Full Description',
+            html: `<div style="text-align: left; max-height: 450px; overflow-y: auto; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; word-break: break-word;">${fullHtml}</div>`,
+            width: '750px',
+            background: '#161e2e',
+            color: '#ffffff',
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#4f46e5'
+        });
+    }
+
     function toggleDescriptionTruncate(targetElementId) {
         const shortEl = document.getElementById(targetElementId + '-short');
         const fullEl = document.getElementById(targetElementId + '-full');
@@ -1344,6 +1356,25 @@
                         return false;
                     }
                 }
+            }
+        }
+
+        const descInput = formEl.querySelector('textarea[name="description"]');
+        if (descInput) {
+            const descVal = descInput.value || '';
+            const MAX_DESC_LENGTH = 1000000; // 1 Million characters limit
+            if (descVal.length > MAX_DESC_LENGTH) {
+                Swal.fire({
+                    title: 'Description Extremely Long!',
+                    text: `The description contains ${descVal.length.toLocaleString()} characters which exceeds the maximum limit of ${MAX_DESC_LENGTH.toLocaleString()} characters. Please shorten it before saving.`,
+                    icon: 'warning',
+                    background: '#161e2e',
+                    color: '#ffffff',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'swal2-confirm btn-danger' },
+                    buttonsStyling: false
+                });
+                return false;
             }
         }
 

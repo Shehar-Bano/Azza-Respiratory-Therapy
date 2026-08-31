@@ -24,7 +24,7 @@ class SocialAuthController extends Controller
     public function socialLogin(SocialLoginRequest $request): JsonResponse
     {
         $existingUser = User::where('email', $request->email)->first();
-        if ($existingUser && $existingUser->status !== 'active') {
+        if ($existingUser && strtolower((string) $existingUser->status) !== 'active') {
             return response()->json([
                 'status' => 400,
                 'message' => ['Your account is suspended/inactive. Please contact administrator.'],

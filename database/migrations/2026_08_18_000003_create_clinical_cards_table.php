@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('clinical_cards', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
+            $table->longText('description');
             $table->string('image')->nullable();
             $table->string('document')->nullable();
             $table->timestamps();

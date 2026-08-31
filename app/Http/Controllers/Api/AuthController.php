@@ -30,10 +30,10 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (isset($user->status) && $user->status !== 'active') {
+        if (isset($user->status) && strtolower((string) $user->status) !== 'active') {
             return response()->json([
                 'success' => false,
-                'message' => 'Account is inactive. Please contact support.',
+                'message' => 'Account is inactive or suspended. Please contact support.',
             ], 403);
         }
 
