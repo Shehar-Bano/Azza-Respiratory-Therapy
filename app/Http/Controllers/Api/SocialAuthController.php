@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\SocialAuthService;
 use Illuminate\Http\JsonResponse;
+use InvalidArgumentException;
 
 class SocialAuthController extends Controller
 {
@@ -31,7 +32,14 @@ class SocialAuthController extends Controller
             ], 400);
         }
 
-        $result = $this->socialAuthService->handleSocialLogin($request->validated());
+        try {
+            $result = $this->socialAuthService->handleSocialLogin($request->validated());
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'status' => 400,
+                'message' => [$e->getMessage()],
+            ], 400);
+        }
 
         return response()->json([
             'status' => 200,

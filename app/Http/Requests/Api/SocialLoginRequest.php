@@ -9,6 +9,18 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class SocialLoginRequest extends FormRequest
 {
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (!$this->has('login_method') && $this->has('login-method')) {
+            $this->merge([
+                'login_method' => $this->input('login-method'),
+            ]);
+        }
+    }
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -23,9 +35,13 @@ class SocialLoginRequest extends FormRequest
      */
     public function rules(): array
     {
+        $loginMethod = $this->input('login_method') ?? $this->input('login-method') ?? 'default';
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'login_method' => ['required', 'string', 'in:default,google,apple'],
+            'name' => [$loginMethod === 'default' ? 'nullable' : 'required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required_if:login_method,default', 'nullable', 'string', 'min:6'],
             'fcm_token' => ['nullable', 'string'],
         ];
     }

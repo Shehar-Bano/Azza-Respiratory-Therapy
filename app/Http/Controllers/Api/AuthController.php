@@ -64,6 +64,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'user',
             'status' => 'active',
+            'login_method' => 'default',
             'fcm_token' => $request->fcm_token ?? null,
         ]);
 
