@@ -520,13 +520,13 @@
             <tbody>
                 @forelse($users as $user)
                     <tr>
-                        <td><strong style="color: #ffffff;">#{{ $user->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">#{{ $user->id }}</strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
                                 <div class="avatar" style="width: 26px; height: 26px; font-size: 0.75rem;">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
-                                <span style="font-weight: 600; color: #ffffff;">{{ $user->name }}</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">{{ $user->name }}</span>
                             </div>
                         </td>
                         <td>{{ $user->email }}</td>
@@ -629,7 +629,7 @@
             <div class="user-detail-header">
                 <div class="user-avatar-large" id="modalUserAvatar">U</div>
                 <div>
-                    <h3 id="modalUserName" style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin: 0;"></h3>
+                    <h3 id="modalUserName" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin: 0;"></h3>
                     <span id="modalUserEmail" style="color: var(--text-muted); font-size: 0.8rem;"></span>
                 </div>
             </div>

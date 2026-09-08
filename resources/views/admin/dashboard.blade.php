@@ -12,7 +12,7 @@
     }
 
     .plan-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 12px;
         padding: 1.25rem;
@@ -26,12 +26,12 @@
 
     .plan-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(99, 102, 241, 0.4);
+        border-color: rgba(0, 210, 223, 0.45);
     }
 
     .plan-card.featured {
-        border: 1px solid rgba(168, 85, 247, 0.5);
-        background: linear-gradient(135deg, rgba(22, 30, 46, 0.95), rgba(88, 28, 135, 0.15));
+        border: 1px solid rgba(0, 210, 223, 0.5);
+        background: linear-gradient(135deg, rgba(15, 34, 56, 0.95), rgba(0, 180, 216, 0.15));
     }
 
     .plan-badge-id {
@@ -40,9 +40,9 @@
         border-radius: 6px;
         font-size: 0.725rem;
         font-weight: 700;
-        background: rgba(99, 102, 241, 0.15);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        background: rgba(0, 210, 223, 0.15);
+        color: #38bdf8;
+        border: 1px solid rgba(0, 210, 223, 0.3);
     }
 
     .plan-title {
@@ -70,11 +70,11 @@
     .price-amount-sar {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #c084fc;
-        background: rgba(168, 85, 247, 0.12);
+        color: #38bdf8;
+        background: rgba(0, 210, 223, 0.12);
         padding: 0.25rem 0.6rem;
         border-radius: 6px;
-        border: 1px solid rgba(168, 85, 247, 0.25);
+        border: 1px solid rgba(0, 210, 223, 0.25);
     }
 
     .plan-access {
@@ -82,7 +82,7 @@
         font-size: 0.8rem;
         line-height: 1.4;
         margin-bottom: 0.85rem;
-        background: rgba(11, 15, 25, 0.5);
+        background: rgba(7, 17, 30, 0.5);
         padding: 0.5rem 0.75rem;
         border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.05);
@@ -164,7 +164,7 @@
     <div class="stat-card">
         <div class="stat-header">
             <span class="stat-title">Subscription Plans</span>
-            <div class="stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+            <div class="stat-icon" style="background: rgba(0, 210, 223, 0.15); color: #38bdf8;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -181,7 +181,7 @@
             <h2 class="card-title" style="font-size: 1.1rem; font-weight: 800; color: #ffffff;">Subscription Plans Overview</h2>
             <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.15rem;">Configured pricing plans with USD & SAR currencies.</p>
         </div>
-        <a href="{{ route('admin.plans.index') }}" style="font-size: 0.8rem; font-weight: 600; color: #818cf8; text-decoration: none;">Manage Plans &rarr;</a>
+        <a href="{{ route('admin.plans.index') }}" style="font-size: 0.8rem; font-weight: 600; color: #38bdf8; text-decoration: none;">Manage Plans &rarr;</a>
     </div>
 
     <div class="plans-grid">
@@ -191,7 +191,7 @@
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span class="plan-badge-id">Plan ID: {{ $plan->plan_id }}</span>
                         @if($plan->duration_days > 0)
-                            <span style="color: #818cf8; font-size: 0.75rem; font-weight: 600;">{{ $plan->duration_days }} Days</span>
+                            <span style="color: #38bdf8; font-size: 0.75rem; font-weight: 600;">{{ $plan->duration_days }} Days</span>
                         @else
                             <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">Lifetime Free</span>
                         @endif
@@ -219,7 +219,7 @@
                 </div>
             </div>
         @empty
-            <div style="grid-column: 1 / -1; color: var(--text-muted); padding: 1.5rem; text-align: center; background: #161e2e; border-radius: 10px;">
+            <div style="grid-column: 1 / -1; color: var(--text-muted); padding: 1.5rem; text-align: center; background: var(--card-bg); border-radius: 10px;">
                 No subscription plans configured.
             </div>
         @endforelse

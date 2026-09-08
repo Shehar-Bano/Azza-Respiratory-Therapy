@@ -21,7 +21,7 @@
     }
 
     .plan-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         padding: 1.5rem;
@@ -29,18 +29,19 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         transition: all 0.25s ease;
     }
 
     .plan-card:hover {
         border-color: var(--primary);
+        box-shadow: 0 8px 24px var(--primary-glow);
         transform: translateY(-3px);
     }
 
     .plan-card.featured {
-        border: 1px solid rgba(168, 85, 247, 0.6);
-        background: linear-gradient(135deg, rgba(22, 30, 46, 0.95), rgba(88, 28, 135, 0.2));
+        border-color: var(--primary);
+        box-shadow: 0 4px 20px var(--primary-glow);
     }
 
     .plan-badge-id {
@@ -49,15 +50,15 @@
         border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 700;
-        background: rgba(99, 102, 241, 0.15);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        background: rgba(0, 180, 216, 0.12);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     .plan-title {
         font-size: 1.25rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
         margin-top: 0.5rem;
         margin-bottom: 0.35rem;
     }
@@ -73,17 +74,17 @@
     .price-amount-usd {
         font-size: 1.75rem;
         font-weight: 800;
-        color: #34d399;
+        color: #10b981;
     }
 
     .price-amount-sar {
         font-size: 0.95rem;
         font-weight: 700;
-        color: #c084fc;
-        background: rgba(168, 85, 247, 0.15);
+        color: var(--primary);
+        background: rgba(0, 180, 216, 0.12);
         padding: 0.3rem 0.75rem;
         border-radius: 6px;
-        border: 1px solid rgba(168, 85, 247, 0.3);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     .plan-access {
@@ -91,7 +92,7 @@
         font-size: 0.85rem;
         line-height: 1.45;
         margin-bottom: 1rem;
-        background: rgba(11, 15, 25, 0.6);
+        background: var(--bg-dark);
         padding: 0.65rem 0.85rem;
         border-radius: 8px;
         border: 1px solid var(--card-border);
@@ -108,12 +109,12 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.85rem;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         margin-bottom: 0.5rem;
     }
 
     .feature-item svg {
-        color: #34d399;
+        color: #10b981;
         width: 16px;
         height: 16px;
         flex-shrink: 0;
@@ -137,21 +138,24 @@
     }
 
     .btn-edit {
-        background: rgba(59, 130, 246, 0.15);
-        color: #60a5fa;
-        border: 1px solid rgba(59, 130, 246, 0.3);
+        background: linear-gradient(135deg, #00d2df 0%, #0077b6 100%);
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 14px var(--primary-glow);
     }
 
     .btn-edit:hover {
-        background: rgba(59, 130, 246, 0.3);
+        background: linear-gradient(135deg, #00e5ff 0%, #0096c7 100%);
         color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(0, 210, 223, 0.45);
     }
 
     /* Modal Backdrop & Card */
     .modal-backdrop {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
         display: none;
         align-items: center;
@@ -165,13 +169,13 @@
     }
 
     .modal-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
         max-width: 580px;
         padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
         max-height: 90vh;
         overflow-y: auto;
     }
@@ -186,7 +190,7 @@
     .modal-header h2 {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .btn-close {
@@ -199,7 +203,7 @@
     }
 
     .btn-close:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -210,17 +214,17 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         margin-bottom: 0.35rem;
     }
 
     .form-control {
         width: 100%;
         padding: 0.6rem 0.85rem;
-        background: rgba(11, 15, 25, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         outline: none;
     }
@@ -234,10 +238,10 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 0.5rem;
-        background: rgba(11, 15, 25, 0.5);
+        background: var(--bg-dark);
         padding: 0.75rem;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--card-border);
         max-height: 220px;
         overflow-y: auto;
     }
@@ -247,7 +251,7 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.8rem;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         cursor: pointer;
     }
 
@@ -266,9 +270,9 @@
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.05);
         border: 1px solid var(--card-border);
-        color: #cbd5e1;
+        color: var(--text-secondary);
         padding: 0.55rem 1rem;
         border-radius: 8px;
         font-size: 0.825rem;
@@ -277,8 +281,8 @@
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: rgba(0, 0, 0, 0.1);
+        color: var(--text-primary);
     }
 </style>
 @endsection
@@ -300,7 +304,7 @@
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span class="plan-badge-id">Plan ID: {{ $plan->plan_id }}</span>
                     @if($plan->duration_days > 0)
-                        <span style="color: #818cf8; font-size: 0.8rem; font-weight: 700;">{{ $plan->duration_days }} Days Validity</span>
+                        <span style="color: var(--primary); font-size: 0.8rem; font-weight: 700;">{{ $plan->duration_days }} Days Validity</span>
                     @else
                         <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700;">Lifetime Free</span>
                     @endif
@@ -314,7 +318,7 @@
                 </div>
 
                 <div class="plan-access">
-                    <strong style="color: #ffffff;">Access Scope:</strong> {{ $plan->access }}
+                    <strong style="color: var(--text-primary);">Access Scope:</strong> {{ $plan->access }}
                 </div>
 
                 <ul class="feature-list">
@@ -335,7 +339,7 @@
             </div>
         </div>
     @empty
-        <div style="grid-column: 1 / -1; color: var(--text-muted); padding: 2rem; text-align: center; background: #161e2e; border-radius: 12px;">
+        <div style="grid-column: 1 / -1; color: var(--text-muted); padding: 2rem; text-align: center; background: var(--card-bg); border-radius: 12px;">
             No subscription plans found in database.
         </div>
     @endforelse
@@ -384,7 +388,7 @@
                     @foreach($allFeatures as $feat)
                         <label class="feature-checkbox-label">
                             <input type="checkbox" name="feature_ids[]" value="{{ $feat->id }}" class="feature-checkbox" id="feat-check-{{ $feat->id }}">
-                            <span><strong>{{ $feat->title }}</strong> <small style="color: #a5b4fc;">({{ $feat->slug }})</small></span>
+                            <span><strong>{{ $feat->title }}</strong> <small style="color: var(--primary);">({{ $feat->slug }})</small></span>
                         </label>
                     @endforeach
                 </div>

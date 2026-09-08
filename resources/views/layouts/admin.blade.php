@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Portal') - Azza Respiratory Therapy</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -106,30 +112,42 @@
         <header class="top-navbar">
             <div></div>
 
-            <div class="user-profile">
-                <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}</div>
-                <div class="user-info">
-                    <span class="user-name">{{ Auth::user()->name ?? 'Admin' }}</span>
-                    <span class="user-role">{{ Auth::user()->role ?? 'admin' }}</span>
+            <div class="nav-actions">
+                <!-- Theme Toggle Button -->
+                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+                    <svg id="themeMoonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                    <svg id="themeSunIcon" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </button>
+
+                <div class="user-profile">
+                    <div class="avatar">{{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}</div>
+                    <div class="user-info">
+                        <span class="user-name">{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <span class="user-role">{{ Auth::user()->role ?? 'admin' }}</span>
+                    </div>
                 </div>
             </div>
         </header>
 
         <div class="content-body">
             @if(session('success'))
-                <div class="alert alert-success" style="padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; display: flex; align-items: center; gap: 0.5rem;">
+                <div class="alert alert-success" style="padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
                     <span>{{ session('success') }}</span>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger" style="padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; display: flex; align-items: center; gap: 0.5rem;">
+                <div class="alert alert-danger" style="padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
 
             @if($errors->any())
-                <div class="alert alert-danger" style="padding: 0.85rem 1.15rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; margin-bottom: 1.25rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">
+                <div class="alert alert-danger" style="padding: 0.85rem 1.15rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; margin-bottom: 1.25rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;">
                     <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
                         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Validation Error / File Upload Exceeded Limits:
@@ -152,6 +170,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function updateThemeUI(theme) {
+            const moonIcon = document.getElementById('themeMoonIcon');
+            const sunIcon = document.getElementById('themeSunIcon');
+            if (theme === 'light') {
+                if (moonIcon) moonIcon.style.display = 'none';
+                if (sunIcon) sunIcon.style.display = 'block';
+            } else {
+                if (moonIcon) moonIcon.style.display = 'block';
+                if (sunIcon) sunIcon.style.display = 'none';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('admin_theme', newTheme);
+            updateThemeUI(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeUI(currentTheme);
+        });
+
         function confirmAction(options) {
             Swal.fire({
                 title: options.title || 'Are you sure?',
@@ -164,9 +207,7 @@
                     confirmButton: options.confirmClass || 'swal2-confirm',
                     cancelButton: 'swal2-cancel'
                 },
-                buttonsStyling: false,
-                background: '#161e2e',
-                color: '#ffffff'
+                buttonsStyling: false
             }).then(function(result) {
                 if (result.isConfirmed) {
                     if (options.formId) {

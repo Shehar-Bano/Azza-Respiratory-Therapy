@@ -95,7 +95,7 @@
 
     .category-name-text {
         font-weight: 700;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.875rem;
     }
 
@@ -416,7 +416,7 @@
             <tbody>
                 @forelse($categories as $category)
                     <tr>
-                        <td><strong style="color: #ffffff;">#{{ $category->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">#{{ $category->id }}</strong></td>
                         <td>
                             <div class="category-name-text">{{ $category->category_name }}</div>
                         </td>

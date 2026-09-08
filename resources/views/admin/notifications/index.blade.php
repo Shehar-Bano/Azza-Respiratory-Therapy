@@ -18,7 +18,7 @@
     .page-title-group h1 {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
         letter-spacing: -0.02em;
     }
 
@@ -46,7 +46,7 @@
         border: 1px solid var(--card-border);
         border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     .card-header {
@@ -61,7 +61,7 @@
     .card-title {
         font-size: 1.05rem;
         font-weight: 700;
-        color: #ffffff;
+        color: var(--text-primary);
         display: flex;
         align-items: center;
         gap: 0.6rem;
@@ -89,13 +89,13 @@
 
     .form-control {
         width: 100%;
-        background: #0d1322;
+        background: var(--bg-dark);
         border: 1px solid var(--card-border);
         border-radius: 8px;
         padding: 0.65rem 0.85rem;
         color: var(--text-primary);
         font-size: 0.875rem;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
     }
 
     .form-control:focus {
@@ -113,7 +113,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: #0d1322;
+        background: var(--bg-dark);
         padding: 0.75rem 0.85rem;
         border-radius: 8px;
         border: 1px solid var(--card-border);
@@ -154,18 +154,18 @@
 
     .badge-fcm-active {
         background: rgba(16, 185, 129, 0.15);
-        color: #34d399;
+        color: #10b981;
         border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .badge-fcm-inactive {
         background: rgba(107, 114, 128, 0.15);
-        color: #9ca3af;
+        color: var(--text-muted);
         border: 1px solid rgba(107, 114, 128, 0.3);
     }
 
     .btn-submit {
-        background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, #00d2df 0%, #0077b6 100%);
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -187,9 +187,9 @@
         box-shadow: 0 6px 20px var(--primary-glow);
     }
 
-    /* Custom Select2 Dark Styling */
+    /* Custom Select2 Theme-Aware Styling */
     .select2-container--default .select2-selection--multiple {
-        background-color: #0d1322 !important;
+        background-color: var(--bg-dark) !important;
         border: 1px solid var(--card-border) !important;
         border-radius: 8px !important;
         min-height: 46px !important;
@@ -197,9 +197,9 @@
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background: #1e293b !important;
-        border: 1px solid #334155 !important;
-        color: #f8fafc !important;
+        background: var(--card-bg) !important;
+        border: 1px solid var(--card-border) !important;
+        color: var(--text-primary) !important;
         border-radius: 6px !important;
         padding: 4px 10px 4px 8px !important;
         font-size: 0.825rem !important;
@@ -210,12 +210,12 @@
         display: inline-flex !important;
         align-items: center !important;
         gap: 6px !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
     }
 
     /* Prominent Red Remove (X) Button */
     .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: #f87171 !important;
+        color: #ef4444 !important;
         background: rgba(239, 68, 68, 0.18) !important;
         border: none !important;
         border-radius: 50% !important;
@@ -238,10 +238,10 @@
     }
 
     .select2-dropdown {
-        background-color: #111827 !important;
+        background-color: var(--card-bg) !important;
         border: 1px solid var(--card-border) !important;
         border-radius: 8px !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
     }
 
     .select2-container--default .select2-search--inline .select2-search__field {
@@ -266,7 +266,7 @@
     }
 
     .select2-container--default .select2-results__option[aria-selected=true] {
-        background-color: #1f2937 !important;
+        background-color: var(--sidebar-bg) !important;
         color: var(--text-muted) !important;
     }
 
@@ -285,8 +285,8 @@
     }
 
     .data-table th {
-        background: #0d1322;
-        color: var(--text-secondary);
+        background: var(--sidebar-bg);
+        color: var(--text-muted);
         font-weight: 700;
         text-transform: uppercase;
         font-size: 0.725rem;
@@ -307,7 +307,7 @@
     }
 
     .data-table tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(0, 180, 216, 0.04);
     }
 
     .read-badge {
@@ -319,12 +319,12 @@
 
     .read-badge-yes {
         background: rgba(16, 185, 129, 0.15);
-        color: #34d399;
+        color: #10b981;
     }
 
     .read-badge-no {
         background: rgba(245, 158, 11, 0.15);
-        color: #fbbf24;
+        color: #f59e0b;
     }
 
     .pagination-wrapper {
@@ -446,7 +446,7 @@
                         <tr>
                             <td>
                                 <div>
-                                    <strong style="color:#ffffff;">{{ $notification->user->name ?? 'User #'.$notification->user_id }}</strong>
+                                    <strong style="color: var(--text-primary);">{{ $notification->user->name ?? 'User #'.$notification->user_id }}</strong>
                                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $notification->user->email ?? 'N/A' }}</div>
                                 </div>
                             </td>
@@ -545,9 +545,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'No User Selected',
-                    text: 'Please select at least one user or check "Select All Users".',
-                    background: '#161e2e',
-                    color: '#ffffff'
+                    text: 'Please select at least one user or check "Select All Users".'
                 });
                 return false;
             }
@@ -566,9 +564,7 @@
                     confirmButton: 'swal2-confirm',
                     cancelButton: 'swal2-cancel'
                 },
-                buttonsStyling: false,
-                background: '#161e2e',
-                color: '#ffffff'
+                buttonsStyling: false
             }).then(function(result) {
                 if (result.isConfirmed) {
                     $('#submitBtn').prop('disabled', true).html('Sending notifications...');

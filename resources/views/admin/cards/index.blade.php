@@ -95,7 +95,7 @@
 
     .card-title-text {
         font-weight: 700;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.875rem;
     }
 

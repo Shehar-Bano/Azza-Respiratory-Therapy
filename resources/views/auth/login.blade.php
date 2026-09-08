@@ -9,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-glow: rgba(99, 102, 241, 0.35);
+            --bg-gradient: radial-gradient(circle at 50% 20%, #0a2540 0%, #07111e 65%, #040913 100%);
+            --card-bg: rgba(15, 34, 56, 0.75);
+            --card-border: rgba(0, 210, 223, 0.2);
+            --primary: #00b4d8;
+            --primary-hover: #00d2df;
+            --primary-glow: rgba(0, 210, 223, 0.35);
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --danger-bg: rgba(239, 68, 68, 0.15);
@@ -44,15 +44,15 @@
             overflow-x: hidden;
         }
 
-        /* Ambient Glow Effects */
+        /* Ambient Glow Effects matching logo cyan & ocean blue */
         body::before {
             content: '';
             position: absolute;
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0,0,0,0) 70%);
-            top: 15%;
-            left: 20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, rgba(0,0,0,0) 70%);
+            top: 10%;
+            left: 15%;
             border-radius: 50%;
             pointer-events: none;
         }
@@ -60,11 +60,11 @@
         body::after {
             content: '';
             position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(0,0,0,0) 70%);
-            bottom: 15%;
-            right: 20%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0, 119, 182, 0.25) 0%, rgba(0,0,0,0) 70%);
+            bottom: 10%;
+            right: 15%;
             border-radius: 50%;
             pointer-events: none;
         }
@@ -78,7 +78,7 @@
             border: 1px solid var(--card-border);
             border-radius: 24px;
             padding: 2.75rem 2.25rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 223, 0.15);
             z-index: 10;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -88,19 +88,19 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.4rem 0.85rem;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: rgba(0, 210, 223, 0.12);
+            border: 1px solid rgba(0, 210, 223, 0.3);
             border-radius: 100px;
-            color: #a5b4fc;
+            color: #38bdf8;
             font-size: 0.825rem;
             font-weight: 600;
             margin-bottom: 1.25rem;
         }
 
-        .brand-badge svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
+        .brand-badge img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
         }
 
         .login-header {
@@ -174,8 +174,8 @@
         .form-control {
             width: 100%;
             padding: 0.85rem 1rem 0.85rem 2.75rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(7, 17, 30, 0.65);
+            border: 1px solid rgba(0, 210, 223, 0.2);
             border-radius: 14px;
             color: #ffffff;
             font-size: 0.95rem;
@@ -190,7 +190,7 @@
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 4px var(--primary-glow);
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(7, 17, 30, 0.9);
         }
 
         .form-control:focus + .input-icon {
@@ -217,9 +217,9 @@
             -webkit-appearance: none;
             width: 18px;
             height: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 210, 223, 0.3);
             border-radius: 6px;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(7, 17, 30, 0.65);
             cursor: pointer;
             position: relative;
             transition: all 0.2s ease;
@@ -250,14 +250,14 @@
         .btn-submit {
             width: 100%;
             padding: 0.95rem;
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            background: linear-gradient(135deg, #00d2df 0%, #0077b6 100%);
             border: none;
             border-radius: 14px;
             color: #ffffff;
             font-size: 0.975rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 210, 223, 0.4);
             transition: all 0.25s ease;
             display: flex;
             align-items: center;
@@ -267,8 +267,8 @@
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5);
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            box-shadow: 0 15px 30px -5px rgba(0, 210, 223, 0.55);
+            background: linear-gradient(135deg, #00e5ff 0%, #0096c7 100%);
         }
 
         .btn-submit:active {
@@ -286,7 +286,7 @@
 <body>
     <div class="login-card">
         <div class="brand-badge">
-            <img src="{{ asset('logo/azza_respiratory_icon.png') }}" alt="AZZA Logo" style="width: 22px; height: 22px; object-fit: contain;">
+            <img src="{{ asset('logo/azza_respiratory_icon.png') }}" alt="AZZA Logo">
             AZZA Respiratory Therapy
         </div>
 

@@ -36,7 +36,7 @@
         background: transparent;
         border: none;
         outline: none;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         width: 100%;
     }
@@ -77,7 +77,7 @@
     }
 
     .clear-link:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .sort-link {
@@ -90,13 +90,13 @@
     }
 
     .sort-link:hover, .sort-link.active {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .status-select {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        color: #ffffff;
+        color: var(--text-primary);
         border-radius: 8px;
         padding: 0.4rem 0.65rem;
         font-size: 0.8rem;
@@ -110,9 +110,9 @@
         border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 700;
-        background: rgba(168, 85, 247, 0.15);
-        color: #c084fc;
-        border: 1px solid rgba(168, 85, 247, 0.3);
+        background: rgba(0, 180, 216, 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     /* Action Dropdown with More Icon (⋮) */
@@ -122,8 +122,8 @@
     }
 
     .btn-more {
-        background: rgba(255, 255, 255, 0.05);
-        color: #cbd5e1;
+        background: rgba(0, 180, 216, 0.05);
+        color: var(--text-secondary);
         border: 1px solid var(--card-border);
         padding: 0.4rem 0.55rem;
         border-radius: 8px;
@@ -135,8 +135,8 @@
     }
 
     .btn-more:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: rgba(0, 180, 216, 0.12);
+        color: var(--text-primary);
         border-color: var(--primary);
     }
 
@@ -144,10 +144,10 @@
         position: absolute;
         right: 0;
         top: 110%;
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
         min-width: 160px;
         z-index: 100;
         display: none;
@@ -165,7 +165,7 @@
         padding: 0.5rem 0.85rem;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         text-decoration: none;
         transition: background 0.15s ease, color 0.15s ease;
         width: 100%;
@@ -176,16 +176,17 @@
     }
 
     .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(0, 180, 216, 0.08);
+        color: var(--text-primary);
     }
 
-    .dropdown-item.item-activate:hover { color: #34d399; }
-    .dropdown-item.item-suspend:hover { color: #fca5a5; }
+    .dropdown-item.item-activate:hover { color: #10b981; }
+    .dropdown-item.item-suspend:hover { color: #ef4444; }
 
     .per-page-select {
-        background: rgba(11, 15, 25, 0.7);
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
-        color: #ffffff;
+        color: var(--text-primary);
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
         font-size: 0.775rem;
@@ -243,9 +244,9 @@
         height: 32px !important;
         padding: 0 0.6rem !important;
         border-radius: 6px !important;
-        background: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(0, 180, 216, 0.05) !important;
         border: 1px solid var(--card-border) !important;
-        color: #cbd5e1 !important;
+        color: var(--text-secondary) !important;
         text-decoration: none !important;
         font-size: 0.8rem !important;
         font-weight: 600 !important;
@@ -259,9 +260,9 @@
     }
     .pagination-wrapper a.page-link:hover,
     .pagination-wrapper a.relative:hover {
-        background: rgba(255, 255, 255, 0.12) !important;
-        color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(0, 180, 216, 0.12) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--card-border) !important;
     }
     .pagination-wrapper .page-item.disabled .page-link,
     .pagination-wrapper span[aria-disabled="true"] {
@@ -274,7 +275,7 @@
     .modal-backdrop {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
         display: none;
         align-items: center;
@@ -288,13 +289,13 @@
     }
 
     .modal-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
         max-width: 520px;
         padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     }
 
     .modal-header {
@@ -307,7 +308,7 @@
     .modal-header h2 {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .btn-close {
@@ -320,7 +321,7 @@
     }
 
     .btn-close:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -331,17 +332,17 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         margin-bottom: 0.35rem;
     }
 
     .form-control {
         width: 100%;
         padding: 0.6rem 0.85rem;
-        background: rgba(11, 15, 25, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         outline: none;
     }
@@ -359,9 +360,9 @@
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.05);
         border: 1px solid var(--card-border);
-        color: #cbd5e1;
+        color: var(--text-secondary);
         padding: 0.55rem 1rem;
         border-radius: 8px;
         font-size: 0.825rem;
@@ -370,8 +371,8 @@
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: rgba(0, 0, 0, 0.1);
+        color: var(--text-primary);
     }
 </style>
 @endsection
@@ -463,14 +464,14 @@
                         $isExpired = $expiresAt && $expiresAt->isPast();
                     @endphp
                     <tr>
-                        <td><strong style="color: #ffffff;">#{{ $sub->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">#{{ $sub->id }}</strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
                                 <div class="avatar" style="width: 28px; height: 28px; font-size: 0.75rem;">
                                     {{ strtoupper(substr($userName, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <div style="font-weight: 700; color: #ffffff;">{{ $userName }}</div>
+                                    <div style="font-weight: 700; color: var(--text-primary);">{{ $userName }}</div>
                                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $userEmail }}</div>
                                 </div>
                             </div>
@@ -480,16 +481,16 @@
                             <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Plan ID: {{ $sub->plan_id }}</div>
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: #a5b4fc; font-size: 0.8rem;">{{ $sub->transaction_reference ?? $sub->cart_id ?? 'N/A' }}</div>
+                            <div style="font-weight: 600; color: var(--primary); font-size: 0.8rem;">{{ $sub->transaction_reference ?? $sub->cart_id ?? 'N/A' }}</div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $sub->payment_gateway ?? 'PayTabs' }} ({{ $sub->card_brand ?? 'Card' }})</div>
                         </td>
                         <td>
-                            <strong style="color: #34d399;">{{ $sub->amount }} {{ $sub->currency }}</strong>
+                            <strong style="color: #10b981;">{{ $sub->amount }} {{ $sub->currency }}</strong>
                         </td>
                         <td>
                             @if($expiresAt)
                                 <div>{{ $expiresAt->format('M d, Y') }}</div>
-                                <div style="font-size: 0.75rem; color: {{ $isExpired ? '#fca5a5' : '#818cf8' }};">
+                                <div style="font-size: 0.75rem; color: {{ $isExpired ? '#ef4444' : 'var(--primary)' }};">
                                     {{ $isExpired ? 'Expired' : ($remainingDays . ' days left') }}
                                 </div>
                             @else
