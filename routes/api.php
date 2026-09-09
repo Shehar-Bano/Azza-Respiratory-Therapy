@@ -22,8 +22,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/social-login', [SocialAuthController::class, 'socialLogin']);
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-reset-otp', [AuthController::class, 'verifyResetOtp']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/user/fcm-token', [AppNotificationController::class, 'updateFcmToken']);

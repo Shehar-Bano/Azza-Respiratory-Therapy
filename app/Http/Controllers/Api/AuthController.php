@@ -8,12 +8,15 @@ use App\Http\Requests\Api\RegisterRequest;
 use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionTransaction;
 use App\Models\User;
+use App\Notifications\ResetPasswordOtpNotification;
 use App\Notifications\VerifyEmailNotification;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -237,6 +240,169 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification link has been sent to your email address.',
+        ], 200);
+    }
+
+    /**
+     * Send password reset OTP code to user email.
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not registered yet.',
+            ], 404);
+        }
+
+        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => $otpCode,
+                'created_at' => Carbon::now(),
+            ]
+        );
+
+        try {
+            $user->notify(new ResetPasswordOtpNotification($otpCode));
+        } catch (\Exception $e) {
+            Log::error('Forgot password OTP email failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset OTP code has been sent to your email address.',
+            'otp' => config('app.env') === 'local' ? $otpCode : null,
+        ], 200);
+    }
+
+    /**
+     * Verify the password reset OTP code.
+     */
+    public function verifyResetOtp(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+            'otp' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No password reset request found for this email.',
+            ], 404);
+        }
+
+        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The OTP code has expired. Please request a new one.',
+            ], 400);
+        }
+
+        if ((string) $record->token !== (string) $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP code. Please check your email and try again.',
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not registered yet.',
+            ], 404);
+        }
+
+        // Delete used reset OTP
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        // Create reset token for authentication
+        $token = $user->createToken('PasswordResetToken')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP verified successfully. You can now reset your password.',
+            'token' => $token,
+        ], 200);
+    }
+
+    /**
+     * Reset user password after verifying OTP.
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = $request->user();
+
+        if (!$user) {
+            $tokenString = $request->bearerToken() ?? $request->header('token') ?? $request->token;
+            if ($tokenString) {
+                $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($tokenString);
+                if ($accessToken) {
+                    $user = $accessToken->tokenable;
+                }
+            }
+        }
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated. Please verify OTP code first and include Bearer token.',
+            ], 401);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Revoke temporary tokens
+        $user->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password has been reset successfully. You can now log in with your new password.',
         ], 200);
     }
 
