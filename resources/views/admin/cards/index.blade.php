@@ -36,7 +36,7 @@
         background: transparent;
         border: none;
         outline: none;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         width: 100%;
     }
@@ -77,7 +77,7 @@
     }
 
     .clear-link:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .sort-link {
@@ -90,7 +90,7 @@
     }
 
     .sort-link:hover, .sort-link.active {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .card-title-text {
@@ -217,9 +217,22 @@
         justify-content: center;
     }
 
+    .btn-more {
+        background: var(--input-bg);
+        color: var(--text-secondary);
+        border: 1px solid var(--card-border);
+        padding: 0.4rem 0.55rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .btn-more:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
         border-color: var(--primary);
     }
 
@@ -227,10 +240,10 @@
         position: absolute;
         right: 0;
         top: 110%;
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         min-width: 150px;
         z-index: 100;
         display: none;
@@ -248,13 +261,13 @@
         padding: 0.5rem 0.85rem;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         text-decoration: none;
         transition: background 0.15s ease, color 0.15s ease;
     }
 
     .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--input-bg);
     }
 
     .dropdown-item.item-view:hover { color: #34d399; }
@@ -279,13 +292,13 @@
     }
 
     .modal-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
         max-width: 620px;
         padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
         max-height: 90vh;
         overflow-y: auto;
     }
@@ -300,7 +313,7 @@
     .modal-header h2 {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .btn-close {
@@ -313,7 +326,7 @@
     }
 
     .btn-close:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -324,17 +337,17 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         margin-bottom: 0.35rem;
     }
 
     .form-control {
         width: 100%;
         padding: 0.6rem 0.85rem;
-        background: rgba(11, 15, 25, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         outline: none;
     }
@@ -357,9 +370,9 @@
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
-        color: #cbd5e1;
+        color: var(--text-primary);
         padding: 0.55rem 1rem;
         border-radius: 8px;
         font-size: 0.825rem;
@@ -368,12 +381,12 @@
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
     }
 
     .detail-preview-container {
-        background: rgba(11, 15, 25, 0.7);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
         padding: 1rem;
@@ -392,7 +405,7 @@
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid var(--card-border);
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 0.1);
     }
 
     .gallery-img-card img {
@@ -424,9 +437,9 @@
     }
 
     .per-page-select {
-        background: rgba(11, 15, 25, 0.7);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
-        color: #ffffff;
+        color: var(--text-primary);
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
         font-size: 0.775rem;
@@ -639,7 +652,7 @@
                         $imageCount = $card->images && $card->images->count() > 0 ? $card->images->count() : ($card->image ? 1 : 0);
                     @endphp
                     <tr>
-                        <td><strong style="color: #ffffff;">#{{ $card->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">#{{ $card->id }}</strong></td>
                         <td>
                             <div class="card-title-text">{{ $card->title }}</div>
                         </td>
@@ -748,12 +761,12 @@
         </div>
         <div>
             <div style="margin-bottom: 0.75rem;">
-                <h3 id="viewTitle" style="font-size: 1.1rem; font-weight: 800; color: #ffffff;"></h3>
+                <h3 id="viewTitle" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);"></h3>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label class="form-label">Description</label>
-                <div id="viewDescription" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; background: rgba(11,15,25,0.7); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border);"></div>
+                <div id="viewDescription" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; background: var(--bg-dark); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border);"></div>
             </div>
 
             <!-- Image Preview Section -->
@@ -1146,24 +1159,24 @@
         if (words.length > 100) {
             const shortText = words.slice(0, 100).join(' ') + '...';
             descContainer.innerHTML = `
-                <div id="${targetElementId}-short" style="line-height: 1.6; color: #cbd5e1;">${shortText}</div>
-                <div id="${targetElementId}-full" style="display: none; line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>
-                <a href="javascript:void(0)" id="${targetElementId}-toggle-btn" onclick="toggleDescriptionTruncate('${targetElementId}')" style="color: #818cf8; font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
+                <div id="${targetElementId}-short" style="line-height: 1.6; color: var(--text-primary);">${shortText}</div>
+                <div id="${targetElementId}-full" style="display: none; line-height: 1.6; color: var(--text-primary);">${fullHtml}</div>
+                <a href="javascript:void(0)" id="${targetElementId}-toggle-btn" onclick="toggleDescriptionTruncate('${targetElementId}')" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
                     Show More...
                 </a>
             `;
         } else {
-            descContainer.innerHTML = `<div style="line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>`;
+            descContainer.innerHTML = `<div style="line-height: 1.6; color: var(--text-primary);">${fullHtml}</div>`;
         }
     }
 
     function showFullDescriptionAlert(title, fullHtml) {
         Swal.fire({
             title: title || 'Full Description',
-            html: `<div style="text-align: left; max-height: 450px; overflow-y: auto; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; word-break: break-word;">${fullHtml}</div>`,
+            html: `<div style="text-align: left; max-height: 450px; overflow-y: auto; color: var(--text-primary); font-size: 0.9rem; line-height: 1.6; word-break: break-word;">${fullHtml}</div>`,
             width: '750px',
-            background: '#161e2e',
-            color: '#ffffff',
+            background: 'var(--card-bg)',
+            color: 'var(--text-primary)',
             confirmButtonText: 'Close',
             confirmButtonColor: '#4f46e5'
         });
@@ -1200,8 +1213,8 @@
                     title: 'File Too Large!',
                     text: `The selected PDF document "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 10 MB.`,
                     icon: 'error',
-                    background: '#161e2e',
-                    color: '#ffffff',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-primary)',
                     confirmButtonText: 'OK',
                     customClass: { confirmButton: 'swal2-confirm btn-danger' },
                     buttonsStyling: false
@@ -1220,8 +1233,8 @@
                             title: 'Image Too Large!',
                             text: `The image "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 5 MB per image.`,
                             icon: 'error',
-                            background: '#161e2e',
-                            color: '#ffffff',
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)',
                             confirmButtonText: 'OK',
                             customClass: { confirmButton: 'swal2-confirm btn-danger' },
                             buttonsStyling: false
@@ -1241,8 +1254,8 @@
                     title: 'Description Extremely Long!',
                     text: `The description contains ${descVal.length.toLocaleString()} characters which exceeds the maximum limit of ${MAX_DESC_LENGTH.toLocaleString()} characters. Please shorten it before saving.`,
                     icon: 'warning',
-                    background: '#161e2e',
-                    color: '#ffffff',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-primary)',
                     confirmButtonText: 'OK',
                     customClass: { confirmButton: 'swal2-confirm btn-danger' },
                     buttonsStyling: false

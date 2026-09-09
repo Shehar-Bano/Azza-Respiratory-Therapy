@@ -66,7 +66,7 @@
     }
 
     .sort-link:hover, .sort-link.active {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     /* Action Dropdown with More Icon (⋮) */
@@ -76,8 +76,8 @@
     }
 
     .btn-more {
-        background: rgba(255, 255, 255, 0.05);
-        color: #cbd5e1;
+        background: var(--input-bg);
+        color: var(--text-secondary);
         border: 1px solid var(--card-border);
         padding: 0.4rem 0.55rem;
         border-radius: 8px;
@@ -89,8 +89,8 @@
     }
 
     .btn-more:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
         border-color: var(--primary);
     }
 
@@ -98,10 +98,10 @@
         position: absolute;
         right: 0;
         top: 110%;
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         min-width: 160px;
         z-index: 100;
         display: none;
@@ -119,13 +119,13 @@
         padding: 0.5rem 0.85rem;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         text-decoration: none;
         transition: background 0.15s ease, color 0.15s ease;
     }
 
     .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--input-bg);
     }
 
     .dropdown-item.item-view:hover { color: #34d399; }
@@ -150,13 +150,13 @@
     }
 
     .modal-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
         max-width: 520px;
         padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
         max-height: 88vh;
         overflow-y: auto;
     }
@@ -165,15 +165,15 @@
         width: 6px;
     }
     .modal-card::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(0, 0, 0, 0.04);
         border-radius: 10px;
     }
     .modal-card::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.2);
         border-radius: 10px;
     }
     .modal-card::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.35);
+        background: rgba(0, 0, 0, 0.35);
     }
 
     .modal-header {
@@ -186,7 +186,7 @@
     .modal-header h2 {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .btn-close {
@@ -199,7 +199,7 @@
     }
 
     .btn-close:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .user-detail-header {
@@ -229,7 +229,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.6rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--card-border);
         font-size: 0.85rem;
     }
 
@@ -239,7 +239,7 @@
     }
 
     .detail-value {
-        color: #ffffff;
+        color: var(--text-primary);
         font-weight: 600;
     }
 
@@ -251,9 +251,9 @@
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
-        color: #cbd5e1;
+        color: var(--text-primary);
         padding: 0.55rem 1rem;
         border-radius: 8px;
         font-size: 0.825rem;
@@ -262,8 +262,8 @@
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -274,19 +274,24 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         margin-bottom: 0.35rem;
     }
 
     .form-control {
         width: 100%;
         padding: 0.6rem 0.85rem;
-        background: rgba(11, 15, 25, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         outline: none;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
     .form-control:focus {

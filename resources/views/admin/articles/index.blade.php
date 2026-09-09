@@ -36,7 +36,7 @@
         background: transparent;
         border: none;
         outline: none;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         width: 100%;
     }
@@ -77,7 +77,7 @@
     }
 
     .clear-link:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .sort-link {
@@ -90,7 +90,7 @@
     }
 
     .sort-link:hover, .sort-link.active {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .article-title {
@@ -114,9 +114,9 @@
         border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 600;
-        background: rgba(99, 102, 241, 0.15);
-        color: #a5b4fc;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        background: rgba(0, 180, 216, 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     .file-btn {
@@ -147,14 +147,14 @@
     }
 
     .btn-add {
-        background: rgba(99, 102, 241, 0.15);
-        color: #818cf8;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        background: rgba(0, 180, 216, 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     .btn-add:hover {
-        background: rgba(99, 102, 241, 0.3);
-        color: #ffffff;
+        background: rgba(0, 180, 216, 0.3);
+        color: var(--text-primary);
     }
 
     .btn-edit {
@@ -192,9 +192,9 @@
 
     /* Custom File Selector Button Styling */
     .form-control[type="file"]::file-selector-button {
-        background: rgba(99, 102, 241, 0.2);
-        color: #818cf8;
-        border: 1px solid rgba(99, 102, 241, 0.4);
+        background: rgba(0, 180, 216, 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
         padding: 0.35rem 0.75rem;
         border-radius: 6px;
         font-size: 0.8rem;
@@ -205,8 +205,8 @@
     }
 
     .form-control[type="file"]::file-selector-button:hover {
-        background: rgba(99, 102, 241, 0.35);
-        color: #ffffff;
+        background: rgba(0, 180, 216, 0.3);
+        color: var(--text-primary);
     }
 
     /* Action Dropdown with More Icon (⋮) */
@@ -216,8 +216,8 @@
     }
 
     .btn-more {
-        background: rgba(255, 255, 255, 0.05);
-        color: #cbd5e1;
+        background: var(--input-bg);
+        color: var(--text-secondary);
         border: 1px solid var(--card-border);
         padding: 0.4rem 0.55rem;
         border-radius: 8px;
@@ -229,8 +229,8 @@
     }
 
     .btn-more:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
         border-color: var(--primary);
     }
 
@@ -238,10 +238,10 @@
         position: absolute;
         right: 0;
         top: 110%;
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         min-width: 150px;
         z-index: 100;
         display: none;
@@ -259,13 +259,13 @@
         padding: 0.5rem 0.85rem;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         text-decoration: none;
         transition: background 0.15s ease, color 0.15s ease;
     }
 
     .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--input-bg);
     }
 
     .dropdown-item.item-view:hover { color: #34d399; }
@@ -290,13 +290,13 @@
     }
 
     .modal-card {
-        background: #161e2e;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 14px;
         width: 100%;
         max-width: 620px;
         padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         max-height: 90vh;
         overflow-y: auto;
     }
@@ -311,7 +311,7 @@
     .modal-header h2 {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .btn-close {
@@ -324,7 +324,7 @@
     }
 
     .btn-close:hover {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -335,17 +335,17 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #cbd5e1;
+        color: var(--text-primary);
         margin-bottom: 0.35rem;
     }
 
     .form-control {
         width: 100%;
         padding: 0.6rem 0.85rem;
-        background: rgba(11, 15, 25, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
         border-radius: 8px;
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         outline: none;
     }
@@ -368,9 +368,9 @@
     }
 
     .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
-        color: #cbd5e1;
+        color: var(--text-primary);
         padding: 0.55rem 1rem;
         border-radius: 8px;
         font-size: 0.825rem;
@@ -379,12 +379,12 @@
     }
 
     .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
+        background: var(--card-border);
+        color: var(--text-primary);
     }
 
     .detail-preview-container {
-        background: rgba(11, 15, 25, 0.7);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
         border-radius: 10px;
         padding: 1rem;
@@ -403,7 +403,7 @@
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid var(--card-border);
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 0.1);
     }
 
     .gallery-img-card img {
@@ -435,9 +435,9 @@
     }
 
     .per-page-select {
-        background: rgba(11, 15, 25, 0.7);
+        background: var(--input-bg);
         border: 1px solid var(--card-border);
-        color: #ffffff;
+        color: var(--text-primary);
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
         font-size: 0.775rem;
@@ -495,9 +495,9 @@
         height: 32px !important;
         padding: 0 0.6rem !important;
         border-radius: 6px !important;
-        background: rgba(255, 255, 255, 0.05) !important;
+        background: var(--input-bg) !important;
         border: 1px solid var(--card-border) !important;
-        color: #cbd5e1 !important;
+        color: var(--text-primary) !important;
         text-decoration: none !important;
         font-size: 0.8rem !important;
         font-weight: 600 !important;
@@ -511,9 +511,9 @@
     }
     .pagination-wrapper a.page-link:hover,
     .pagination-wrapper a.relative:hover {
-        background: rgba(255, 255, 255, 0.12) !important;
-        color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.2) !important;
+        background: var(--card-border) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--card-border) !important;
     }
     .pagination-wrapper .page-item.disabled .page-link,
     .pagination-wrapper span[aria-disabled="true"] {
@@ -522,44 +522,45 @@
         background: transparent !important;
     }
 
-    /* CKEditor Dark Theme Overrides */
+    /* CKEditor Theme Overrides */
     .ck-editor__editable_inline {
         min-height: 180px;
-        background-color: #0b0f19 !important;
-        color: #ffffff !important;
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
         border-radius: 0 0 8px 8px !important;
     }
     .ck.ck-editor__main>.ck-editor__editable {
-        background: #0b0f19 !important;
-        color: #ffffff !important;
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
     }
     .ck.ck-toolbar {
-        background-color: #1a2234 !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: var(--card-bg) !important;
+        border-color: var(--card-border) !important;
         border-radius: 8px 8px 0 0 !important;
     }
     .ck.ck-toolbar .ck-button {
-        color: #cbd5e1 !important;
+        color: var(--text-primary) !important;
     }
     .ck.ck-toolbar .ck-button:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
     }
     .ck.ck-toolbar .ck-button.ck-on {
         background-color: var(--primary) !important;
         color: #ffffff !important;
     }
     .ck.ck-dropdown__panel {
-        background: #161e2e !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
+        background: var(--card-bg) !important;
+        border-color: var(--card-border) !important;
     }
     .ck.ck-list__item .ck-button {
-        color: #cbd5e1 !important;
+        color: var(--text-primary) !important;
     }
     .ck.ck-list__item .ck-button:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
+        background: var(--input-bg) !important;
+        color: var(--text-primary) !important;
     }
+</style>
 </style>
 @endsection
 
@@ -663,7 +664,7 @@
                         $imageCount = $article->images && $article->images->count() > 0 ? $article->images->count() : ($article->image ? 1 : 0);
                     @endphp
                     <tr id="article-row-{{ $article->id }}">
-                        <td><strong style="color: #ffffff;">#{{ $article->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">#{{ $article->id }}</strong></td>
                         <td>
                             @if($article->category)
                                 <span class="category-badge">{{ $article->category->category_name }}</span>
@@ -790,12 +791,12 @@
         <div>
             <div style="margin-bottom: 0.75rem;">
                 <span id="viewCategoryBadge" class="category-badge"></span>
-                <h3 id="viewTitle" style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-top: 0.4rem;"></h3>
+                <h3 id="viewTitle" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-top: 0.4rem;"></h3>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label class="form-label">Description</label>
-                <div id="viewDescription" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; background: rgba(11,15,25,0.7); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border);"></div>
+                <div id="viewDescription" style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; background: var(--input-bg); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--card-border);"></div>
             </div>
 
             <!-- Image Preview Section -->
@@ -978,13 +979,13 @@
 
 <!-- Custom Dark Theme Confirm Image Delete Modal -->
 <div class="modal-backdrop" id="confirmDeleteModal" style="z-index: 1100;">
-    <div class="modal-card" style="max-width: 420px; text-align: center; padding: 1.75rem 1.5rem; background: #161e2e; border: 1px solid var(--card-border); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
+    <div class="modal-card" style="max-width: 420px; text-align: center; padding: 1.75rem 1.5rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);">
         <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.1rem auto; border: 1px solid rgba(239, 68, 68, 0.25);">
             <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
         </div>
-        <h3 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">Delete Image?</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">Delete Image?</h3>
         <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.5;">Are you sure you want to remove this image from the article? This action cannot be undone.</p>
         <div style="display: flex; gap: 0.75rem; justify-content: center;">
             <button type="button" class="btn-secondary" onclick="closeConfirmDeleteModal()" style="padding: 0.65rem 1.25rem; flex: 1; font-weight: 600;">Cancel</button>
@@ -1253,24 +1254,24 @@
         if (words.length > 100) {
             const shortText = words.slice(0, 100).join(' ') + '...';
             descContainer.innerHTML = `
-                <div id="${targetElementId}-short" style="line-height: 1.6; color: #cbd5e1;">${shortText}</div>
-                <div id="${targetElementId}-full" style="display: none; line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>
-                <a href="javascript:void(0)" id="${targetElementId}-toggle-btn" onclick="toggleDescriptionTruncate('${targetElementId}')" style="color: #818cf8; font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
+                <div id="${targetElementId}-short" style="line-height: 1.6; color: var(--text-primary);">${shortText}</div>
+                <div id="${targetElementId}-full" style="display: none; line-height: 1.6; color: var(--text-primary);">${fullHtml}</div>
+                <a href="javascript:void(0)" id="${targetElementId}-toggle-btn" onclick="toggleDescriptionTruncate('${targetElementId}')" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
                     Show More...
                 </a>
             `;
         } else {
-            descContainer.innerHTML = `<div style="line-height: 1.6; color: #cbd5e1;">${fullHtml}</div>`;
+            descContainer.innerHTML = `<div style="line-height: 1.6; color: var(--text-primary);">${fullHtml}</div>`;
         }
     }
 
     function showFullDescriptionAlert(title, fullHtml) {
         Swal.fire({
             title: title || 'Full Description',
-            html: `<div style="text-align: left; max-height: 450px; overflow-y: auto; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; word-break: break-word;">${fullHtml}</div>`,
+            html: `<div style="text-align: left; max-height: 450px; overflow-y: auto; color: var(--text-primary); font-size: 0.9rem; line-height: 1.6; word-break: break-word;">${fullHtml}</div>`,
             width: '750px',
-            background: '#161e2e',
-            color: '#ffffff',
+            background: 'var(--card-bg)',
+            color: 'var(--text-primary)',
             confirmButtonText: 'Close',
             confirmButtonColor: '#4f46e5'
         });
@@ -1308,8 +1309,8 @@
                     title: 'File Too Large!',
                     text: `The selected PDF document "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 10 MB.`,
                     icon: 'error',
-                    background: '#161e2e',
-                    color: '#ffffff',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-primary)',
                     confirmButtonText: 'OK',
                     customClass: { confirmButton: 'swal2-confirm btn-danger' },
                     buttonsStyling: false
@@ -1327,8 +1328,8 @@
                     title: 'Video Too Large!',
                     text: `The selected video file "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 100 MB.`,
                     icon: 'error',
-                    background: '#161e2e',
-                    color: '#ffffff',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-primary)',
                     confirmButtonText: 'OK',
                     customClass: { confirmButton: 'swal2-confirm btn-danger' },
                     buttonsStyling: false
@@ -1347,8 +1348,8 @@
                             title: 'Image Too Large!',
                             text: `The image "${file.name}" is ${sizeMB} MB. Maximum allowed limit is 5 MB per image.`,
                             icon: 'error',
-                            background: '#161e2e',
-                            color: '#ffffff',
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)',
                             confirmButtonText: 'OK',
                             customClass: { confirmButton: 'swal2-confirm btn-danger' },
                             buttonsStyling: false
@@ -1368,8 +1369,8 @@
                     title: 'Description Extremely Long!',
                     text: `The description contains ${descVal.length.toLocaleString()} characters which exceeds the maximum limit of ${MAX_DESC_LENGTH.toLocaleString()} characters. Please shorten it before saving.`,
                     icon: 'warning',
-                    background: '#161e2e',
-                    color: '#ffffff',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-primary)',
                     confirmButtonText: 'OK',
                     customClass: { confirmButton: 'swal2-confirm btn-danger' },
                     buttonsStyling: false
@@ -1434,8 +1435,8 @@
                             showConfirmButton: false,
                             timer: 4500,
                             timerProgressBar: true,
-                            background: '#161e2e',
-                            color: '#ffffff'
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)'
                         });
                         return;
                     }
@@ -1451,8 +1452,8 @@
                 title: 'Video Upload Failed',
                 text: 'Could not complete video upload. Please try again.',
                 icon: 'error',
-                background: '#161e2e',
-                color: '#ffffff'
+                background: 'var(--card-bg)',
+                color: 'var(--text-primary)'
             });
         };
 
@@ -1464,8 +1465,8 @@
                 title: 'Upload Error',
                 text: 'Network error occurred while uploading video.',
                 icon: 'error',
-                background: '#161e2e',
-                color: '#ffffff'
+                background: 'var(--card-bg)',
+                color: 'var(--text-primary)'
             });
         };
 
@@ -1563,7 +1564,7 @@
                                 const docPath = newArticle.document ? (newArticle.document.startsWith('uploads/') ? newArticle.document : 'uploads/articles/documents/' + newArticle.document) : '';
                                 
                                 tr.innerHTML = `
-                                    <td><strong style="color: #ffffff;">#${newArticle.id}</strong></td>
+                                    <td><strong style="color: var(--text-primary);">#${newArticle.id}</strong></td>
                                     <td><span class="category-badge">${categoryName}</span></td>
                                     <td><div class="article-title">${newArticle.title}</div></td>
                                     <td><span style="color: var(--text-muted); font-size: 0.775rem;">no image found</span></td>
@@ -1599,8 +1600,8 @@
                                 position: 'top-end',
                                 showConfirmButton: false,
                                 timer: 4000,
-                                background: '#161e2e',
-                                color: '#ffffff'
+                                background: 'var(--card-bg)',
+                                color: 'var(--text-primary)'
                             });
 
                             // Trigger background video upload
@@ -1614,8 +1615,8 @@
                             title: 'Validation Error',
                             text: err.message || 'Failed to save article.',
                             icon: 'error',
-                            background: '#161e2e',
-                            color: '#ffffff'
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)'
                         });
                     });
                 } else {
@@ -1688,8 +1689,8 @@
                                 position: 'top-end',
                                 showConfirmButton: false,
                                 timer: 4000,
-                                background: '#161e2e',
-                                color: '#ffffff'
+                                background: 'var(--card-bg)',
+                                color: 'var(--text-primary)'
                             });
 
                             // Trigger background video upload
@@ -1703,8 +1704,8 @@
                             title: 'Validation Error',
                             text: err.message || 'Failed to update article.',
                             icon: 'error',
-                            background: '#161e2e',
-                            color: '#ffffff'
+                            background: 'var(--card-bg)',
+                            color: 'var(--text-primary)'
                         });
                     });
                 } else {

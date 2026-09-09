@@ -30,8 +30,8 @@
     }
 
     .plan-card.featured {
-        border: 1px solid rgba(0, 210, 223, 0.5);
-        background: linear-gradient(135deg, rgba(15, 34, 56, 0.95), rgba(0, 180, 216, 0.15));
+        border: 1px solid var(--primary);
+        background: linear-gradient(135deg, var(--card-bg), rgba(0, 180, 216, 0.12));
     }
 
     .plan-badge-id {
@@ -40,15 +40,15 @@
         border-radius: 6px;
         font-size: 0.725rem;
         font-weight: 700;
-        background: rgba(0, 210, 223, 0.15);
-        color: #38bdf8;
-        border: 1px solid rgba(0, 210, 223, 0.3);
+        background: rgba(0, 180, 216, 0.12);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.3);
     }
 
     .plan-title {
         font-size: 1.1rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
         margin-top: 0.35rem;
         margin-bottom: 0.25rem;
     }
@@ -64,17 +64,17 @@
     .price-amount-usd {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #34d399;
+        color: #10b981;
     }
 
     .price-amount-sar {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #38bdf8;
-        background: rgba(0, 210, 223, 0.12);
+        color: var(--primary);
+        background: rgba(0, 180, 216, 0.12);
         padding: 0.25rem 0.6rem;
         border-radius: 6px;
-        border: 1px solid rgba(0, 210, 223, 0.25);
+        border: 1px solid rgba(0, 180, 216, 0.25);
     }
 
     .plan-access {
@@ -82,10 +82,10 @@
         font-size: 0.8rem;
         line-height: 1.4;
         margin-bottom: 0.85rem;
-        background: rgba(7, 17, 30, 0.5);
+        background: var(--input-bg);
         padding: 0.5rem 0.75rem;
         border-radius: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
     }
 
     .feature-list {
@@ -99,12 +99,12 @@
         align-items: center;
         gap: 0.45rem;
         font-size: 0.8rem;
-        color: #cbd5e1;
+        color: var(--text-secondary);
         margin-bottom: 0.4rem;
     }
 
     .feature-item svg {
-        color: #34d399;
+        color: #10b981;
         width: 14px;
         height: 14px;
         flex-shrink: 0;
@@ -178,10 +178,10 @@
 <div style="margin-bottom: 1.75rem;">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
         <div>
-            <h2 class="card-title" style="font-size: 1.1rem; font-weight: 800; color: #ffffff;">Subscription Plans Overview</h2>
+            <h2 class="card-title" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);">Subscription Plans Overview</h2>
             <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.15rem;">Configured pricing plans with USD & SAR currencies.</p>
         </div>
-        <a href="{{ route('admin.plans.index') }}" style="font-size: 0.8rem; font-weight: 600; color: #38bdf8; text-decoration: none;">Manage Plans &rarr;</a>
+        <a href="{{ route('admin.plans.index') }}" style="font-size: 0.8rem; font-weight: 600; color: var(--primary); text-decoration: none;">Manage Plans &rarr;</a>
     </div>
 
     <div class="plans-grid">
@@ -191,7 +191,7 @@
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span class="plan-badge-id">Plan ID: {{ $plan->plan_id }}</span>
                         @if($plan->duration_days > 0)
-                            <span style="color: #38bdf8; font-size: 0.75rem; font-weight: 600;">{{ $plan->duration_days }} Days</span>
+                            <span style="color: var(--primary); font-size: 0.75rem; font-weight: 600;">{{ $plan->duration_days }} Days</span>
                         @else
                             <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">Lifetime Free</span>
                         @endif
@@ -205,7 +205,7 @@
                     </div>
 
                     <div class="plan-access">
-                        <strong style="color: #ffffff;">Access:</strong> {{ $plan->access }}
+                        <strong style="color: var(--text-primary);">Access:</strong> {{ $plan->access }}
                     </div>
 
                     <ul class="feature-list">
@@ -246,13 +246,13 @@
             <tbody>
                 @forelse($metrics['recentUsers'] as $user)
                     <tr>
-                        <td><span style="font-weight: 700; color: #ffffff;">#{{ $user->id }}</span></td>
+                        <td><span style="font-weight: 700; color: var(--text-primary);">#{{ $user->id }}</span></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
                                 <div class="avatar" style="width: 26px; height: 26px; font-size: 0.75rem;">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
-                                <span style="font-weight: 600; color: #ffffff;">{{ $user->name }}</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">{{ $user->name }}</span>
                             </div>
                         </td>
                         <td>{{ $user->email }}</td>
