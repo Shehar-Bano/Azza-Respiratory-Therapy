@@ -14,6 +14,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Email Verification Route (Public)
+Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Api\AuthController::class, 'verifyEmail'])->name('verification.verify');
+
 // Authentication Web Routes
 Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [WebAuthController::class, 'login']);

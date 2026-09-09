@@ -30,6 +30,7 @@ class User extends Authenticatable
         'status',
         'login_method',
         'fcm_token',
+        'email_verified_at',
     ];
 
     /**

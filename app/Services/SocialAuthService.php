@@ -32,6 +32,10 @@ class SocialAuthService
                 throw new InvalidArgumentException('Invalid password.');
             }
 
+            if ($user->email_verified_at === null) {
+                throw new InvalidArgumentException('Your email address is not verified yet. Please check your inbox and verify your email.');
+            }
+
             $updateData = ['login_method' => $loginMethod];
             if (!empty($data['name'])) {
                 $updateData['name'] = $data['name'];
@@ -39,7 +43,10 @@ class SocialAuthService
             $user->update($updateData);
         } else {
             if ($user) {
-                $updateData = ['login_method' => $loginMethod];
+                $updateData = [
+                    'login_method' => $loginMethod,
+                    'email_verified_at' => $user->email_verified_at ?? Carbon::now(),
+                ];
                 if (!empty($data['name'])) {
                     $updateData['name'] = $data['name'];
                 }
@@ -54,6 +61,7 @@ class SocialAuthService
                     'role' => 'user',
                     'status' => 'active',
                     'login_method' => $loginMethod,
+                    'email_verified_at' => Carbon::now(),
                 ]);
 
                 // Assign Free Tier (plan_id: '0') Subscription

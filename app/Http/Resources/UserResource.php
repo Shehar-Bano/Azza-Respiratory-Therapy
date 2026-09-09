@@ -19,6 +19,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'login_method' => $this->login_method ?? 'default',
+            'fcm_token' => $this->fcm_token,
+            'email_verified_at' => $this->email_verified_at ? $this->email_verified_at->toISOString() : null,
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
         ];
