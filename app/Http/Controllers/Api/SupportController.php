@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
+use App\Models\SupportContact;
 use App\Models\UserFeedback;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,17 +17,18 @@ class SupportController extends Controller
      */
     public function getSupportContact(): JsonResponse
     {
+        $contact = SupportContact::first();
+        $defaults = SupportContact::defaultValues();
+
         return response()->json([
             'status' => true,
             'data' => [
-                'support_email' => config('mail.support_email', 'support@azzatherapy.com'),
-                'support_phone' => '+966 11 000 0000',
-                'working_hours' => 'Sun - Thu: 9:00 AM - 6:00 PM (AST)',
-                'support_options' => [
-                    'Direct Email Support',
-                    'In-App Feedback & Suggestions',
-                    'Frequently Asked Clinical Questions (FAQs)',
-                ],
+                'support_email' => $contact ? $contact->support_email : $defaults['support_email'],
+                'support_phone' => $contact ? $contact->support_phone : $defaults['support_phone'],
+                'working_hours' => $contact ? $contact->working_hours : $defaults['working_hours'],
+                'support_options' => ($contact && is_array($contact->support_options))
+                    ? $contact->support_options
+                    : $defaults['support_options'],
             ],
         ], 200);
     }

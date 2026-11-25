@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ClinicalCardSeeder::class);
         $this->call(SubscriptionFeatureSeeder::class);
         $this->call(SubscriptionPlanSeeder::class);
+        $this->call(SupportContactSeeder::class);
         $this->call(FaqSeeder::class);
     }
 }

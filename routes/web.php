@@ -4,7 +4,9 @@ use App\Http\Controllers\Web\ArticleWebController;
 use App\Http\Controllers\Web\CategoryWebController;
 use App\Http\Controllers\Web\ClinicalCardWebController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\FaqWebController;
 use App\Http\Controllers\Web\SubscriptionPlanWebController;
+use App\Http\Controllers\Web\SupportContactWebController;
 use App\Http\Controllers\Web\UserSubscriptionWebController;
 use App\Http\Controllers\Web\UserWebController;
 use App\Http\Controllers\Web\WebAuthController;
@@ -65,4 +67,14 @@ Route::middleware(['admin'])->group(function () {
     // Push Notifications Management
     Route::get('/admin/notifications', [\App\Http\Controllers\Web\NotificationWebController::class, 'index'])->name('admin.notifications.index');
     Route::post('/admin/notifications/send', [\App\Http\Controllers\Web\NotificationWebController::class, 'send'])->name('admin.notifications.send');
+
+    // Support Contact Management (View & Edit)
+    Route::get('/admin/support-contact', [SupportContactWebController::class, 'index'])->name('admin.support-contact.index');
+    Route::put('/admin/support-contact', [SupportContactWebController::class, 'update'])->name('admin.support-contact.update');
+
+    // FAQs Management (Full CRUD)
+    Route::get('/admin/faqs', [FaqWebController::class, 'index'])->name('admin.faqs.index');
+    Route::post('/admin/faqs', [FaqWebController::class, 'store'])->name('admin.faqs.store');
+    Route::put('/admin/faqs/{faq}', [FaqWebController::class, 'update'])->name('admin.faqs.update');
+    Route::delete('/admin/faqs/{faq}', [FaqWebController::class, 'destroy'])->name('admin.faqs.destroy');
 });
