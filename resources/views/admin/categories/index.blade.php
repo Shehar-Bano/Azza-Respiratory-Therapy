@@ -401,7 +401,7 @@
                     @endphp
                     <th>
                         <a href="{{ categorySortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
-                            ID
+                            Sr No
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -429,7 +429,7 @@
             <tbody>
                 @forelse($categories as $category)
                     <tr>
-                        <td><strong style="color: var(--text-primary);">#{{ $category->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($categories->currentPage() - 1) * $categories->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             <div class="category-name-text">{{ $category->category_name }}</div>
                         </td>

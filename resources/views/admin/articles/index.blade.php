@@ -628,7 +628,7 @@
                     @endphp
                     <th>
                         <a href="{{ articleSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
-                            ID
+                            Sr No
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -664,7 +664,7 @@
                         $imageCount = $article->images && $article->images->count() > 0 ? $article->images->count() : ($article->image ? 1 : 0);
                     @endphp
                     <tr id="article-row-{{ $article->id }}">
-                        <td><strong style="color: var(--text-primary);">#{{ $article->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($articles->currentPage() - 1) * $articles->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             @if($article->category)
                                 <span class="category-badge">{{ $article->category->category_name }}</span>

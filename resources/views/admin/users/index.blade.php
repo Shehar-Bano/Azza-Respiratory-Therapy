@@ -473,7 +473,7 @@
                     @endphp
                     <th>
                         <a href="{{ userSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
-                            ID
+                            Sr No
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -525,7 +525,7 @@
             <tbody>
                 @forelse($users as $user)
                     <tr>
-                        <td><strong style="color: var(--text-primary);">#{{ $user->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
                                 <div class="avatar" style="width: 26px; height: 26px; font-size: 0.75rem;">

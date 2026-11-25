@@ -359,7 +359,7 @@
         <table class="compact-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Sr No</th>
                     <th>Category</th>
                     <th>Question &amp; Answer</th>
                     <th>Actions</th>
@@ -368,7 +368,7 @@
             <tbody>
                 @forelse($faqs as $faq)
                     <tr>
-                        <td><strong style="color: var(--text-primary);">#{{ $faq->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($faqs->currentPage() - 1) * $faqs->perPage() + $loop->iteration }}</strong></td>
                         <td><span class="category-pill">{{ $faq->category }}</span></td>
                         <td>
                             <div class="faq-question">{{ $faq->question }}</div>
@@ -441,7 +441,12 @@
             @csrf
             <div class="form-group">
                 <label class="form-label" for="create_category">Category</label>
-                <input type="text" id="create_category" name="category" class="form-control" placeholder="e.g. Clinical Calculators, Subscriptions, Notifications" required>
+                <select id="create_category" name="category" class="form-control" required>
+                    <option value="">Select Category</option>
+                    @foreach($dropdownCategories as $cat)
+                        <option value="{{ $cat }}">{{ $cat }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="form-group">
                 <label class="form-label" for="create_question">Question</label>
@@ -471,7 +476,12 @@
             @method('PUT')
             <div class="form-group">
                 <label class="form-label" for="edit_category">Category</label>
-                <input type="text" id="edit_category" name="category" class="form-control" required>
+                <select id="edit_category" name="category" class="form-control" required>
+                    <option value="">Select Category</option>
+                    @foreach($dropdownCategories as $cat)
+                        <option value="{{ $cat }}">{{ $cat }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="form-group">
                 <label class="form-label" for="edit_question">Question</label>
@@ -515,7 +525,12 @@
 
     function openEditModal(faq) {
         document.getElementById('editFaqForm').action = "{{ url('/admin/faqs') }}/" + faq.id;
-        document.getElementById('edit_category').value = faq.category;
+        const select = document.getElementById('edit_category');
+        if (faq.category && !Array.from(select.options).some(opt => opt.value === faq.category)) {
+            const opt = new Option(faq.category, faq.category, true, true);
+            select.add(opt);
+        }
+        select.value = faq.category;
         document.getElementById('edit_question').value = faq.question;
         document.getElementById('edit_answer').value = faq.answer;
         document.getElementById('editFaqModal').style.display = 'flex';

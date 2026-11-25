@@ -436,7 +436,7 @@
                     @endphp
                     <th>
                         <a href="{{ subSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
-                            ID
+                            Sr No
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -464,7 +464,7 @@
                         $isExpired = $expiresAt && $expiresAt->isPast();
                     @endphp
                     <tr>
-                        <td><strong style="color: var(--text-primary);">#{{ $sub->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($subscriptions->currentPage() - 1) * $subscriptions->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
                                 <div class="avatar" style="width: 28px; height: 28px; font-size: 0.75rem;">

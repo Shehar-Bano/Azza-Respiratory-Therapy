@@ -618,7 +618,7 @@
                     @endphp
                     <th>
                         <a href="{{ cardSortUrl('id', $sortBy, $sortOrder) }}" class="sort-link {{ $sortBy === 'id' ? 'active' : '' }}">
-                            ID
+                            Sr No
                             @if($sortBy === 'id')
                                 <span>{{ $sortOrder === 'asc' ? '↑' : '↓' }}</span>
                             @endif
@@ -652,7 +652,7 @@
                         $imageCount = $card->images && $card->images->count() > 0 ? $card->images->count() : ($card->image ? 1 : 0);
                     @endphp
                     <tr>
-                        <td><strong style="color: var(--text-primary);">#{{ $card->id }}</strong></td>
+                        <td><strong style="color: var(--text-primary);">{{ ($cards->currentPage() - 1) * $cards->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             <div class="card-title-text">{{ $card->title }}</div>
                         </td>

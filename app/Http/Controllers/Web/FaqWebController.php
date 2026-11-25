@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Faq;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,10 +38,12 @@ class FaqWebController extends Controller
 
         $faqs = $query->orderByDesc('id')->paginate($perPage)->withQueryString();
         $categories = Faq::query()->select('category')->distinct()->orderBy('category')->pluck('category');
+        $dropdownCategories = Category::query()->orderBy('category_name')->pluck('category_name');
 
         return view('admin.faqs.index', [
             'faqs' => $faqs,
             'categories' => $categories,
+            'dropdownCategories' => $dropdownCategories,
             'search' => $request->input('search', ''),
             'selectedCategory' => $request->input('category', ''),
             'perPage' => $perPage,
