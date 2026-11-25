@@ -11,6 +11,10 @@
             "description": "Current Host"
         },
         {
+            "url": "/public",
+            "description": "Public Subfolder Host"
+        },
+        {
             "url": "https://lightseagreen-fox-847232.hostingersite.com/public",
             "description": "Production Server"
         }

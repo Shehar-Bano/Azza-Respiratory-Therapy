@@ -10,6 +10,7 @@ use OpenApi\Attributes as OA;
     description: 'Backend API Requirements & Specification Guide for Azza Respiratory Therapy (v1.0.0+)'
 )]
 #[OA\Server(url: '/', description: 'Current Host')]
+#[OA\Server(url: '/public', description: 'Public Subfolder Host')]
 #[OA\Server(url: 'https://lightseagreen-fox-847232.hostingersite.com/public', description: 'Production Server')]
 #[OA\SecurityScheme(
     securityScheme: 'bearerAuth',

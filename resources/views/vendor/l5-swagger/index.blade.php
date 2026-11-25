@@ -141,6 +141,14 @@
 
             requestInterceptor: function(request) {
                 request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+                const appBaseUrl = @json(rtrim(url('/'), '/'));
+                try {
+                    const reqUrl = new URL(request.url, window.location.origin);
+                    const baseUrl = new URL(appBaseUrl, window.location.origin);
+                    if (reqUrl.origin === baseUrl.origin && baseUrl.pathname !== '/' && !reqUrl.pathname.startsWith(baseUrl.pathname)) {
+                        request.url = baseUrl.origin + baseUrl.pathname + reqUrl.pathname + reqUrl.search;
+                    }
+                } catch (e) {}
                 return request;
             },
 
