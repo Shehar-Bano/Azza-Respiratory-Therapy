@@ -5,11 +5,14 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Notifications\ResetPasswordLinkNotification;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ApiSpecificationTest extends TestCase
@@ -33,8 +36,10 @@ class ApiSpecificationTest extends TestCase
             ->assertJsonFragment(['category' => 'Clinical Calculators']);
     }
 
-    public function test_register_verify_otp_forgot_and_reset_password_flow(): void
+    public function test_register_email_confirmation_and_forgot_password_webview_flow(): void
     {
+        Notification::fake();
+
         $email = 'sarah.test.' . uniqid() . '@hospital.org';
 
         $registerRes = $this->postJson('/api/register', [
@@ -48,41 +53,52 @@ class ApiSpecificationTest extends TestCase
         $registerRes->assertStatus(201)
             ->assertJson([
                 'status' => true,
+                'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
                 'data' => ['email' => $email],
-            ]);
+            ])
+            ->assertJsonMissingPath('otp');
 
-        $otp = $registerRes->json('otp');
-        $this->assertNotEmpty($otp);
+        $user = User::where('email', $email)->firstOrFail();
 
-        $verifyRes = $this->postJson('/api/verify-email-otp', [
-            'email' => $email,
-            'otp' => $otp,
-        ]);
+        Notification::assertSentTo($user, VerifyEmailNotification::class, function ($notification) use ($user) {
+            $mail = $notification->toMail($user);
+            $this->assertEquals('Confirm Email', $mail->actionText);
+            $this->get($mail->actionUrl)->assertStatus(200)->assertSee('Email Verified!');
+            return true;
+        });
 
-        $verifyRes->assertStatus(200)
-            ->assertJson(['status' => true])
-            ->assertJsonStructure(['token', 'user']);
+        $this->assertNotNull($user->fresh()->email_verified_at);
 
-        // Forgot password -> verify reset OTP -> reset password (without Bearer header)
+        // Forgot password -> sends ResetPasswordLinkNotification -> WebView reset
         $forgotRes = $this->postJson('/api/forgot-password', ['email' => $email]);
-        $forgotRes->assertStatus(200)->assertJson(['status' => true]);
-        $resetOtp = $forgotRes->json('otp');
+        $forgotRes->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+                'message' => 'Password reset link sent to your email. Please check your inbox.',
+            ])
+            ->assertJsonMissingPath('otp');
 
-        $verifyResetRes = $this->postJson('/api/verify-reset-otp', [
-            'email' => $email,
-            'otp' => $resetOtp,
-        ]);
-        $verifyResetRes->assertStatus(200)
-            ->assertJson(['status' => true])
-            ->assertJsonStructure(['reset_token']);
+        $resetToken = null;
+        Notification::assertSentTo($user, ResetPasswordLinkNotification::class, function ($notification) use ($user, &$resetToken) {
+            $mail = $notification->toMail($user);
+            $this->assertEquals('Reset Password', $mail->actionText);
+            $resetToken = $notification->token;
+            $this->get($mail->actionUrl)->assertStatus(200)->assertSee('New Password');
+            return true;
+        });
 
-        $resetToken = $verifyResetRes->json('reset_token');
-
-        $this->postJson('/api/reset-password', [
+        $this->post('/password/reset', [
             'token' => $resetToken,
+            'email' => $email,
             'password' => 'NewSecurePassword#2026',
             'password_confirmation' => 'NewSecurePassword#2026',
-        ])->assertStatus(200)->assertJson(['status' => true]);
+        ])->assertSessionHas('reset_success', 'Now you can login into app with new password.');
+
+        // Verify login works with new password
+        $this->postJson('/api/login', [
+            'email' => $email,
+            'password' => 'NewSecurePassword#2026',
+        ])->assertStatus(200)->assertJson(['success' => true]);
     }
 
     public function test_update_profile_get_profile_and_delete_account(): void

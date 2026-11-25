@@ -2,9 +2,11 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
 
 class VerifyEmailNotification extends Notification
 {
@@ -13,7 +15,7 @@ class VerifyEmailNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public readonly string $otpCode)
+    public function __construct(public readonly ?string $otpCode = null)
     {
     }
 
@@ -32,14 +34,22 @@ class VerifyEmailNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(60),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
+
         return (new MailMessage)
-            ->subject('Email Verification OTP - Azza Respiratory Therapy')
+            ->subject('Confirm Your Email - Azza Respiratory Therapy')
             ->greeting('Hello ' . ($notifiable->name ?? 'User') . '!')
             ->line('Thank you for registering with Azza Respiratory Therapy.')
-            ->line('Your 6-digit email verification OTP code is:')
-            ->line('**' . $this->otpCode . '**')
-            ->line('This code will expire in 15 minutes.')
-            ->line('Please enter this OTP code in the application to verify your account and get started.')
+            ->line('Please click the button below to confirm your email address and activate your account.')
+            ->action('Confirm Email', $verificationUrl)
+            ->line('This confirmation link will expire in 60 minutes.')
             ->line('If you did not register for this account, please ignore this email.');
     }
 }

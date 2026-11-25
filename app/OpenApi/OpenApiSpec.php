@@ -277,7 +277,7 @@ class OpenApiSpec
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'User registered successfully. An OTP has been sent to your email.'),
+            new OA\Response(response: 201, description: 'Confirmation link sent to your email. Please check your inbox and confirm your email.'),
             new OA\Response(response: 422, description: 'Validation error.'),
         ]
     )]
@@ -318,7 +318,7 @@ class OpenApiSpec
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Password reset code sent to your email.'),
+            new OA\Response(response: 200, description: 'Password reset link sent to your email. Please check your inbox.'),
             new OA\Response(response: 404, description: 'User not found.'),
         ]
     )]

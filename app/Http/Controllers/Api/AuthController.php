@@ -8,6 +8,7 @@ use App\Http\Requests\Api\RegisterRequest;
 use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionTransaction;
 use App\Models\User;
+use App\Notifications\ResetPasswordLinkNotification;
 use App\Notifications\ResetPasswordOtpNotification;
 use App\Notifications\VerifyEmailNotification;
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
@@ -113,38 +115,52 @@ class AuthController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        // Generate 6-digit OTP Code
-        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
-
-        DB::table('email_verification_otps')->updateOrInsert(
-            ['email' => $user->email],
-            [
-                'otp' => $otpCode,
-                'created_at' => Carbon::now(),
-            ]
-        );
-
-        // Send Email Verification Notification with OTP
+        // Send Email Verification Link Notification
         try {
-            $user->notify(new VerifyEmailNotification($otpCode));
+            $user->notify(new VerifyEmailNotification());
         } catch (\Exception $e) {
-            Log::error('Registration email verification OTP failed to send: ' . $e->getMessage());
+            Log::error('Registration email verification link failed to send: ' . $e->getMessage());
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'status' => true,
             'success' => true,
-            'message' => 'User registered successfully. An OTP has been sent to your email.',
-            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
+            'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
             'data' => [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'user' => $user,
-                'token' => $token,
             ],
         ], 201);
+    }
+
+    /**
+     * Verify email address via signed confirmation link clicked from email.
+     */
+    public function verifyEmail(Request $request, $id, $hash): View
+    {
+        if (!$request->hasValidSignature()) {
+            return view('auth.email-verified', [
+                'verified' => false,
+                'message' => 'This confirmation link has expired or is invalid. Please request a new confirmation email.',
+            ]);
+        }
+
+        $user = User::find($id);
+        if (!$user || !hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return view('auth.email-verified', [
+                'verified' => false,
+                'message' => 'Invalid email verification link.',
+            ]);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return view('auth.email-verified', [
+            'verified' => true,
+            'message' => 'Your email has been verified successfully! You can now log in to the Azza Respiratory Therapy app.',
+        ]);
     }
 
     /**
@@ -255,32 +271,21 @@ class AuthController extends Controller
             ], 200);
         }
 
-        // Generate new 6-digit OTP Code
-        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
-
-        DB::table('email_verification_otps')->updateOrInsert(
-            ['email' => $user->email],
-            [
-                'otp' => $otpCode,
-                'created_at' => Carbon::now(),
-            ]
-        );
-
         try {
-            $user->notify(new VerifyEmailNotification($otpCode));
+            $user->notify(new VerifyEmailNotification());
         } catch (\Exception $e) {
-            Log::error('Resend verification OTP email failed: ' . $e->getMessage());
+            Log::error('Resend verification email failed: ' . $e->getMessage());
         }
 
         return response()->json([
+            'status' => true,
             'success' => true,
-            'message' => 'A new 6-digit verification OTP code has been sent to your email address.',
-            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
+            'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
         ], 200);
     }
 
     /**
-     * Send password reset OTP code to user email.
+     * Send password reset link to user email.
      */
     public function forgotPassword(Request $request): JsonResponse
     {
@@ -290,6 +295,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'status' => false,
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $validator->errors(),
@@ -300,33 +306,78 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
+                'status' => false,
                 'success' => false,
                 'message' => 'User is not registered yet.',
             ], 404);
         }
 
-        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
+        $token = Str::random(64);
 
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
             [
-                'token' => $otpCode,
+                'token' => Hash::make($token),
                 'created_at' => Carbon::now(),
             ]
         );
 
         try {
-            $user->notify(new ResetPasswordOtpNotification($otpCode));
+            $user->notify(new ResetPasswordLinkNotification($token, $user->email));
         } catch (\Exception $e) {
-            Log::error('Forgot password OTP email failed: ' . $e->getMessage());
+            Log::error('Forgot password reset link email failed: ' . $e->getMessage());
         }
 
         return response()->json([
             'status' => true,
             'success' => true,
-            'message' => 'Password reset code sent to your email.',
-            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
+            'message' => 'Password reset link sent to your email. Please check your inbox.',
         ], 200);
+    }
+
+    /**
+     * Show WebView form for resetting password via email link.
+     */
+    public function showResetPasswordWebView(Request $request, string $token): View
+    {
+        return view('auth.reset-password-webview', [
+            'token' => $token,
+            'email' => (string) $request->query('email', ''),
+        ]);
+    }
+
+    /**
+     * Handle WebView password reset form submission.
+     */
+    public function submitResetPasswordWebView(Request $request)
+    {
+        $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record || Carbon::parse($record->created_at)->addMinutes(60)->isPast() || !Hash::check($request->token, $record->token)) {
+            return back()->with('reset_error', 'This password reset link is invalid or has expired. Please request a new one.');
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->with('reset_error', 'User not found.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        $user->tokens()->delete();
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return back()->with('reset_success', 'Now you can login into app with new password.');
     }
 
     /**

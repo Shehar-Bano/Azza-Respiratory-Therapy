@@ -504,7 +504,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "User registered successfully. An OTP has been sent to your email."
+                        "description": "Confirmation link sent to your email. Please check your inbox and confirm your email."
                     },
                     "422": {
                         "description": "Validation error."
@@ -583,7 +583,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Password reset code sent to your email."
+                        "description": "Password reset link sent to your email. Please check your inbox."
                     },
                     "404": {
                         "description": "User not found."

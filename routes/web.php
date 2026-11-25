@@ -19,6 +19,10 @@ Route::get('/', function () {
 // Email Verification Route (Public)
 Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Api\AuthController::class, 'verifyEmail'])->name('verification.verify');
 
+// Password Reset WebView Routes (Public)
+Route::get('/password/reset/{token}', [\App\Http\Controllers\Api\AuthController::class, 'showResetPasswordWebView'])->name('password.reset.webview');
+Route::post('/password/reset', [\App\Http\Controllers\Api\AuthController::class, 'submitResetPasswordWebView'])->name('password.reset.webview.submit');
+
 // Authentication Web Routes
 Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [WebAuthController::class, 'login']);
