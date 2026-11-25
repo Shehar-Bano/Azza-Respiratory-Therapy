@@ -52,7 +52,7 @@ class AuthController extends Controller
         if ($user->email_verified_at === null && ($user->login_method ?? 'default') === 'default') {
             return response()->json([
                 'success' => false,
-                'message' => 'Your email address is not verified yet. Please check your inbox and click the verification link.',
+                'message' => 'Your email address is not verified yet. Please enter the 6-digit OTP code sent to your email address.',
                 'email_verified' => false,
             ], 403);
         }
@@ -74,13 +74,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Register a new user and generate a Sanctum access token.
+     * Register a new user, generate OTP code, and send verification email.
      */
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone ?? null,
             'password' => Hash::make($request->password),
             'role' => 'user',
             'status' => 'active',
@@ -112,19 +113,34 @@ class AuthController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        // Send Email Verification Notification
+        // Generate 6-digit OTP Code
+        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
+
+        DB::table('email_verification_otps')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'otp' => $otpCode,
+                'created_at' => Carbon::now(),
+            ]
+        );
+
+        // Send Email Verification Notification with OTP
         try {
-            $user->notify(new VerifyEmailNotification());
+            $user->notify(new VerifyEmailNotification($otpCode));
         } catch (\Exception $e) {
-            Log::error('Registration email verification failed to send: ' . $e->getMessage());
+            Log::error('Registration email verification OTP failed to send: ' . $e->getMessage());
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'status' => true,
             'success' => true,
-            'message' => 'Registration successful! A verification link has been sent to your email address. Please verify your email before logging in.',
+            'message' => 'User registered successfully. An OTP has been sent to your email.',
+            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
             'data' => [
+                'user_id' => $user->id,
+                'email' => $user->email,
                 'user' => $user,
                 'token' => $token,
             ],
@@ -132,88 +148,96 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle Email Verification via signed link click.
+     * Verify email address using 6-digit OTP code.
      */
-    public function verifyEmail(Request $request, $id, $hash)
+    public function verifyEmailOtp(Request $request): JsonResponse
     {
-        $user = User::find($id);
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+            'otp' => ['required', 'string'],
+        ]);
 
-        if (!$user || sha1($user->getEmailForVerification()) !== $hash) {
-            if ($request->wantsJson() || $request->query('format') === 'json') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid or expired verification link.',
-                ], 400);
-            }
-
-            return response('
-                <!DOCTYPE html>
-                <html>
-                <head><title>Invalid Link</title></head>
-                <body style="font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #07111e; color: #f8fafc;">
-                    <div style="text-align: center; background: #0f2238; padding: 2.5rem; border-radius: 16px; border: 1px solid #183554; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                        <div style="width: 60px; height: 60px; background: rgba(239, 68, 68, 0.15); border-radius: 50%; color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 28px; font-weight: bold;">✕</div>
-                        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #ef4444;">Invalid Verification Link</h2>
-                        <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">The verification link is invalid or has expired.</p>
-                    </div>
-                </body>
-                </html>
-            ', 400)->header('Content-Type', 'text/html');
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        if ($user->hasVerifiedEmail()) {
-            if ($request->wantsJson() || $request->query('format') === 'json') {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Email is already verified.',
-                ], 200);
-            }
+        $record = DB::table('email_verification_otps')
+            ->where('email', $request->email)
+            ->first();
 
-            return response('
-                <!DOCTYPE html>
-                <html>
-                <head><title>Email Already Verified</title></head>
-                <body style="font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #07111e; color: #f8fafc;">
-                    <div style="text-align: center; background: #0f2238; padding: 2.5rem; border-radius: 16px; border: 1px solid #183554; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                        <div style="width: 60px; height: 60px; background: rgba(0, 180, 216, 0.15); border-radius: 50%; color: #00b4d8; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 28px; font-weight: bold;">✓</div>
-                        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Email Already Verified</h2>
-                        <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">Your email address is already verified. You can log in to the Azza Respiratory Therapy app.</p>
-                    </div>
-                </body>
-                </html>
-            ', 200)->header('Content-Type', 'text/html');
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No verification request found for this email address.',
+            ], 404);
         }
 
+        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The verification OTP code has expired. Please request a new one.',
+            ], 400);
+        }
+
+        if ((string) $record->otp !== (string) $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification OTP code. Please check your email and try again.',
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Mark user email as verified
         $user->markEmailAsVerified();
 
-        if ($request->wantsJson() || $request->query('format') === 'json') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Email verified successfully.',
-            ], 200);
-        }
+        // Delete used OTP
+        DB::table('email_verification_otps')->where('email', $request->email)->delete();
 
-        return response('
-            <!DOCTYPE html>
-            <html>
-            <head><title>Email Verified Successfully</title></head>
-            <body style="font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #07111e; color: #f8fafc;">
-                <div style="text-align: center; background: #0f2238; padding: 2.5rem; border-radius: 16px; border: 1px solid #183554; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                    <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; color: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 28px; font-weight: bold;">✓</div>
-                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #10b981;">Email Verified Successfully!</h2>
-                    <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">Thank you for verifying your email address. You can now log in to the Azza Respiratory Therapy app.</p>
-                </div>
-            </body>
-            </html>
-        ', 200)->header('Content-Type', 'text/html');
+        // Generate or fetch user auth token
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $freshUser = $user->fresh();
+
+        return response()->json([
+            'status' => true,
+            'success' => true,
+            'message' => 'Email verified successfully.',
+            'token' => $token,
+            'user' => $freshUser,
+            'data' => [
+                'user' => $freshUser,
+                'token' => $token,
+            ],
+        ], 200);
     }
 
     /**
-     * Resend verification email to user.
+     * Resend verification OTP code to user email.
      */
     public function resendVerificationEmail(Request $request): JsonResponse
     {
-        $request->validate(['email' => ['required', 'email']]);
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
         $user = User::where('email', $request->email)->first();
 
@@ -231,15 +255,27 @@ class AuthController extends Controller
             ], 200);
         }
 
+        // Generate new 6-digit OTP Code
+        $otpCode = sprintf('%06d', mt_rand(100000, 999999));
+
+        DB::table('email_verification_otps')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'otp' => $otpCode,
+                'created_at' => Carbon::now(),
+            ]
+        );
+
         try {
-            $user->notify(new VerifyEmailNotification());
+            $user->notify(new VerifyEmailNotification($otpCode));
         } catch (\Exception $e) {
-            Log::error('Resend verification mail failed: ' . $e->getMessage());
+            Log::error('Resend verification OTP email failed: ' . $e->getMessage());
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Verification link has been sent to your email address.',
+            'message' => 'A new 6-digit verification OTP code has been sent to your email address.',
+            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
         ], 200);
     }
 
@@ -286,9 +322,10 @@ class AuthController extends Controller
         }
 
         return response()->json([
+            'status' => true,
             'success' => true,
-            'message' => 'Password reset OTP code has been sent to your email address.',
-            'otp' => config('app.env') === 'local' ? $otpCode : null,
+            'message' => 'Password reset code sent to your email.',
+            'otp' => app()->environment(['local', 'testing']) ? $otpCode : null,
         ], 200);
     }
 
@@ -351,8 +388,10 @@ class AuthController extends Controller
         $token = $user->createToken('PasswordResetToken')->plainTextToken;
 
         return response()->json([
+            'status' => true,
             'success' => true,
-            'message' => 'OTP verified successfully. You can now reset your password.',
+            'message' => 'OTP verified successfully.',
+            'reset_token' => $token,
             'token' => $token,
         ], 200);
     }
@@ -401,8 +440,9 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         return response()->json([
+            'status' => true,
             'success' => true,
-            'message' => 'Password has been reset successfully. You can now log in with your new password.',
+            'message' => 'Your password has been reset successfully.',
         ], 200);
     }
 
@@ -424,15 +464,91 @@ class AuthController extends Controller
     }
 
     /**
-     * Get the authenticated user details.
+     * Get the authenticated user details including latest vital & lab.
      */
     public function user(Request $request): JsonResponse
     {
+        $user = $request->user()->load(['latestVital', 'latestLab', 'activeSubscription.plan']);
+
         return response()->json([
             'success' => true,
             'message' => 'User profile retrieved successfully',
             'data' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+        ], 200);
+    }
+
+    /**
+     * Update user profile information.
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['nullable', 'string', 'max:255'],
+            'age' => ['nullable', 'integer', 'min:0', 'max:150'],
+            'gender' => ['nullable', 'string', 'max:20'],
+            'sex' => ['nullable', 'string', 'max:20'],
+            'height' => ['nullable', 'numeric', 'min:0'],
+            'weight' => ['nullable', 'numeric', 'min:0'],
+            'bmi' => ['nullable', 'numeric', 'min:0'],
+            'fcm_token' => ['nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = [];
+
+        if ($request->filled('name')) {
+            $data['name'] = $request->input('name');
+        }
+
+        if ($request->has('age')) {
+            $data['age'] = $request->input('age');
+        }
+
+        $genderValue = $request->input('gender') ?? $request->input('sex');
+        if ($genderValue !== null) {
+            $data['gender'] = $genderValue;
+        }
+
+        if ($request->has('height')) {
+            $data['height'] = $request->input('height');
+        }
+
+        if ($request->has('weight')) {
+            $data['weight'] = $request->input('weight');
+        }
+
+        // Calculate or assign BMI
+        if ($request->has('bmi') && $request->input('bmi') !== null) {
+            $data['bmi'] = $request->input('bmi');
+        } elseif (isset($data['height']) && isset($data['weight']) && (float)$data['height'] > 0) {
+            $heightInMeters = (float)$data['height'] / 100;
+            $data['bmi'] = round((float)$data['weight'] / ($heightInMeters * $heightInMeters), 2);
+        }
+
+        if ($request->filled('fcm_token')) {
+            $data['fcm_token'] = $request->input('fcm_token');
+        }
+
+        if (!empty($data)) {
+            $user->update($data);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'data' => [
+                'user' => $user->fresh(['latestVital', 'latestLab', 'activeSubscription.plan']),
             ],
         ], 200);
     }

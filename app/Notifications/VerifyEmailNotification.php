@@ -3,16 +3,19 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\URL;
 
 class VerifyEmailNotification extends Notification
 {
     use Queueable;
+
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct(public readonly string $otpCode)
+    {
+    }
 
     /**
      * Get the notification's delivery channels.
@@ -29,29 +32,14 @@ class VerifyEmailNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
-
         return (new MailMessage)
-            ->subject('Verify Your Email Address - Azza Respiratory Therapy')
+            ->subject('Email Verification OTP - Azza Respiratory Therapy')
             ->greeting('Hello ' . ($notifiable->name ?? 'User') . '!')
             ->line('Thank you for registering with Azza Respiratory Therapy.')
-            ->line('Please click the button below to verify your email address.')
-            ->action('Verify Email Address', $verificationUrl)
-            ->line('If you did not create an account, no further action is required.');
-    }
-
-    /**
-     * Get the verification URL for the given notifiable.
-     */
-    protected function verificationUrl(object $notifiable): string
-    {
-        return URL::temporarySignedRoute(
-            'verification.verify',
-            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
-            [
-                'id' => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
-            ]
-        );
+            ->line('Your 6-digit email verification OTP code is:')
+            ->line('**' . $this->otpCode . '**')
+            ->line('This code will expire in 15 minutes.')
+            ->line('Please enter this OTP code in the application to verify your account and get started.')
+            ->line('If you did not register for this account, please ignore this email.');
     }
 }

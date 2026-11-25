@@ -17,7 +17,7 @@ class CategoryApiController extends Controller
         $categories = Category::latest()->get();
 
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Categories fetched successfully',
             'categories' => CategoryResource::collection($categories),
         ], 200);

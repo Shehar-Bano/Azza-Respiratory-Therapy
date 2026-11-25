@@ -14,7 +14,7 @@ class ArticleSeeder extends Seeder
     public function run(): void
     {
         $category = Category::first();
-        $categoryId = $category ? $category->id : 1;
+        $categoryId = $category ? $category->id : null;
 
         Article::updateOrCreate(
             ['title' => 'Arterial Blood Gas (ABG) Analysis'],

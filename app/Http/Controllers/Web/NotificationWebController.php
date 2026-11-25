@@ -34,7 +34,7 @@ class NotificationWebController extends Controller
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
-            'type' => ['nullable', 'string', 'max:100'],
+            'type' => ['required', 'string', 'in:general_notification,reminder,update,security_alert'],
             'user_ids' => ['required_without:select_all', 'array'],
             'user_ids.*' => ['nullable', 'string'],
         ]);
@@ -56,7 +56,7 @@ class NotificationWebController extends Controller
 
         $title = $request->input('title');
         $message = $request->input('message');
-        $type = $request->input('type') ?: 'admin_broadcast';
+        $type = $request->input('type') ?: 'general_notification';
 
         $count = 0;
         foreach ($targetUsers as $user) {

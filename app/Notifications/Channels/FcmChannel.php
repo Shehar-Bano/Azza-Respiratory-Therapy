@@ -22,8 +22,14 @@ class FcmChannel
         $payload = $notification->toFcm($notifiable);
         $token = $notifiable->routeNotificationFor('fcm', $notification);
 
-        // Save Notification in Database for API listing
+        // Save Notification in Database for API listing (always delivered in-app)
         $this->createAppNotification($notifiable, $payload);
+
+        // Respect user's Master Push Switch & per-channel preferences
+        $type = (string) ($payload['type'] ?? 'general_notification');
+        if (method_exists($notifiable, 'isPushAllowedForType') && !$notifiable->isPushAllowedForType($type)) {
+            return;
+        }
 
         // Send Push Notification via Firebase Service if user has fcm_token
         if (!empty($token)) {

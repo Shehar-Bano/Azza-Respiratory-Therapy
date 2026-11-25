@@ -19,10 +19,19 @@ class CardApiController extends Controller
 
         $cards = ClinicalCard::with('images')->latest()->paginate($perPage);
 
+        $items = CardResource::collection($cards->items());
+
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Cards fetched successfully',
-            'card' => CardResource::collection($cards->items()),
+            'data' => [
+                'current_page' => $cards->currentPage(),
+                'last_page' => $cards->lastPage(),
+                'total' => $cards->total(),
+                'per_page' => $cards->perPage(),
+                'data' => $items,
+            ],
+            'card' => $items,
             'pagination' => [
                 'total' => $cards->total(),
                 'count' => $cards->count(),

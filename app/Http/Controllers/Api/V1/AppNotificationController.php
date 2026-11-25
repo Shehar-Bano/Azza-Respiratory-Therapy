@@ -13,9 +13,24 @@ class AppNotificationController extends Controller
     {
         $userId = $request->user()->id;
 
-        $notifications = AppNotification::where('user_id', $userId)
-            ->orderByDesc('id')
-            ->paginate(20);
+        $query = AppNotification::where('user_id', $userId);
+
+        if ($request->filled('type') && $request->type !== 'all') {
+            $type = strtolower(trim($request->type));
+            if (in_array($type, ['alerts', 'alert', 'security_alert', 'security_alerts'])) {
+                $query->whereIn('type', ['security_alert', 'alert']);
+            } elseif (in_array($type, ['updates', 'update'])) {
+                $query->where('type', 'update');
+            } elseif (in_array($type, ['reminders', 'reminder'])) {
+                $query->where('type', 'reminder');
+            } elseif (in_array($type, ['general', 'general_notification', 'general_notifications'])) {
+                $query->where('type', 'general_notification');
+            } else {
+                $query->where('type', $type);
+            }
+        }
+
+        $notifications = $query->orderByDesc('id')->paginate(20);
 
         $unreadCount = AppNotification::where('user_id', $userId)
             ->whereNull('read_at')

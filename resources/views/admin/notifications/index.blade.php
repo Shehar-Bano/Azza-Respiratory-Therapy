@@ -164,6 +164,30 @@
         border: 1px solid rgba(107, 114, 128, 0.3);
     }
 
+    .badge-type-general {
+        background: rgba(0, 180, 216, 0.15);
+        color: var(--primary);
+        border: 1px solid rgba(0, 180, 216, 0.35);
+    }
+
+    .badge-type-reminder {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .badge-type-update {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.35);
+    }
+
+    .badge-type-security {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
     .btn-submit {
         background: linear-gradient(135deg, #00d2df 0%, #0077b6 100%);
         color: #ffffff;
@@ -388,19 +412,19 @@
 
             <!-- Notification Type -->
             <div class="form-group">
-                <label class="form-label" for="type">Notification Type</label>
-                <select name="type" id="type" class="form-control">
-                    <option value="general_notification">General Notification</option>
-                    <option value="admin_broadcast">Admin Announcement</option>
-                    <option value="alert">System Alert</option>
-                    <option value="promotion">Promotional / Offer</option>
+                <label class="form-label" for="type">Notification Type *</label>
+                <select name="type" id="type" class="form-control" required>
+                    <option value="general_notification" {{ old('type') == 'general_notification' ? 'selected' : '' }}>General Notification</option>
+                    <option value="reminder" {{ old('type') == 'reminder' ? 'selected' : '' }}>Reminder</option>
+                    <option value="update" {{ old('type') == 'update' ? 'selected' : '' }}>Update</option>
+                    <option value="security_alert" {{ old('type') == 'security_alert' ? 'selected' : '' }}>Security Alert</option>
                 </select>
             </div>
 
             <!-- Title -->
             <div class="form-group">
                 <label class="form-label" for="title">Notification Title *</label>
-                <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Important Update Regarding Respiratory Therapy" required value="{{ old('title') }}">
+                <input type="text" name="title" id="title" class="form-control" placeholder="e.g. New Article Available" required value="{{ old('title') }}">
             </div>
 
             <!-- Description / Message -->
@@ -459,7 +483,23 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="badge-fcm badge-fcm-inactive">{{ $notification->type }}</span>
+                                @php
+                                    $typeBadgeClass = match($notification->type) {
+                                        'general_notification' => 'badge-type-general',
+                                        'reminder' => 'badge-type-reminder',
+                                        'update' => 'badge-type-update',
+                                        'security_alert' => 'badge-type-security',
+                                        default => 'badge-fcm-inactive',
+                                    };
+                                    $typeLabel = match($notification->type) {
+                                        'general_notification' => 'General Notification',
+                                        'reminder' => 'Reminder',
+                                        'update' => 'Update',
+                                        'security_alert' => 'Security Alert',
+                                        default => ucwords(str_replace('_', ' ', $notification->type)),
+                                    };
+                                @endphp
+                                <span class="badge-fcm {{ $typeBadgeClass }}">{{ $typeLabel }}</span>
                             </td>
                             <td>
                                 @if($notification->read_at)

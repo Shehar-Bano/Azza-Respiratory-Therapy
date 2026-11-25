@@ -9,6 +9,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class SubscriptionApiController extends Controller
 {
@@ -206,7 +208,9 @@ class SubscriptionApiController extends Controller
             'status' => true,
             'data' => [
                 'user_id' => (int) $userId,
+                'is_active' => $isActive,
                 'active_plan_id' => $activePlanId,
+                'plan_name' => $planTitle,
                 'plan_title' => $planTitle,
                 'subscription_status' => $statusText,
                 'started_at' => $startedAt ? $startedAt->toISOString() : null,
@@ -283,6 +287,113 @@ class SubscriptionApiController extends Controller
             'status' => true,
             'message' => 'Payment history retrieved',
             'history' => $history,
+        ], 200);
+    }
+
+    /**
+     * Verify Paystack payment reference and activate user subscription.
+     */
+    public function verifyPayment(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'reference' => ['required', 'string', 'max:255'],
+            'plan_id' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = $request->user();
+        $reference = (string) $request->input('reference');
+        $planId = (string) $request->input('plan_id');
+
+        $plan = SubscriptionPlan::where('plan_id', $planId)->first();
+        if (!$plan) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid subscription plan ID.',
+            ], 404);
+        }
+
+        // Check if this reference was already verified for this user (idempotent)
+        $existingTx = SubscriptionTransaction::where('transaction_reference', $reference)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingTx && $existingTx->status === 'active') {
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment verified and subscription activated successfully.',
+            ], 200);
+        }
+
+        $gatewayResponse = null;
+        $amount = (string) ($plan->price ?? '0.00');
+        $currency = $plan->currency ?? 'SAR';
+        $paymentMethod = 'Paystack';
+
+        $paystackSecret = config('services.paystack.secret_key');
+        if (!empty($paystackSecret)) {
+            $response = Http::withToken($paystackSecret)
+                ->acceptJson()
+                ->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+            $body = $response->json();
+            if (!$response->successful() || !($body['status'] ?? false) || (($body['data']['status'] ?? '') !== 'success')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $body['message'] ?? 'Payment verification failed with Paystack.',
+                ], 400);
+            }
+
+            $gatewayResponse = json_encode($body['data']);
+            if (isset($body['data']['amount'])) {
+                $amount = number_format(((float) $body['data']['amount']) / 100, 2, '.', '');
+            }
+            if (!empty($body['data']['currency'])) {
+                $currency = $body['data']['currency'];
+            }
+            if (!empty($body['data']['channel'])) {
+                $paymentMethod = ucfirst((string) $body['data']['channel']);
+            }
+        }
+
+        $durationDays = $plan->duration_days > 0 ? (int) $plan->duration_days : 30;
+        $startedAt = Carbon::now();
+        $expiresAt = $startedAt->copy()->addDays($durationDays);
+
+        // Deactivate previous active subscriptions for this user
+        SubscriptionTransaction::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->update(['status' => 'suspended']);
+
+        SubscriptionTransaction::create([
+            'user_id' => $user->id,
+            'plan_id' => $planId,
+            'cart_id' => 'PSTK-' . strtoupper(substr(md5($reference), 0, 8)),
+            'transaction_reference' => $reference,
+            'amount' => $amount,
+            'currency' => $currency,
+            'payment_gateway' => 'Paystack',
+            'payment_method' => $paymentMethod,
+            'payment_status' => 'success',
+            'customer_name' => $user->name,
+            'customer_email' => $user->email,
+            'customer_phone' => $user->phone,
+            'gateway_response' => $gatewayResponse,
+            'status' => 'active',
+            'started_at' => $startedAt,
+            'expires_at' => $expiresAt,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment verified and subscription activated successfully.',
         ], 200);
     }
 }

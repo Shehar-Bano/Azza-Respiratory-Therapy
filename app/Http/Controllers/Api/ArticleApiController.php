@@ -25,10 +25,19 @@ class ArticleApiController extends Controller
 
         $articles = $query->latest()->paginate($perPage);
 
+        $items = ArticleResource::collection($articles->items());
+
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Articles fetched successfully',
-            'artical' => ArticleResource::collection($articles->items()),
+            'data' => [
+                'current_page' => $articles->currentPage(),
+                'last_page' => $articles->lastPage(),
+                'total' => $articles->total(),
+                'per_page' => $articles->perPage(),
+                'data' => $items,
+            ],
+            'artical' => $items,
             'pagination' => [
                 'total' => $articles->total(),
                 'count' => $articles->count(),
@@ -55,10 +64,19 @@ class ArticleApiController extends Controller
 
         $articles = $query->latest()->paginate($perPage);
 
+        $items = ArticleResource::collection($articles->items());
+
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'message' => 'Category articles fetched successfully',
-            'artical' => ArticleResource::collection($articles->items()),
+            'data' => [
+                'current_page' => $articles->currentPage(),
+                'last_page' => $articles->lastPage(),
+                'total' => $articles->total(),
+                'per_page' => $articles->perPage(),
+                'data' => $items,
+            ],
+            'artical' => $items,
             'pagination' => [
                 'total' => $articles->total(),
                 'count' => $articles->count(),
