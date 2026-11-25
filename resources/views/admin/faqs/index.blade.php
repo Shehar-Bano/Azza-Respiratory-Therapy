@@ -152,9 +152,88 @@
         padding: 0.4rem 0.55rem;
         border-radius: 8px;
         cursor: pointer;
+        transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .btn-more:hover {
+        background: var(--card-border);
+        color: var(--text-primary);
+        border-color: var(--primary);
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: 110%;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        min-width: 150px;
+        z-index: 100;
+        display: none;
+        padding: 0.35rem 0;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+        background: var(--input-bg);
+    }
+
+    .dropdown-item.item-edit:hover { color: #60a5fa; }
+    .dropdown-item.item-delete:hover { color: #fca5a5; }
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1.25rem;
+    }
+
+    .modal-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        width: 100%;
+        max-width: 540px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-primary);
     }
 
     .form-group {
@@ -353,7 +432,7 @@
 
 <!-- Create FAQ Modal -->
 <div id="createFaqModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-dialog" style="max-width: 540px;">
+    <div class="modal-card">
         <div class="modal-header">
             <h3 class="modal-title">Add New FAQ</h3>
             <button type="button" class="btn-close" onclick="closeCreateModal()">&times;</button>
@@ -382,7 +461,7 @@
 
 <!-- Edit FAQ Modal -->
 <div id="editFaqModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-dialog" style="max-width: 540px;">
+    <div class="modal-card">
         <div class="modal-header">
             <h3 class="modal-title">Edit FAQ</h3>
             <button type="button" class="btn-close" onclick="closeEditModal()">&times;</button>
