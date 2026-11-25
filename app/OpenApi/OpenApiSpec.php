@@ -266,22 +266,64 @@ class OpenApiSpec
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['name', 'email', 'password', 'password_confirmation'],
+                required: ['email', 'password', 'password_confirmation'],
                 properties: [
-                    new OA\Property(property: 'name', type: 'string', example: 'Dr. Sarah Jenkins'),
+                    new OA\Property(property: 'name', type: 'string', nullable: true, example: 'Dr. Sarah Jenkins'),
                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'sarah.jenkins@hospital.org'),
                     new OA\Property(property: 'password', type: 'string', example: 'SecurePassword#2026'),
                     new OA\Property(property: 'password_confirmation', type: 'string', example: 'SecurePassword#2026'),
-                    new OA\Property(property: 'phone', type: 'string', example: '+966539301053'),
+                    new OA\Property(property: 'login_method', type: 'string', example: 'default'),
+                    new OA\Property(property: 'fcm_token', type: 'string', nullable: true),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'Confirmation link sent to your email. Please check your inbox and confirm your email.'),
+            new OA\Response(response: 201, description: 'Registration successful. A verification link has been sent to your email.'),
             new OA\Response(response: 422, description: 'Validation error.'),
         ]
     )]
     public function register(): void {}
+
+    #[OA\Post(
+        path: '/api/email/check-verification',
+        summary: 'Check Email Verification & Auto-Login',
+        tags: ['Authentication & OTP'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'sarah.jenkins@hospital.org'),
+                    new OA\Property(property: 'fcm_token', type: 'string', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Email verified successfully.'),
+            new OA\Response(response: 403, description: 'Your email is not verified yet.'),
+        ]
+    )]
+    public function checkVerification(): void {}
+
+    #[OA\Post(
+        path: '/api/email/resend-verification',
+        summary: 'Resend Verification Email',
+        tags: ['Authentication & OTP'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'sarah.jenkins@hospital.org'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'A new verification link has been sent to your email.'),
+            new OA\Response(response: 404, description: 'User not found.'),
+        ]
+    )]
+    public function resendVerification(): void {}
 
     #[OA\Post(
         path: '/api/verify-email-otp',

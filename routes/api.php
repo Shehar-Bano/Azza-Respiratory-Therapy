@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 // Public Authentication & OTP Endpoints
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+Route::post('/email/check-verification', [AuthController::class, 'checkVerification']);
+Route::post('/email/resend-verification', [AuthController::class, 'resendVerificationEmail']);
 Route::post('/verify-email-otp', [AuthController::class, 'verifyEmailOtp']);
 Route::post('/verify-email', [AuthController::class, 'verifyEmailOtp']);
 Route::post('/email/resend-otp', [AuthController::class, 'resendVerificationEmail']);

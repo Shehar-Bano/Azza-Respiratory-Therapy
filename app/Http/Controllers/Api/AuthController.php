@@ -52,10 +52,18 @@ class AuthController extends Controller
         }
 
         if ($user->email_verified_at === null && ($user->login_method ?? 'default') === 'default') {
+            try {
+                $user->notify(new VerifyEmailNotification());
+            } catch (\Exception $e) {
+                Log::error('Login auto-resend verification link failed: ' . $e->getMessage());
+            }
+
             return response()->json([
+                'status' => false,
                 'success' => false,
-                'message' => 'Your email address is not verified yet. Please enter the 6-digit OTP code sent to your email address.',
-                'email_verified' => false,
+                'is_verified' => false,
+                'verification_sent' => true,
+                'message' => 'Email is not verified. A new verification link has been sent to your email.',
             ], 403);
         }
 
@@ -81,13 +89,13 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->input('name'),
             'email' => $request->email,
             'phone' => $request->phone ?? null,
             'password' => Hash::make($request->password),
             'role' => 'user',
             'status' => 'active',
-            'login_method' => 'default',
+            'login_method' => $request->input('login_method', 'default'),
             'fcm_token' => $request->fcm_token ?? null,
             'email_verified_at' => null,
         ]);
@@ -125,10 +133,11 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'success' => true,
-            'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
+            'message' => 'Registration successful. A verification link has been sent to your email.',
             'data' => [
                 'user_id' => $user->id,
                 'email' => $user->email,
+                'is_verified' => false,
             ],
         ], 201);
     }
@@ -159,8 +168,76 @@ class AuthController extends Controller
 
         return view('auth.email-verified', [
             'verified' => true,
-            'message' => 'Your email has been verified successfully! You can now log in to the Azza Respiratory Therapy app.',
+            'message' => 'Your email has been verified! You can now return to the Azza Respiratory Therapy app and tap Continue to home.',
         ]);
+    }
+
+    /**
+     * Check email verification status and auto-login if verified.
+     */
+    public function checkVerification(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+            'fcm_token' => ['nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'is_verified' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'is_verified' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        if ($user->email_verified_at === null) {
+            return response()->json([
+                'status' => false,
+                'is_verified' => false,
+                'message' => 'Your email is not verified yet. Please click the verification link sent to your inbox.',
+            ], 403);
+        }
+
+        if ($request->filled('fcm_token')) {
+            $user->update(['fcm_token' => $request->fcm_token]);
+        }
+
+        $activeSub = SubscriptionTransaction::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', Carbon::now());
+            })
+            ->latest()
+            ->first();
+
+        $planId = $activeSub ? (string) $activeSub->plan_id : '0';
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'is_verified' => true,
+            'message' => 'Email verified successfully.',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toISOString(),
+                'plan_id' => $planId,
+            ],
+        ], 200);
     }
 
     /**
@@ -280,7 +357,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'success' => true,
-            'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
+            'message' => 'A new verification link has been sent to your email.',
         ], 200);
     }
 
@@ -308,7 +385,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'success' => false,
-                'message' => 'User is not registered yet.',
+                'message' => "We can't find a user with that email address.",
             ], 404);
         }
 
@@ -331,7 +408,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'success' => true,
-            'message' => 'Password reset link sent to your email. Please check your inbox.',
+            'message' => 'We have emailed your password reset link.',
         ], 200);
     }
 
@@ -377,7 +454,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return back()->with('reset_success', 'Now you can login into app with new password.');
+        return back()->with('reset_success', 'Password reset successfully! You can now return to the Azza Respiratory Therapy app and sign in.');
     }
 
     /**

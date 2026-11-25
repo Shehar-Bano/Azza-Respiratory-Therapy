@@ -24,10 +24,11 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'password_confirmation' => ['sometimes', 'same:password'],
+            'login_method' => ['nullable', 'string', 'max:50'],
             'phone' => ['nullable', 'string', 'max:50'],
             'fcm_token' => ['nullable', 'string'],
         ];
@@ -39,9 +40,10 @@ class RegisterRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
+            'status' => false,
             'success' => false,
-            'message' => 'Validation error',
-            'errors' => $validator->errors()
+            'message' => $validator->errors()->first(),
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

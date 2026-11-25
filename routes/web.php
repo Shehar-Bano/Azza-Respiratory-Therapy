@@ -16,12 +16,14 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Email Verification Route (Public)
-Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Api\AuthController::class, 'verifyEmail'])->name('verification.verify');
+// Email Verification Route (Fallback web alias)
+Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Api\AuthController::class, 'verifyEmail']);
 
 // Password Reset WebView Routes (Public)
-Route::get('/password/reset/{token}', [\App\Http\Controllers\Api\AuthController::class, 'showResetPasswordWebView'])->name('password.reset.webview');
-Route::post('/password/reset', [\App\Http\Controllers\Api\AuthController::class, 'submitResetPasswordWebView'])->name('password.reset.webview.submit');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Api\AuthController::class, 'showResetPasswordWebView'])->name('password.reset.webview');
+Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'submitResetPasswordWebView'])->name('password.reset.webview.submit');
+Route::get('/password/reset/{token}', [\App\Http\Controllers\Api\AuthController::class, 'showResetPasswordWebView']);
+Route::post('/password/reset', [\App\Http\Controllers\Api\AuthController::class, 'submitResetPasswordWebView']);
 
 // Authentication Web Routes
 Route::get('/login', [WebAuthController::class, 'showLogin'])->name('login');

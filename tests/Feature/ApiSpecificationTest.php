@@ -43,22 +43,52 @@ class ApiSpecificationTest extends TestCase
         $email = 'sarah.test.' . uniqid() . '@hospital.org';
 
         $registerRes = $this->postJson('/api/register', [
-            'name' => 'Dr. Sarah Jenkins',
             'email' => $email,
             'password' => 'SecurePassword#2026',
             'password_confirmation' => 'SecurePassword#2026',
-            'phone' => '+966539301053',
+            'login_method' => 'default',
         ]);
 
         $registerRes->assertStatus(201)
             ->assertJson([
                 'status' => true,
-                'message' => 'Confirmation link sent to your email. Please check your inbox and confirm your email.',
-                'data' => ['email' => $email],
+                'message' => 'Registration successful. A verification link has been sent to your email.',
+                'data' => [
+                    'email' => $email,
+                    'is_verified' => false,
+                ],
             ])
             ->assertJsonMissingPath('otp');
 
         $user = User::where('email', $email)->firstOrFail();
+
+        // Check verification before clicking link -> 403
+        $this->postJson('/api/email/check-verification', ['email' => $email])
+            ->assertStatus(403)
+            ->assertJson([
+                'status' => false,
+                'is_verified' => false,
+                'message' => 'Your email is not verified yet. Please click the verification link sent to your inbox.',
+            ]);
+
+        // Unverified login auto-sends verification link & returns 403
+        $this->postJson('/api/login', [
+            'email' => $email,
+            'password' => 'SecurePassword#2026',
+        ])->assertStatus(403)->assertJson([
+            'status' => false,
+            'is_verified' => false,
+            'verification_sent' => true,
+            'message' => 'Email is not verified. A new verification link has been sent to your email.',
+        ]);
+
+        // Resend verification email
+        $this->postJson('/api/email/resend-verification', ['email' => $email])
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+                'message' => 'A new verification link has been sent to your email.',
+            ]);
 
         Notification::assertSentTo($user, VerifyEmailNotification::class, function ($notification) use ($user) {
             $mail = $notification->toMail($user);
@@ -69,12 +99,22 @@ class ApiSpecificationTest extends TestCase
 
         $this->assertNotNull($user->fresh()->email_verified_at);
 
+        // Check verification after clicking link -> 200 with token & user
+        $this->postJson('/api/email/check-verification', ['email' => $email])
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+                'is_verified' => true,
+                'message' => 'Email verified successfully.',
+            ])
+            ->assertJsonStructure(['token', 'user' => ['id', 'name', 'email', 'email_verified_at', 'plan_id']]);
+
         // Forgot password -> sends ResetPasswordLinkNotification -> WebView reset
         $forgotRes = $this->postJson('/api/forgot-password', ['email' => $email]);
         $forgotRes->assertStatus(200)
             ->assertJson([
                 'status' => true,
-                'message' => 'Password reset link sent to your email. Please check your inbox.',
+                'message' => 'We have emailed your password reset link.',
             ])
             ->assertJsonMissingPath('otp');
 
@@ -87,12 +127,12 @@ class ApiSpecificationTest extends TestCase
             return true;
         });
 
-        $this->post('/password/reset', [
+        $this->post('/reset-password', [
             'token' => $resetToken,
             'email' => $email,
             'password' => 'NewSecurePassword#2026',
             'password_confirmation' => 'NewSecurePassword#2026',
-        ])->assertSessionHas('reset_success', 'Now you can login into app with new password.');
+        ])->assertSessionHas('reset_success', 'Password reset successfully! You can now return to the Azza Respiratory Therapy app and sign in.');
 
         // Verify login works with new password
         $this->postJson('/api/login', [

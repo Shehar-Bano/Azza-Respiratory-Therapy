@@ -469,7 +469,6 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
                                     "email",
                                     "password",
                                     "password_confirmation"
@@ -477,7 +476,8 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "Dr. Sarah Jenkins"
+                                        "example": "Dr. Sarah Jenkins",
+                                        "nullable": true
                                     },
                                     "email": {
                                         "type": "string",
@@ -492,9 +492,13 @@
                                         "type": "string",
                                         "example": "SecurePassword#2026"
                                     },
-                                    "phone": {
+                                    "login_method": {
                                         "type": "string",
-                                        "example": "+966539301053"
+                                        "example": "default"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -504,10 +508,88 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Confirmation link sent to your email. Please check your inbox and confirm your email."
+                        "description": "Registration successful. A verification link has been sent to your email."
                     },
                     "422": {
                         "description": "Validation error."
+                    }
+                }
+            }
+        },
+        "/api/email/check-verification": {
+            "post": {
+                "tags": [
+                    "Authentication & OTP"
+                ],
+                "summary": "Check Email Verification & Auto-Login",
+                "operationId": "9a64298e5b88f1d493eafcf4d2be42e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "sarah.jenkins@hospital.org"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email verified successfully."
+                    },
+                    "403": {
+                        "description": "Your email is not verified yet."
+                    }
+                }
+            }
+        },
+        "/api/email/resend-verification": {
+            "post": {
+                "tags": [
+                    "Authentication & OTP"
+                ],
+                "summary": "Resend Verification Email",
+                "operationId": "d394547d726d38c5e7fa759be08357c2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "sarah.jenkins@hospital.org"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "A new verification link has been sent to your email."
+                    },
+                    "404": {
+                        "description": "User not found."
                     }
                 }
             }
