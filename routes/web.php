@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\CategoryWebController;
 use App\Http\Controllers\Web\ClinicalCardWebController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\FaqWebController;
+use App\Http\Controllers\Web\FeedbackWebController;
 use App\Http\Controllers\Web\SubscriptionPlanWebController;
 use App\Http\Controllers\Web\SupportContactWebController;
 use App\Http\Controllers\Web\UserSubscriptionWebController;
@@ -83,4 +84,9 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/faqs', [FaqWebController::class, 'store'])->name('admin.faqs.store');
     Route::put('/admin/faqs/{faq}', [FaqWebController::class, 'update'])->name('admin.faqs.update');
     Route::delete('/admin/faqs/{faq}', [FaqWebController::class, 'destroy'])->name('admin.faqs.destroy');
+
+    // Customer Feedback Management
+    Route::get('/admin/feedbacks', [FeedbackWebController::class, 'index'])->name('admin.feedbacks.index');
+    Route::put('/admin/feedbacks/{feedback}/status', [FeedbackWebController::class, 'updateStatus'])->name('admin.feedbacks.updateStatus');
+    Route::delete('/admin/feedbacks/{feedback}', [FeedbackWebController::class, 'destroy'])->name('admin.feedbacks.destroy');
 });

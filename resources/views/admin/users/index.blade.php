@@ -817,13 +817,12 @@
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">Amount (SAR) <span style="color:#ef4444;">*</span></label>
-                    <input type="number" step="0.01" name="amount" id="editSubAmountInput" class="form-control" placeholder="e.g. 397.46" required>
+                    <label class="form-label">Amount (SAR)</label>
+                    <input type="number" step="0.01" name="amount" id="editSubAmountInput" class="form-control" readonly style="cursor: not-allowed; opacity: 0.8;" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label">Duration (Days from Today)</label>
-                    <input type="number" name="duration_days" id="editSubDurationInput" class="form-control" placeholder="e.g. 30" min="1">
-                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">Leave blank to use default plan duration.</small>
+                    <input type="number" name="duration_days" id="editSubDurationInput" class="form-control" readonly style="cursor: not-allowed; opacity: 0.8;" min="1">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label">Subscription Status <span style="color:#ef4444;">*</span></label>
@@ -878,18 +877,37 @@
     }
 
     function openUpdateUserSubModal(user) {
-        document.getElementById('subModalUserName').innerText = user.name;
+        document.getElementById('subModalUserName').innerText = user.name || user.email;
         document.getElementById('updateUserSubForm').action = "{{ url('admin/users') }}/" + user.id + "/subscription";
-        
+
+        var planSelect = document.getElementById('editSubPlanSelect');
+        var amountInput = document.getElementById('editSubAmountInput');
+        var durationInput = document.getElementById('editSubDurationInput');
+        var statusSelect = document.getElementById('editSubStatusSelect');
+
         var sub = user.active_subscription;
         if (sub) {
-            document.getElementById('editSubPlanSelect').value = sub.plan_id;
-            document.getElementById('editSubAmountInput').value = sub.amount;
-            document.getElementById('editSubStatusSelect').value = sub.status;
+            planSelect.value = sub.plan_id;
+            var selectedOption = planSelect.options[planSelect.selectedIndex];
+            var defaultPrice = selectedOption ? selectedOption.getAttribute('data-price') : '';
+            var defaultDays = selectedOption ? selectedOption.getAttribute('data-days') : '';
+
+            amountInput.value = (sub.amount !== null && sub.amount !== undefined && sub.amount !== '') ? sub.amount : (defaultPrice || '');
+
+            if (sub.expires_at) {
+                var diffMs = new Date(sub.expires_at) - new Date();
+                var remainingDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+                durationInput.value = remainingDays;
+            } else {
+                durationInput.value = defaultDays || '';
+            }
+
+            statusSelect.value = sub.status || 'active';
         } else {
-            document.getElementById('editSubPlanSelect').value = '';
-            document.getElementById('editSubAmountInput').value = '';
-            document.getElementById('editSubStatusSelect').value = 'active';
+            planSelect.value = '';
+            amountInput.value = '';
+            durationInput.value = '';
+            statusSelect.value = 'active';
         }
         document.getElementById('updateUserSubModal').classList.add('show');
     }

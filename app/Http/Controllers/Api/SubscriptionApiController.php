@@ -84,8 +84,14 @@ class SubscriptionApiController extends Controller
         $startedAt = Carbon::now();
         $expiresAt = $startedAt->copy()->addDays($durationDays);
 
-        // Deactivate previous active subscriptions for this user if user exists
+        // Remove Free Tier (plan_id = '0') when subscribing to a paid plan; suspend other active paid plans
         if ($userId) {
+            if ((string) $request->plan_id !== '0') {
+                SubscriptionTransaction::where('user_id', $userId)
+                    ->where('plan_id', '0')
+                    ->delete();
+            }
+
             SubscriptionTransaction::where('user_id', $userId)
                 ->where('status', 'active')
                 ->update(['status' => 'suspended']);
@@ -173,8 +179,32 @@ class SubscriptionApiController extends Controller
             $expiresAt = $sub->expires_at;
 
             if ($expiresAt && $expiresAt->isPast()) {
-                $isExpired = true;
-                $statusText = "expired";
+                $sub->update(['status' => 'suspended']);
+                if ((string) $sub->plan_id !== '0') {
+                    $userModel = User::find($userId);
+                    if ($userModel) {
+                        $freeSub = SubscriptionTransaction::ensureFreeTierForUser($userModel);
+                        if ($freeSub) {
+                            $isActive = true;
+                            $isExpired = false;
+                            $statusText = 'active';
+                            $activePlanId = '0';
+                            $planTitle = $freeSub->plan ? $freeSub->plan->title : 'Free Plan';
+                            $startedAt = $freeSub->started_at;
+                            $expiresAt = $freeSub->expires_at;
+                            $daysRemaining = $expiresAt ? (int) max(0, $now->diffInDays($expiresAt, false)) : 0;
+                        } else {
+                            $isExpired = true;
+                            $statusText = 'expired';
+                        }
+                    } else {
+                        $isExpired = true;
+                        $statusText = 'expired';
+                    }
+                } else {
+                    $isExpired = true;
+                    $statusText = 'expired';
+                }
             } else {
                 $isActive = true;
                 $statusText = "active";
@@ -368,7 +398,13 @@ class SubscriptionApiController extends Controller
         $startedAt = Carbon::now();
         $expiresAt = $startedAt->copy()->addDays($durationDays);
 
-        // Deactivate previous active subscriptions for this user
+        // Remove Free Tier (plan_id = '0') when upgrading to a paid plan; suspend other active paid plans
+        if ($planId !== '0') {
+            SubscriptionTransaction::where('user_id', $user->id)
+                ->where('plan_id', '0')
+                ->delete();
+        }
+
         SubscriptionTransaction::where('user_id', $user->id)
             ->where('status', 'active')
             ->update(['status' => 'suspended']);

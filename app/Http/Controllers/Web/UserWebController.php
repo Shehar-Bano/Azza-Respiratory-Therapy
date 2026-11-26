@@ -173,6 +173,14 @@ class UserWebController extends Controller
         $plan = SubscriptionPlan::where('plan_id', (string) $request->plan_id)->first()
             ?? SubscriptionPlan::find($request->plan_id);
 
+        $targetPlanId = $plan ? (string) $plan->plan_id : (string) $request->plan_id;
+
+        if ($targetPlanId !== '0') {
+            SubscriptionTransaction::where('user_id', $user->id)
+                ->where('plan_id', '0')
+                ->delete();
+        }
+
         $activeSub = SubscriptionTransaction::where('user_id', $user->id)
             ->latest()
             ->first();
@@ -183,7 +191,7 @@ class UserWebController extends Controller
 
         if ($activeSub) {
             $activeSub->update([
-                'plan_id' => $plan ? (string) $plan->plan_id : (string) $request->plan_id,
+                'plan_id' => $targetPlanId,
                 'amount' => (string) $request->amount,
                 'status' => $request->status,
                 'expires_at' => $expiresAt,
@@ -191,7 +199,7 @@ class UserWebController extends Controller
         } else {
             SubscriptionTransaction::create([
                 'user_id' => $user->id,
-                'plan_id' => $plan ? (string) $plan->plan_id : (string) $request->plan_id,
+                'plan_id' => $targetPlanId,
                 'cart_id' => 'CASH-GRANT-' . strtoupper(Str::random(6)),
                 'transaction_reference' => 'CASH-' . time() . '-' . $user->id,
                 'amount' => (string) $request->amount,

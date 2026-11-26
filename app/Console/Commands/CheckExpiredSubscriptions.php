@@ -42,6 +42,10 @@ class CheckExpiredSubscriptions extends Command
                 $sub->update([
                     'status' => 'suspended',
                 ]);
+
+                if ((string) $sub->plan_id !== '0' && $sub->user) {
+                    SubscriptionTransaction::ensureFreeTierForUser($sub->user);
+                }
             }
 
             $message = "Successfully suspended {$count} expired subscription(s).";

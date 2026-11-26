@@ -362,6 +362,30 @@ class ApiSpecificationTest extends TestCase
                     'is_active' => true,
                 ],
             ]);
+
+        // Free tier row should be removed (not suspended)
+        $this->assertDatabaseMissing('subscription_transactions', [
+            'user_id' => $freeUser->id,
+            'plan_id' => '0',
+        ]);
+
+        // Expire the paid subscription -> check-expired should suspend it and auto-start Free Tier (plan_id = '0')
+        \App\Models\SubscriptionTransaction::where('user_id', $freeUser->id)
+            ->where('plan_id', '2')
+            ->update(['expires_at' => now()->subDay()]);
+
+        $this->artisan('subscriptions:check-expired')->assertExitCode(0);
+
+        $this->assertDatabaseHas('subscription_transactions', [
+            'user_id' => $freeUser->id,
+            'plan_id' => '2',
+            'status' => 'suspended',
+        ]);
+        $this->assertDatabaseHas('subscription_transactions', [
+            'user_id' => $freeUser->id,
+            'plan_id' => '0',
+            'status' => 'active',
+        ]);
     }
 
     public function test_swagger_documentation_endpoint_loads(): void

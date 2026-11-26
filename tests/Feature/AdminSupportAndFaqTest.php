@@ -115,4 +115,37 @@ class AdminSupportAndFaqTest extends TestCase
             'location' => 'King Fahd Rd, Riyadh',
         ]);
     }
+
+    public function test_admin_can_view_update_and_delete_customer_feedback(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'status' => 'active']);
+        $user = User::factory()->create(['role' => 'user', 'status' => 'active']);
+
+        $feedback = \App\Models\UserFeedback::create([
+            'user_id' => $user->id,
+            'message' => 'Please add pediatric thresholds.',
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($admin)
+            ->get('/admin/feedbacks')
+            ->assertStatus(200)
+            ->assertSee('Customer Feedback')
+            ->assertSee('Please add pediatric thresholds.');
+
+        $this->actingAs($admin)
+            ->put('/admin/feedbacks/' . $feedback->id . '/status', ['status' => 'resolved'])
+            ->assertRedirect(route('admin.feedbacks.index'));
+
+        $this->assertDatabaseHas('user_feedbacks', [
+            'id' => $feedback->id,
+            'status' => 'resolved',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete('/admin/feedbacks/' . $feedback->id)
+            ->assertRedirect(route('admin.feedbacks.index'));
+
+        $this->assertDatabaseMissing('user_feedbacks', ['id' => $feedback->id]);
+    }
 }
