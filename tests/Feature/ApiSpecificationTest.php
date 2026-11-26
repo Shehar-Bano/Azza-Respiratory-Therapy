@@ -330,6 +330,38 @@ class ApiSpecificationTest extends TestCase
                     'active_plan_id' => '2',
                 ],
             ]);
+
+        // User on Free Tier (plan_id = '0') can subscribe to a paid plan via save-transaction
+        $freeUser = User::factory()->create(['email_verified_at' => now()]);
+        \App\Models\SubscriptionTransaction::create([
+            'user_id' => $freeUser->id,
+            'plan_id' => '0',
+            'transaction_reference' => 'FREE-TEST-' . $freeUser->id,
+            'amount' => '0.00',
+            'currency' => 'USD',
+            'payment_gateway' => 'Free',
+            'payment_method' => 'Free',
+            'payment_status' => 'success',
+            'status' => 'active',
+            'started_at' => now(),
+            'expires_at' => now()->addYears(10),
+        ]);
+
+        $this->actingAs($freeUser, 'sanctum')
+            ->postJson('/api/subscription/save-transaction', [
+                'user_id' => $freeUser->id,
+                'plan_id' => '2',
+                'amount' => '199.99',
+                'transaction_reference' => 'TX-UPGRADE-' . $freeUser->id,
+            ])
+            ->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+                'subscription' => [
+                    'plan_id' => '2',
+                    'is_active' => true,
+                ],
+            ]);
     }
 
     public function test_swagger_documentation_endpoint_loads(): void

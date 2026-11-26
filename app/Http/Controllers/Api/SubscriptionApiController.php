@@ -42,11 +42,12 @@ class SubscriptionApiController extends Controller
         $existingUser = User::find($request->user_id);
         $userId = $existingUser ? $existingUser->id : null;
 
-        // Check if user already has an active subscription
+        // Check if user already has an active paid subscription (allow upgrading from Free Tier plan_id = '0')
         if ($userId) {
             $activeSub = SubscriptionTransaction::with('plan')
                 ->where('user_id', $userId)
                 ->where('status', 'active')
+                ->where('plan_id', '!=', '0')
                 ->where(function ($query) {
                     $query->whereNull('expires_at')
                           ->orWhere('expires_at', '>', Carbon::now());

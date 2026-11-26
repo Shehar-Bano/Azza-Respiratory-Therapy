@@ -457,9 +457,7 @@
 <div class="content-card">
     <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
         <h2 class="card-title">User List (Total: {{ $users->total() }})</h2>
-        <button class="btn-action btn-add" onclick="openCreateUserModal()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-            + Add User
-        </button>
+       
     </div>
     <div class="table-responsive">
         <table class="compact-table">
@@ -528,10 +526,14 @@
                         <td><strong style="color: var(--text-primary);">{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</strong></td>
                         <td>
                             <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <div class="avatar" style="width: 26px; height: 26px; font-size: 0.75rem;">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                <div class="avatar" style="width: 30px; height: 30px; font-size: 0.75rem; overflow: hidden; flex-shrink: 0;">
+                                    @if($user->profile_image_url)
+                                        <img src="{{ $user->profile_image_url }}" alt="{{ $user->name ?? 'User' }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.innerText='{{ strtoupper(substr($user->name ?? $user->email ?? 'U', 0, 1)) }}';">
+                                    @else
+                                        {{ strtoupper(substr($user->name ?? $user->email ?? 'U', 0, 1)) }}
+                                    @endif
                                 </div>
-                                <span style="font-weight: 600; color: var(--text-primary);">{{ $user->name }}</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">{{ $user->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td>{{ $user->email }}</td>
@@ -652,6 +654,22 @@
                 <span id="modalUserStatusBadge" class="badge"></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value" id="modalUserPhone">N/A</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">City</span>
+                <span class="detail-value" id="modalUserCity">N/A</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Location</span>
+                <span class="detail-value" id="modalUserLocation" style="text-align: right; max-width: 65%;">N/A</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Coordinates</span>
+                <span class="detail-value" id="modalUserCoords">N/A</span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label">Registered Date</span>
                 <span class="detail-value" id="modalUserCreatedAt"></span>
             </div>
@@ -692,15 +710,43 @@
             <h2>Add New User</h2>
             <button class="btn-close" onclick="closeCreateUserModal()">&times;</button>
         </div>
-        <form action="{{ route('admin.users.store') }}" method="POST">
+        <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
                 <label class="form-label">Full Name <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Dr. Sarah Jenkins" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Email Address <span style="color:#ef4444;">*</span></label>
-                <input type="email" name="email" class="form-control" placeholder="e.g. john@example.com" required>
+                <input type="email" name="email" class="form-control" placeholder="e.g. sarah.jenkins@hospital.org" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" name="phone" class="form-control" placeholder="e.g. +966539301053">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control" placeholder="e.g. Riyadh">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Location / Address</label>
+                <input type="text" name="location" class="form-control" placeholder="e.g. King Fahd Rd, Al Olaya, Riyadh">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group">
+                    <label class="form-label">Latitude</label>
+                    <input type="number" step="any" name="latitude" class="form-control" placeholder="e.g. 24.713552">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Longitude</label>
+                    <input type="number" step="any" name="longitude" class="form-control" placeholder="e.g. 46.675296">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Profile Image (JPG/PNG, max 5MB)</label>
+                <input type="file" name="profile_image" class="form-control" accept="image/jpeg,image/png">
             </div>
             <div class="form-group">
                 <label class="form-label">Account Role</label>
@@ -865,10 +911,23 @@
     }
 
     function openUserModal(user) {
-        document.getElementById('modalUserAvatar').innerText = user.name ? user.name.charAt(0).toUpperCase() : 'U';
-        document.getElementById('modalUserName').innerText = user.name;
+        const avatarEl = document.getElementById('modalUserAvatar');
+        const fallbackInitial = (user.name ? user.name.charAt(0) : (user.email ? user.email.charAt(0) : 'U')).toUpperCase();
+        const imgUrl = user.profile_image_url || (user.profile_image ? (@json(rtrim(asset(''), '/')) + '/' + String(user.profile_image).replace(/^\/+/, '')) : null);
+        if (imgUrl) {
+            avatarEl.innerHTML = '<img src="' + imgUrl + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" onerror="this.parentElement.innerText=\'' + fallbackInitial + '\';">';
+        } else {
+            avatarEl.innerText = fallbackInitial;
+        }
+        document.getElementById('modalUserName').innerText = user.name || 'N/A';
         document.getElementById('modalUserEmail').innerText = user.email;
         document.getElementById('modalUserId').innerText = '#' + user.id;
+        document.getElementById('modalUserPhone').innerText = user.phone || 'N/A';
+        document.getElementById('modalUserCity').innerText = user.city || 'N/A';
+        document.getElementById('modalUserLocation').innerText = user.location || 'N/A';
+        document.getElementById('modalUserCoords').innerText = (user.latitude !== null && user.latitude !== undefined && user.longitude !== null && user.longitude !== undefined)
+            ? (user.latitude + ', ' + user.longitude)
+            : 'N/A';
 
         var roleBadge = document.getElementById('modalUserRoleBadge');
         roleBadge.innerText = user.role;

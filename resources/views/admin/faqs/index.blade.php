@@ -441,12 +441,7 @@
             @csrf
             <div class="form-group">
                 <label class="form-label" for="create_category">Category</label>
-                <select id="create_category" name="category" class="form-control" required>
-                    <option value="">Select Category</option>
-                    @foreach($dropdownCategories as $cat)
-                        <option value="{{ $cat }}">{{ $cat }}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="create_category" name="category" class="form-control" placeholder="e.g. Clinical Calculators, Subscriptions, Notifications" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="create_question">Question</label>
@@ -476,12 +471,7 @@
             @method('PUT')
             <div class="form-group">
                 <label class="form-label" for="edit_category">Category</label>
-                <select id="edit_category" name="category" class="form-control" required>
-                    <option value="">Select Category</option>
-                    @foreach($dropdownCategories as $cat)
-                        <option value="{{ $cat }}">{{ $cat }}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="edit_category" name="category" class="form-control" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="edit_question">Question</label>
@@ -525,12 +515,7 @@
 
     function openEditModal(faq) {
         document.getElementById('editFaqForm').action = "{{ url('/admin/faqs') }}/" + faq.id;
-        const select = document.getElementById('edit_category');
-        if (faq.category && !Array.from(select.options).some(opt => opt.value === faq.category)) {
-            const opt = new Option(faq.category, faq.category, true, true);
-            select.add(opt);
-        }
-        select.value = faq.category;
+        document.getElementById('edit_category').value = faq.category;
         document.getElementById('edit_question').value = faq.question;
         document.getElementById('edit_answer').value = faq.answer;
         document.getElementById('editFaqModal').style.display = 'flex';

@@ -335,6 +335,8 @@ body {
 .content-body {
     padding: 1.5rem 1.75rem;
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Typography Hierarchy */
@@ -449,6 +451,12 @@ body {
     transition: background 0.3s ease, border-color 0.3s ease;
 }
 
+.content-body > .content-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .card-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--card-border);
@@ -464,6 +472,7 @@ body {
     width: 100%;
     overflow-x: auto;
     overflow-y: visible;
+    flex: 1;
     min-height: 220px;
 }
 

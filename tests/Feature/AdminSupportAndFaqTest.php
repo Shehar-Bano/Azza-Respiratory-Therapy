@@ -84,4 +84,35 @@ class AdminSupportAndFaqTest extends TestCase
 
         $this->assertDatabaseMissing('faqs', ['id' => $faq->id]);
     }
+
+    public function test_admin_can_create_and_view_user_with_profile_fields(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'status' => 'active']);
+        $email = 'admin.created.' . uniqid() . '@hospital.org';
+
+        $this->actingAs($admin)
+            ->get('/admin/users')
+            ->assertStatus(200)
+            ->assertSee('Add New User');
+
+        $this->actingAs($admin)
+            ->post('/admin/users', [
+                'name' => 'Dr. Test User',
+                'email' => $email,
+                'phone' => '+966539301053',
+                'city' => 'Riyadh',
+                'location' => 'King Fahd Rd, Riyadh',
+                'latitude' => '24.713552',
+                'longitude' => '46.675296',
+                'role' => 'user',
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => $email,
+            'phone' => '+966539301053',
+            'city' => 'Riyadh',
+            'location' => 'King Fahd Rd, Riyadh',
+        ]);
+    }
 }

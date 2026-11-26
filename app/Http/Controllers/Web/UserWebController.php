@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -29,6 +30,8 @@ class UserWebController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
                   ->orWhere('role', 'like', "%{$search}%")
                   ->orWhere('status', 'like', "%{$search}%");
             });
@@ -72,6 +75,12 @@ class UserWebController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'phone' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:150',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'profile_image' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             'password' => 'nullable|string|min:6',
             'role' => 'nullable|string|in:user,admin',
             'allow_subscription' => 'nullable',
@@ -85,12 +94,29 @@ class UserWebController extends Controller
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->input('phone'),
+            'location' => $request->input('location'),
+            'city' => $request->input('city'),
+            'latitude' => $request->filled('latitude') ? (float) $request->input('latitude') : null,
+            'longitude' => $request->filled('longitude') ? (float) $request->input('longitude') : null,
             'password' => Hash::make($rawPassword),
             'role' => $request->role ?? 'user',
             'status' => 'active',
         ];
 
         $user = User::create($userData);
+
+        if ($request->hasFile('profile_image')) {
+            $avatarDir = public_path('images/avatars');
+            if (!File::isDirectory($avatarDir)) {
+                File::makeDirectory($avatarDir, 0755, true);
+            }
+            $file = $request->file('profile_image');
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+            $filename = 'user_' . $user->id . '_' . time() . '.' . $ext;
+            $file->move($avatarDir, $filename);
+            $user->update(['profile_image' => 'images/avatars/' . $filename]);
+        }
 
         $hasSubscription = false;
 
